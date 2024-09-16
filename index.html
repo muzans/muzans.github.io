@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Number Generator</title>
+    <title>Number & Name Generator</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -71,44 +71,41 @@
         .number-input {
             margin-bottom: 15px;
         }
-
-        /* Style untuk format output (minimalis dan menarik) */
         .radio-group {
             display: flex;
             justify-content: space-between;
             margin-bottom: 20px;
         }
-
         .radio-group input[type="radio"] {
             display: none;
         }
-
         .radio-group label {
             flex: 1;
             text-align: center;
             padding: 10px;
             margin: 0 5px;
             border-radius: 25px;
-            background-color: #ddd; /* Warna default abu-abu */
+            background-color: #ddd;
             cursor: pointer;
             font-size: 14px;
             font-weight: bold;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
-
         .radio-group input[type="radio"]:checked + label {
-            background-color: #007BFF; /* Warna biru saat dipilih */
-            color: #fff; /* Teks putih */
+            background-color: #007BFF;
+            color: #fff;
         }
-
         .radio-group label:hover {
-            background-color: #339af0; /* Biru lebih terang saat di-hover */
+            background-color: #339af0;
+        }
+        .space-below {
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Number Generator</h1>
+        <h1>Number & Name Generator</h1>
         <div class="number-input">
             <label for="numberStart">Masukkan Angka Awal:</label>
             <input type="number" id="numberStart" min="1" max="1000" value="1">
@@ -140,7 +137,19 @@
             </div>
         </div>
 
-        <button onclick="generateOutput()">Hasilkan Teks</button>
+        <button class="space-below" onclick="generateOutput()">Hasilkan Teks</button> <!-- Tombol Hasilkan Teks di atas kolom -->
+
+        <div class="number-input">
+            <label for="nameLength">Batas Jumlah Huruf Nama:</label>
+            <input type="number" id="nameLength" min="2" max="20" value="6">
+        </div>
+        <div class="number-input">
+            <label for="nameCount">Jumlah Nama yang Dihasilkan:</label>
+            <input type="number" id="nameCount" min="1" max="20" value="1">
+        </div>
+
+        <button class="space-below" onclick="generateName()">Generate Nama</button> <!-- Tambahkan jarak antara tombol dan hasil -->
+
         <div class="output-group">
             <label for="outputText">Hasil:</label>
             <textarea id="outputText" readonly></textarea>
@@ -164,7 +173,6 @@
             const formatOption = document.querySelector('input[name="format"]:checked').value;
             let outputText = '';
 
-            // Validasi input untuk opsi "Nomor di Depan" dan "Nomor di Belakang" hanya menerima email
             if ((formatOption === 'front' || formatOption === 'back') && !isValidEmail(inputText)) {
                 alert('Silakan masukkan email yang valid!');
                 return;
@@ -173,15 +181,12 @@
             const actualStart = Math.max(startNumber, 1);
             const actualEnd = Math.max(endNumber, actualStart);
 
-            // Generate output sesuai pilihan format
             for (let i = actualStart; i <= actualEnd; i++) {
                 switch (formatOption) {
                     case 'front':
-                        // Nomor di depan email
                         outputText += `${i}${inputText}\n`;
                         break;
                     case 'back':
-                        // Nomor sebelum tanda @
                         const emailParts = inputText.split('@');
                         outputText += `${emailParts[0]}${i}@${emailParts[1]}\n`;
                         break;
@@ -201,7 +206,34 @@
             const outputTextArea = document.getElementById('outputText');
             outputTextArea.select();
             document.execCommand('copy');
-            // Notifikasi dihapus, tidak ada alert di sini
+        }
+
+        // Fungsi untuk generate nama acak
+        function generateName() {
+            const konsonan = ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z'];
+            const vokal = ['a', 'e', 'i', 'o', 'u'];
+
+            let length = parseInt(document.getElementById('nameLength').value); // Panjang nama
+            let jumlahKombinasi = parseInt(document.getElementById('nameCount').value); // Jumlah kombinasi
+            let hasilNama = new Set();
+
+            while (hasilNama.size < jumlahKombinasi) {
+                let name = '';
+                let useKonsonan = true;
+
+                for (let i = 0; i < length; i++) {
+                    if (useKonsonan) {
+                        name += konsonan[Math.floor(Math.random() * konsonan.length)];
+                    } else {
+                        name += vokal[Math.floor(Math.random() * vokal.length)];
+                    }
+                    useKonsonan = !useKonsonan;
+                }
+
+                hasilNama.add(name); // Hindari pengulangan nama
+            }
+
+            document.getElementById('outputText').value = Array.from(hasilNama).join('\n');
         }
     </script>
 </body>
