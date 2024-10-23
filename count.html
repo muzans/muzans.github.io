@@ -24,19 +24,17 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         input[type="number"],
+        input[type="email"],
         input[type="text"] {
-            width: calc(100% - 22px); /* Lebar textbox */
+            width: calc(100% - 22px);
             padding: 10px;
             margin: 10px 0;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 16px;
         }
-        input[type="text"] {
-            width: 50%; /* Memperpendek panjang textbox */
-        }
         button {
-            width: 100%; /* Tombol tetap penuh lebar */
+            width: 100%;
             padding: 10px;
             margin: 10px 0;
             border: 1px solid #ccc;
@@ -58,35 +56,76 @@
         button.copy:hover {
             background-color: #0056b3; /* Biru lebih gelap saat hover */
         }
+        button.reset {
+            background-color: #dc3545; /* Merah */
+            color: white;
+        }
+        button.reset:hover {
+            background-color: #c82333; /* Merah lebih gelap saat hover */
+        }
         .large-button {
-            font-size: 20px; /* Ukuran font yang lebih besar */
-            padding: 15px; /* Padding yang lebih besar */
+            font-size: 20px;
+            padding: 15px;
+        }
+        .checkbox-group {
+            margin: 10px 0;
+        }
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+        }
+        .button-group button {
+            width: 48%; /* Mengatur lebar tombol agar muat dalam flex */
         }
     </style>
     <script>
         let count = 0;
         let min = 0;
-        let max = 10;
+        let max = Infinity; // Mengatur nilai maksimum ke tak terbatas
 
         function setLimits() {
             const startInput = parseInt(document.getElementById("startInput").value) || 0;
-            const maxInput = parseInt(document.getElementById("maxInput").value) || 10;
+            const maxInput = parseInt(document.getElementById("maxInput").value);
             count = startInput;
-            min = startInput; // Menetapkan batas bawah
-            max = maxInput;   // Menetapkan batas atas
+            min = startInput;
+
+            // Cek apakah batas angka diisi
+            if (!isNaN(maxInput)) {
+                max = maxInput; // Menetapkan batas atas jika diisi
+            } else {
+                max = Infinity; // Mengatur ke tak terbatas jika tidak diisi
+            }
+
             updateDisplay();
         }
 
         function updateDisplay() {
-            document.getElementById("resultBox").value = count;
+            const emailInput = document.getElementById("emailInput").value;
+            let prefix = '';
+            let suffix = '';
+
+            if (document.getElementById("prefix").checked) {
+                prefix = count.toString();
+            } else if (document.getElementById("suffix").checked) {
+                suffix = count.toString();
+            }
+
+            const baseEmail = emailInput.split('@')[0];
+            const domain = emailInput.split('@')[1] ? '@' + emailInput.split('@')[1] : '';
+
+            document.getElementById("resultBox").value = prefix + baseEmail + suffix + domain;
         }
 
         function increment() {
-            if (count < max) {
-                count++;
-                updateDisplay();
+            if (document.getElementById("prefix").checked || document.getElementById("suffix").checked) {
+                if (count < max) {
+                    count++;
+                    updateDisplay();
+                } else {
+                    alert("Batas maksimum tercapai!");
+                }
             } else {
-                alert("Batas maksimum tercapai!");
+                alert("Silakan pilih Didepan atau Dibelakang terlebih dahulu.");
             }
         }
 
@@ -99,11 +138,26 @@
             }
         }
 
+        function reset() {
+            count = 0;
+            document.getElementById("startInput").value = '';
+            document.getElementById("maxInput").value = '';
+            document.getElementById("emailInput").value = '';
+            document.getElementById("resultBox").value = '0';
+            document.getElementById("prefix").checked = false;
+            document.getElementById("suffix").checked = false;
+            max = Infinity; // Mengatur maksimum kembali ke tak terbatas
+        }
+
         function copyResult() {
             const resultBox = document.getElementById("resultBox");
             resultBox.select();
             document.execCommand("copy");
-            // Notifikasi dihapus
+        }
+
+        function toggleCheckbox(selected) {
+            document.getElementById("prefix").checked = selected === 'prefix';
+            document.getElementById("suffix").checked = selected === 'suffix';
         }
     </script>
 </head>
@@ -117,10 +171,22 @@
         <input type="number" id="maxInput" placeholder="Masukkan batas angka" />
         <button class="add" onclick="setLimits()">Tetapkan Batas</button>
         
-        <button onclick="decrement()">Kurangi</button>
+        <div class="button-group">
+            <button onclick="decrement()">Kurangi</button>
+            <button class="reset" onclick="reset()">Reset</button>
+        </div>
         <button class="add large-button" onclick="increment()">Tambahkan</button>
         
-        <input type="text" id="resultBox" readonly value="0" />
+        <input type="email" id="emailInput" placeholder="Masukkan email" />
+        
+        <div class="checkbox-group">
+            <label><input type="radio" name="combination" id="prefix" onclick="toggleCheckbox('prefix')"> Didepan</label><br>
+            <label><input type="radio" name="combination" id="suffix" onclick="toggleCheckbox('suffix')"> Dibelakang</label>
+        </div>
+        
+        <label for="resultBox">Hasil:</label>
+        <input type="text" id="resultBox" readonly value="0" style="width: calc(100% - 22px);" />
+        
         <button class="copy large-button" onclick="copyResult()">Salin Hasil</button>
     </div>
 </body>
