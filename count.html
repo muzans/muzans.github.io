@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Counter Angka</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input[type="number"],
+        input[type="text"] {
+            width: calc(100% - 22px); /* Lebar textbox */
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        input[type="text"] {
+            width: 50%; /* Memperpendek panjang textbox */
+        }
+        button {
+            width: 100%; /* Tombol tetap penuh lebar */
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button.add {
+            background-color: #28a745; /* Hijau */
+            color: white;
+        }
+        button.add:hover {
+            background-color: #218838; /* Hijau lebih gelap saat hover */
+        }
+        button.copy {
+            background-color: #007bff; /* Biru */
+            color: white;
+        }
+        button.copy:hover {
+            background-color: #0056b3; /* Biru lebih gelap saat hover */
+        }
+        .large-button {
+            font-size: 20px; /* Ukuran font yang lebih besar */
+            padding: 15px; /* Padding yang lebih besar */
+        }
+    </style>
+    <script>
+        let count = 0;
+        let min = 0;
+        let max = 10;
+
+        function setLimits() {
+            const startInput = parseInt(document.getElementById("startInput").value) || 0;
+            const maxInput = parseInt(document.getElementById("maxInput").value) || 10;
+            count = startInput;
+            min = startInput; // Menetapkan batas bawah
+            max = maxInput;   // Menetapkan batas atas
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            document.getElementById("resultBox").value = count;
+        }
+
+        function increment() {
+            if (count < max) {
+                count++;
+                updateDisplay();
+            } else {
+                alert("Batas maksimum tercapai!");
+            }
+        }
+
+        function decrement() {
+            if (count > min) {
+                count--;
+                updateDisplay();
+            } else {
+                alert("Batas minimum tercapai!");
+            }
+        }
+
+        function copyResult() {
+            const resultBox = document.getElementById("resultBox");
+            resultBox.select();
+            document.execCommand("copy");
+            // Notifikasi dihapus
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Counter Angka</h1>
+        <label for="startInput">Angka Mulai:</label>
+        <input type="number" id="startInput" placeholder="Masukkan angka mulai" />
+        
+        <label for="maxInput">Batas Angka:</label>
+        <input type="number" id="maxInput" placeholder="Masukkan batas angka" />
+        <button class="add" onclick="setLimits()">Tetapkan Batas</button>
+        
+        <button onclick="decrement()">Kurangi</button>
+        <button class="add large-button" onclick="increment()">Tambahkan</button>
+        
+        <input type="text" id="resultBox" readonly value="0" />
+        <button class="copy large-button" onclick="copyResult()">Salin Hasil</button>
+    </div>
+</body>
+</html>
