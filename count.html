@@ -77,6 +77,13 @@
         .button-group button {
             width: 48%; /* Mengatur lebar tombol agar muat dalam flex */
         }
+        .log {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+        }
     </style>
     <script>
         let count = 0;
@@ -121,6 +128,7 @@
                 if (count < max) {
                     count++;
                     updateDisplay();
+                    saveLog();
                 } else {
                     alert("Batas maksimum tercapai!");
                 }
@@ -147,6 +155,10 @@
             document.getElementById("prefix").checked = false;
             document.getElementById("suffix").checked = false;
             max = Infinity; // Mengatur maksimum kembali ke tak terbatas
+
+            // Hapus riwayat log
+            localStorage.removeItem("logs");
+            displayLog(); // Tampilkan log yang diperbarui (kosong)
         }
 
         function copyResult() {
@@ -159,6 +171,27 @@
             document.getElementById("prefix").checked = selected === 'prefix';
             document.getElementById("suffix").checked = selected === 'suffix';
         }
+
+        function incrementAndCopy() {
+            increment(); // Increment count
+            copyResult(); // Copy the result
+        }
+
+        function saveLog() {
+            const result = document.getElementById("resultBox").value;
+            let logs = JSON.parse(localStorage.getItem("logs")) || [];
+            logs.push(result);
+            localStorage.setItem("logs", JSON.stringify(logs));
+            displayLog();
+        }
+
+        function displayLog() {
+            const logContainer = document.getElementById("logContainer");
+            const logs = JSON.parse(localStorage.getItem("logs")) || [];
+            logContainer.innerHTML = logs.map(log => `<div>${log}</div>`).join('');
+        }
+
+        window.onload = displayLog; // Load logs on page load
     </script>
 </head>
 <body>
@@ -175,7 +208,7 @@
             <button onclick="decrement()">Kurangi</button>
             <button class="reset" onclick="reset()">Reset</button>
         </div>
-        <button class="add large-button" onclick="increment()">Tambahkan</button>
+        <button class="copy large-button" onclick="incrementAndCopy()">Salin Hasil</button>
         
         <input type="email" id="emailInput" placeholder="Masukkan email" />
         
@@ -186,8 +219,10 @@
         
         <label for="resultBox">Hasil:</label>
         <input type="text" id="resultBox" readonly value="0" style="width: calc(100% - 22px);" />
-        
-        <button class="copy large-button" onclick="copyResult()">Salin Hasil</button>
+
+        <div class="log" id="logContainer">
+            <h3>Riwayat:</h3>
+        </div>
     </div>
 </body>
 </html>
