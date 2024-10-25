@@ -90,19 +90,28 @@
         let min = 0;
         let max = Infinity; // Mengatur nilai maksimum ke tak terbatas
 
+        function loadInputs() {
+            document.getElementById("startInput").value = localStorage.getItem("startInput") || '';
+            document.getElementById("maxInput").value = localStorage.getItem("maxInput") || '';
+            document.getElementById("emailInput").value = localStorage.getItem("emailInput") || '';
+            count = parseInt(localStorage.getItem("count")) || 0;
+            updateDisplay();
+        }
+
         function setLimits() {
             const startInput = parseInt(document.getElementById("startInput").value) || 0;
             const maxInput = parseInt(document.getElementById("maxInput").value);
             count = startInput;
             min = startInput;
 
-            // Cek apakah batas angka diisi
             if (!isNaN(maxInput)) {
                 max = maxInput; // Menetapkan batas atas jika diisi
             } else {
                 max = Infinity; // Mengatur ke tak terbatas jika tidak diisi
             }
 
+            localStorage.setItem("startInput", startInput);
+            localStorage.setItem("maxInput", maxInput);
             updateDisplay();
         }
 
@@ -121,6 +130,9 @@
             const domain = emailInput.split('@')[1] ? '@' + emailInput.split('@')[1] : '';
 
             document.getElementById("resultBox").value = prefix + baseEmail + suffix + domain;
+
+            // Save email input to local storage
+            localStorage.setItem("emailInput", emailInput);
         }
 
         function increment() {
@@ -154,10 +166,10 @@
             document.getElementById("resultBox").value = '0';
             document.getElementById("prefix").checked = false;
             document.getElementById("suffix").checked = false;
-            max = Infinity; // Mengatur maksimum kembali ke tak terbatas
+            max = Infinity;
 
-            // Hapus riwayat log
-            localStorage.removeItem("logs");
+            // Hapus semua data dari local storage
+            localStorage.clear();
             displayLog(); // Tampilkan log yang diperbarui (kosong)
         }
 
@@ -191,7 +203,10 @@
             logContainer.innerHTML = logs.map(log => `<div>${log}</div>`).join('');
         }
 
-        window.onload = displayLog; // Load logs on page load
+        window.onload = function() {
+            loadInputs(); // Load inputs on page load
+            displayLog(); // Load logs on page load
+        };
     </script>
 </head>
 <body>
@@ -208,7 +223,7 @@
             <button onclick="decrement()">Kurangi</button>
             <button class="reset" onclick="reset()">Reset</button>
         </div>
-        <button class="copy large-button" onclick="incrementAndCopy()">Salin Hasil</button>
+        <button class="copy large-button" onclick="incrementAndCopy()">Mulai</button>
         
         <input type="email" id="emailInput" placeholder="Masukkan email" />
         
