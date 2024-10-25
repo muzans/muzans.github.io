@@ -43,25 +43,25 @@
             cursor: pointer;
         }
         button.add {
-            background-color: #28a745; /* Hijau */
+            background-color: #28a745;
             color: white;
         }
         button.add:hover {
-            background-color: #218838; /* Hijau lebih gelap saat hover */
+            background-color: #218838;
         }
         button.copy {
-            background-color: #007bff; /* Biru */
+            background-color: #007bff;
             color: white;
         }
         button.copy:hover {
-            background-color: #0056b3; /* Biru lebih gelap saat hover */
+            background-color: #0056b3;
         }
         button.reset {
-            background-color: #dc3545; /* Merah */
+            background-color: #dc3545;
             color: white;
         }
         button.reset:hover {
-            background-color: #c82333; /* Merah lebih gelap saat hover */
+            background-color: #c82333;
         }
         .large-button {
             font-size: 20px;
@@ -75,7 +75,7 @@
             justify-content: space-between;
         }
         .button-group button {
-            width: 48%; /* Mengatur lebar tombol agar muat dalam flex */
+            width: 48%;
         }
         .log {
             margin-top: 20px;
@@ -88,7 +88,7 @@
     <script>
         let count = 0;
         let min = 0;
-        let max = Infinity; // Mengatur nilai maksimum ke tak terbatas
+        let max = Infinity;
 
         function loadInputs() {
             document.getElementById("startInput").value = localStorage.getItem("startInput") || '';
@@ -105,9 +105,9 @@
             min = startInput;
 
             if (!isNaN(maxInput)) {
-                max = maxInput; // Menetapkan batas atas jika diisi
+                max = maxInput;
             } else {
-                max = Infinity; // Mengatur ke tak terbatas jika tidak diisi
+                max = Infinity;
             }
 
             localStorage.setItem("startInput", startInput);
@@ -130,8 +130,6 @@
             const domain = emailInput.split('@')[1] ? '@' + emailInput.split('@')[1] : '';
 
             document.getElementById("resultBox").value = prefix + baseEmail + suffix + domain;
-
-            // Save email input to local storage
             localStorage.setItem("emailInput", emailInput);
         }
 
@@ -167,10 +165,8 @@
             document.getElementById("prefix").checked = false;
             document.getElementById("suffix").checked = false;
             max = Infinity;
-
-            // Hapus semua data dari local storage
             localStorage.clear();
-            displayLog(); // Tampilkan log yang diperbarui (kosong)
+            displayLog();
         }
 
         function copyResult() {
@@ -185,8 +181,8 @@
         }
 
         function incrementAndCopy() {
-            increment(); // Increment count
-            copyResult(); // Copy the result
+            increment();
+            copyResult();
         }
 
         function saveLog() {
@@ -200,12 +196,12 @@
         function displayLog() {
             const logContainer = document.getElementById("logContainer");
             const logs = JSON.parse(localStorage.getItem("logs")) || [];
-            logContainer.innerHTML = logs.map(log => `<div>${log}</div>`).join('');
+            logContainer.innerHTML = logs.map(log => `<div>${log}</div>`).reverse().join('');
         }
 
         window.onload = function() {
-            loadInputs(); // Load inputs on page load
-            displayLog(); // Load logs on page load
+            loadInputs();
+            displayLog();
         };
     </script>
 </head>
