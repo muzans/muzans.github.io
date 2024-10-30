@@ -32,7 +32,7 @@
             display: block;
             margin-bottom: 5px;
         }
-        input[type="number"], textarea {
+        input[type="number"], textarea, select {
             width: 100%;
             padding: 8px;
             border-radius: 4px;
@@ -101,9 +101,23 @@
         <label>Hasil Generasi:</label>
         <textarea id="resultText" readonly placeholder="Hasil generasi teks akan muncul di sini"></textarea>
     </div>
-    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
         <button class="btn-reset" onclick="resetForm()">Reset</button>
-        <button class="btn-generate" onclick="generateText()">Mulai &amp; Copy</button>
+
+        <!-- Dropdown menu for email domain options -->
+        <select id="emailDomain">
+            <option value="">Tidak ada</option>
+            <option value="@gmail.com">@gmail.com</option>
+            <option value="@yahoo.com">@yahoo.com</option>
+            <option value="@hotmail.com">@hotmail.com</option>
+            <option value="@outlook.com">@outlook.com</option>
+            <option value="@protonmail.me">@protonmail.me</option>
+            <option value="@mail.com">@mail.com</option>
+            <option value="@aol.com">@aol.com</option>
+            <option value="@gmx.com">@gmx.com</option>
+        </select>
+
+        <button class="btn-generate" onclick="generateText()">Mulai</button>
     </div>
 </div>
 
@@ -118,6 +132,7 @@
         const vowels = 'aeiou';
         const rareChars = 'zvxqj';
         const charCount = document.getElementById('charCount').value;
+        const emailDomain = document.getElementById('emailDomain').value;
         let result = '';
 
         for (let i = 0; i < charCount; i++) {
@@ -127,6 +142,9 @@
                 result += getRandomChar(vowels);
             }
         }
+
+        // Append selected domain if any
+        result += emailDomain;
 
         document.getElementById('resultText').value = result;
         copyText(result);
@@ -158,6 +176,7 @@
         document.getElementById('charCount').value = 10;
         document.getElementById('resultText').value = '';
         document.getElementById('logHistory').innerHTML = '';
+        document.getElementById('emailDomain').value = ''; // Reset the email domain selection
     }
 </script>
 
