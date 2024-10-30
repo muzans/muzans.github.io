@@ -50,9 +50,43 @@
             height: 80px; /* Tinggi textarea hasil generate */
             resize: none;
         }
-        .log-container textarea {
-            height: 160px; /* Tinggi textarea Log History diperbesar 2x */
-            resize: none;
+        .log-container {
+            background-color: #fafafa;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            padding: 10px;
+            box-sizing: border-box;
+            max-height: 150px;
+            overflow-y: auto;
+            width: 100%;
+        }
+        .log-title {
+            font-weight: bold;
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 5px;
+            text-align: center;
+            padding: 5px 0;
+        }
+        .log-history {
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #333;
+            word-wrap: break-word;
+        }
+        .log-history:nth-child(odd) {
+            background-color: #f1f1f1; /* Warna untuk hasil generate ganjil */
+        }
+        .log-history:nth-child(even) {
+            background-color: #ffffff; /* Warna untuk hasil generate genap */
+        }
+        .total-count {
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+            color: #333;
         }
         .btn-reset {
             background-color: #d9534f;
@@ -72,39 +106,6 @@
             cursor: pointer;
             font-size: 16px;
         }
-        .log-container {
-            background-color: #fafafa;
-            border: 2px solid #ccc;
-            border-radius: 8px;
-            padding: 10px;
-            box-sizing: border-box;
-            max-height: 150px;
-            overflow-y: auto;
-            width: 100%;
-        }
-        .log-title {
-            font-weight: bold;
-            font-size: 16px;
-            color: #333;
-            margin-bottom: 5px;
-            text-align: center;
-            padding: 5px 0;
-        }
-        .log-history p {
-            margin: 5px 0;
-            padding: 5px;
-            background: #f1f1f1;
-            border-radius: 4px;
-            font-size: 14px;
-            color: #333;
-            word-wrap: break-word;
-        }
-        .total-count {
-            font-weight: bold;
-            text-align: center;
-            margin-top: 10px;
-            color: #333;
-        }
     </style>
 </head>
 <body>
@@ -118,7 +119,7 @@
         <label>Hasil Generasi:</label>
         <textarea id="resultText" readonly placeholder="Hasil generasi teks akan muncul di sini"></textarea>
     </div>
-    <div class="total-count" id="totalCount">Total hasil generate: 0</div>
+    <div class="total-count" id="totalCount">Total: 0</div>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
         <button class="btn-reset" onclick="resetForm()">Reset</button>
 
@@ -141,7 +142,7 @@
 
 <div class="log-title">Log History</div>
 <div class="log-container">
-    <textarea id="logHistory" readonly placeholder="Log history akan muncul di sini"></textarea>
+    <div class="log-history" id="logHistory"></div>
 </div>
 
 <script>
@@ -188,21 +189,24 @@
 
     function addLog(text) {
         const logHistory = document.getElementById('logHistory');
-        logHistory.value += text + '\n'; // Menambahkan teks ke textarea log history
+        const logEntry = document.createElement('div');
+        logEntry.className = 'log-history';
+        logEntry.textContent = text;
+        logHistory.appendChild(logEntry); // Menambahkan elemen log entry ke log history
     }
 
     function updateGenerateCount() {
         generateCount++; // Increment jumlah hasil generate
-        document.getElementById('totalCount').textContent = `Total hasil generate: ${generateCount}`;
+        document.getElementById('totalCount').textContent = `Total: ${generateCount}`;
     }
 
     function resetForm() {
         document.getElementById('charCount').value = 10;
         document.getElementById('resultText').value = '';
-        document.getElementById('logHistory').value = '';
+        document.getElementById('logHistory').innerHTML = ''; // Kosongkan log history
         document.getElementById('emailDomain').value = ''; // Reset the email domain selection
         generateCount = 0; // Reset jumlah hasil generate
-        document.getElementById('totalCount').textContent = `Total hasil generate: ${generateCount}`; // Update tampilan total
+        document.getElementById('totalCount').textContent = `Total: ${generateCount}`; // Update tampilan total
     }
 </script>
 
