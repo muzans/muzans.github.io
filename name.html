@@ -169,7 +169,7 @@
 
         document.getElementById('resultText').value = result;
         copyText(result);
-        addLog(result); // Update log history dengan hasil generate terbaru
+        addLog(result); // Tambahkan log hasil generate
         updateGenerateCount(); // Memperbarui jumlah total hasil generate
     }
 
@@ -192,7 +192,9 @@
         const logEntry = document.createElement('div');
         logEntry.className = 'log-history';
         logEntry.textContent = text;
-        logHistory.appendChild(logEntry); // Menambahkan elemen log entry ke log history
+
+        // Menambahkan log baru di atas log yang ada
+        logHistory.insertBefore(logEntry, logHistory.firstChild);
     }
 
     function updateGenerateCount() {
