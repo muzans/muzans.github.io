@@ -44,10 +44,10 @@
         select {
             width: auto;
             min-width: 120px;
-            margin-right: 10px; /* Jarak antara select dan tombol Mulai */
+            margin-right: 10px;
         }
         .result-box textarea {
-            height: 80px;
+            height: 160px; /* Tinggi diperbesar 2x */
             resize: none;
         }
         .btn-reset {
@@ -95,6 +95,12 @@
             color: #333;
             word-wrap: break-word;
         }
+        .total-count {
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+            color: #333;
+        }
     </style>
 </head>
 <body>
@@ -108,6 +114,7 @@
         <label>Hasil Generasi:</label>
         <textarea id="resultText" readonly placeholder="Hasil generasi teks akan muncul di sini"></textarea>
     </div>
+    <div class="total-count" id="totalCount">Total hasil generate: 0</div>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
         <button class="btn-reset" onclick="resetForm()">Reset</button>
 
@@ -134,6 +141,8 @@
 </div>
 
 <script>
+    let generateCount = 0;
+
     function generateText() {
         const consonants = 'bcdfghklmnprstwy';
         const vowels = 'aeiou';
@@ -156,10 +165,11 @@
         document.getElementById('resultText').value = result;
         copyText(result);
         addLog(result);
+        updateGenerateCount();
     }
 
     function getRandomCharWithReducedRareChars(consonants, rareChars) {
-        const useRareChar = Math.random() < 0.2; // Mengurangi frekuensi rareChars menjadi 20%
+        const useRareChar = Math.random() < 0.2;
         const chars = useRareChar ? rareChars : consonants;
         return chars.charAt(Math.floor(Math.random() * chars.length));
     }
@@ -179,11 +189,18 @@
         logHistory.insertBefore(logEntry, logHistory.firstChild);
     }
 
+    function updateGenerateCount() {
+        generateCount++;
+        document.getElementById('totalCount').textContent = `Total hasil generate: ${generateCount}`;
+    }
+
     function resetForm() {
         document.getElementById('charCount').value = 10;
         document.getElementById('resultText').value = '';
         document.getElementById('logHistory').innerHTML = '';
-        document.getElementById('emailDomain').value = ''; // Reset the email domain selection
+        document.getElementById('emailDomain').value = '';
+        generateCount = 0;
+        document.getElementById('totalCount').textContent = `Total hasil generate: ${generateCount}`;
     }
 </script>
 
