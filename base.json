@@ -1,0 +1,14 @@
+{
+    "firstNames": [
+        "John",
+        "Jane",
+        "Alice",
+        "Bob"
+    ],
+    "lastNames": [
+        "Doe",
+        "Smith",
+        "Johnson",
+        "Williams"
+    ]
+}
