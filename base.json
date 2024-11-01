@@ -1,9 +1,15 @@
 {
-    "firstNames": [
-        "John",
-        "Jane",
+    "femaleFirstNames": [
         "Alice",
-        "Bob"
+        "Jane",
+        "Emily",
+        "Sophia"
+    ],
+    "maleFirstNames": [
+        "John",
+        "Bob",
+        "Michael",
+        "David"
     ],
     "lastNames": [
         "Doe",
