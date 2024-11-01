@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generator Teks</title>
+    <title>Generator Teks dan Nama Acak</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -32,22 +32,15 @@
             display: block;
             margin-bottom: 5px;
         }
-        input[type="number"], textarea, select {
+        input[type="number"], textarea, input[type="text"], select {
             padding: 8px;
             border-radius: 4px;
             border: 1px solid #ddd;
             box-sizing: border-box;
-        }
-        input[type="number"], textarea {
             width: 100%;
         }
-        select {
-            width: auto;
-            min-width: 120px;
-            margin-right: 10px; /* Jarak antara select dan tombol Mulai */
-        }
         .result-box textarea {
-            height: 80px; /* Tinggi textarea hasil generate */
+            height: 80px;
             resize: none;
         }
         .log-container {
@@ -56,9 +49,9 @@
             border-radius: 8px;
             padding: 10px;
             box-sizing: border-box;
-            max-height: 300px; /* Meningkatkan tinggi log history */
+            height: 100px; /* Ukuran Log History */
             overflow-y: auto;
-            width: 100%;
+            width: 100%; /* Sama dengan kolom hasil generasi */
         }
         .log-title {
             font-weight: bold;
@@ -77,10 +70,10 @@
             word-wrap: break-word;
         }
         .log-history:nth-child(odd) {
-            background-color: #d9edf7; /* Warna untuk hasil generate ganjil */
+            background-color: #d9edf7;
         }
         .log-history:nth-child(even) {
-            background-color: #fcf8e3; /* Warna untuk hasil generate genap */
+            background-color: #fcf8e3;
         }
         .total-count {
             font-weight: bold;
@@ -88,8 +81,8 @@
             margin-top: 10px;
             color: #333;
         }
-        .btn-reset {
-            background-color: #d9534f;
+        .btn-reset, .btn-generate, .button {
+            background-color: #5cb85c;
             color: white;
             padding: 10px 15px;
             border: none;
@@ -97,14 +90,19 @@
             cursor: pointer;
             margin-right: 10px;
         }
-        .btn-generate {
-            background-color: #5cb85c;
-            color: white;
-            padding: 10px 25px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
+        .btn-reset {
+            background-color: #d9534f;
+        }
+        .button {
+            background-color: #007bff;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .button-center {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -122,9 +120,8 @@
     <div class="total-count" id="totalCount">Total: 0</div>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
         <button class="btn-reset" onclick="resetForm()">Reset</button>
-
-        <!-- Dropdown menu for email domain options -->
-        <select id="emailDomain">
+        
+        <select id="emailDomain" style="margin-right: 10px;">
             <option value="">Tidak ada</option>
             <option value="@gmail.com">@gmail.com</option>
             <option value="@yahoo.com">@yahoo.com</option>
@@ -145,8 +142,16 @@
     <div class="log-history" id="logHistory"></div>
 </div>
 
+<!-- Generator Nama Acak -->
+<div class="box">
+    <input type="text" id="nama-kombinasi" readonly placeholder="Nama akan muncul di sini...">
+    <div class="button-center">
+        <button class="button" onclick="generateRandomName()">Acak</button>
+    </div>
+</div>
+
 <script>
-    let generateCount = 0; // Variabel untuk menghitung jumlah hasil generate
+    let generateCount = 0;
 
     function generateText() {
         const consonants = 'bcdfghklmnprstwy';
@@ -164,17 +169,16 @@
             }
         }
 
-        // Append selected domain if any
         result += emailDomain;
 
         document.getElementById('resultText').value = result;
         copyText(result);
-        addLog(result); // Tambahkan log hasil generate
-        updateGenerateCount(); // Memperbarui jumlah total hasil generate
+        addLog(result);
+        updateGenerateCount();
     }
 
     function getRandomCharWithReducedRareChars(consonants, rareChars) {
-        const useRareChar = Math.random() < 0.2; // Mengurangi frekuensi rareChars menjadi 20%
+        const useRareChar = Math.random() < 0.2;
         const chars = useRareChar ? rareChars : consonants;
         return chars.charAt(Math.floor(Math.random() * chars.length));
     }
@@ -192,24 +196,71 @@
         const logEntry = document.createElement('div');
         logEntry.className = 'log-history';
         logEntry.textContent = text;
-
-        // Menambahkan log baru di atas log yang ada
         logHistory.insertBefore(logEntry, logHistory.firstChild);
     }
 
     function updateGenerateCount() {
-        generateCount++; // Increment jumlah hasil generate
+        generateCount++;
         document.getElementById('totalCount').textContent = `Total: ${generateCount}`;
     }
 
     function resetForm() {
         document.getElementById('charCount').value = 10;
         document.getElementById('resultText').value = '';
-        document.getElementById('logHistory').innerHTML = ''; // Kosongkan log history
-        document.getElementById('emailDomain').value = ''; // Reset the email domain selection
-        generateCount = 0; // Reset jumlah hasil generate
-        document.getElementById('totalCount').textContent = `Total: ${generateCount}`; // Update tampilan total
+        document.getElementById('logHistory').innerHTML = '';
+        document.getElementById('emailDomain').value = '';
+        generateCount = 0;
+        document.getElementById('totalCount').textContent = `Total: ${generateCount}`;
     }
+
+    const jsonUrl = "https://raw.githubusercontent.com/muzans/muzans.github.io/refs/heads/main/base.json";
+    let femaleFirstNames = [];
+    let maleFirstNames = [];
+    let lastNames = [];
+
+    async function fetchData() {
+        try {
+            const response = await fetch(jsonUrl);
+            const data = await response.json();
+            femaleFirstNames = data.femaleFirstNames;
+            maleFirstNames = data.maleFirstNames;
+            lastNames = data.lastNames;
+            generateRandomName();
+        } catch (error) {
+            document.getElementById("nama-kombinasi").value = "Gagal memuat data.";
+            console.error("Error fetching data:", error);
+        }
+    }
+
+    function generateRandomName() {
+        const isFemale = Math.random() < 0.5;
+        let randomFirstName;
+        const randomLastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+        
+        if (isFemale && femaleFirstNames.length > 0) {
+            randomFirstName = femaleFirstNames[Math.floor(Math.random() * femaleFirstNames.length)];
+        } else if (!isFemale && maleFirstNames.length > 0) {
+            randomFirstName = maleFirstNames[Math.floor(Math.random() * maleFirstNames.length)];
+        } else {
+            document.getElementById("nama-kombinasi").value = "Data nama belum tersedia.";
+            return;
+        }
+
+        const fullName = `${randomFirstName} ${randomLastName}`;
+        document.getElementById("nama-kombinasi").value = fullName;
+        copyToClipboard(fullName);
+    }
+
+    function copyToClipboard(text) {
+        const tempInput = document.createElement("textarea");
+        tempInput.value = text;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand("copy");
+        document.body.removeChild(tempInput);
+    }
+
+    fetchData();
 </script>
 
 </body>
