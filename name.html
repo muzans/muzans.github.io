@@ -49,9 +49,9 @@
             border-radius: 8px;
             padding: 10px;
             box-sizing: border-box;
-            height: 100px; /* Ukuran Log History */
+            height: 100px;
             overflow-y: auto;
-            width: 100%; /* Sama dengan kolom hasil generasi */
+            width: 100%;
         }
         .log-title {
             font-weight: bold;
@@ -153,6 +153,42 @@
 <script>
     let generateCount = 0;
 
+    // Fungsi untuk menyimpan data ke LocalStorage
+    function saveToLocalStorage() {
+        localStorage.setItem('charCount', document.getElementById('charCount').value);
+        localStorage.setItem('emailDomain', document.getElementById('emailDomain').value);
+        localStorage.setItem('resultText', document.getElementById('resultText').value);
+        localStorage.setItem('generateCount', generateCount);
+        localStorage.setItem('logHistory', document.getElementById('logHistory').innerHTML);
+    }
+
+    // Fungsi untuk mengambil data dari LocalStorage
+    function loadFromLocalStorage() {
+        const charCount = localStorage.getItem('charCount');
+        const emailDomain = localStorage.getItem('emailDomain');
+        const resultText = localStorage.getItem('resultText');
+        const logHistory = localStorage.getItem('logHistory');
+        const storedGenerateCount = localStorage.getItem('generateCount');
+
+        if (charCount) {
+            document.getElementById('charCount').value = charCount;
+        }
+        if (emailDomain) {
+            document.getElementById('emailDomain').value = emailDomain;
+        }
+        if (resultText) {
+            document.getElementById('resultText').value = resultText;
+        }
+        if (logHistory) {
+            document.getElementById('logHistory').innerHTML = logHistory;
+        }
+        if (storedGenerateCount) {
+            generateCount = parseInt(storedGenerateCount, 10);
+            document.getElementById('totalCount').textContent = `Total: ${generateCount}`;
+        }
+    }
+
+    // Fungsi untuk generate teks
     function generateText() {
         const consonants = 'bcdfghklmnprstwy';
         const vowels = 'aeiou';
@@ -175,6 +211,7 @@
         copyText(result);
         addLog(result);
         updateGenerateCount();
+        saveToLocalStorage();  // Simpan perubahan ke LocalStorage
     }
 
     function getRandomCharWithReducedRareChars(consonants, rareChars) {
@@ -202,9 +239,11 @@
     function updateGenerateCount() {
         generateCount++;
         document.getElementById('totalCount').textContent = `Total: ${generateCount}`;
+        saveToLocalStorage();  // Simpan perubahan ke LocalStorage
     }
 
     function resetForm() {
+        localStorage.clear();  // Hapus semua data di LocalStorage
         document.getElementById('charCount').value = 10;
         document.getElementById('resultText').value = '';
         document.getElementById('logHistory').innerHTML = '';
@@ -212,6 +251,9 @@
         generateCount = 0;
         document.getElementById('totalCount').textContent = `Total: ${generateCount}`;
     }
+
+    // Ambil data dari LocalStorage saat halaman dimuat
+    window.onload = loadFromLocalStorage;
 
     const jsonUrl = "https://raw.githubusercontent.com/muzans/muzans.github.io/refs/heads/main/base.json";
     let femaleFirstNames = [];
