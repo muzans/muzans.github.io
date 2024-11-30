@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Number & Name Generator</title>
+    <title>Generator Nama & Angka</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -20,54 +20,26 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
-        h1 {
-            text-align: center;
-            color: #4CAF50;
-            margin-bottom: 20px;
-        }
-        .input-group, .output-group {
-            margin-bottom: 20px;
-        }
-        .input-group label, .output-group label {
+        label {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
             color: #555;
         }
-        textarea, input[type="text"], input[type="number"] {
+        input[type="number"], select, input[type="text"], textarea {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
             box-sizing: border-box;
+            height: 40px;
+            margin-bottom: 10px;
         }
         textarea {
-            height: 40px; /* Matches the height of input boxes */
             resize: none;
         }
-        input[type="number"] {
-            height: 40px;
-        }
-        button {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            font-size: 16px;
-            color: #fff;
-            background-color: #4CAF50;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        .btn-group {
-            text-align: center;
-        }
-        .number-input {
-            margin-bottom: 15px;
+        .input-group {
+            margin-bottom: 20px;
         }
         .radio-group {
             display: flex;
@@ -78,15 +50,15 @@
             display: none;
         }
         .radio-group label {
-            flex: 1;
-            text-align: center;
+            width: 48%;
             padding: 10px;
-            margin: 0 5px;
-            border-radius: 25px;
+            margin-bottom: 10px;
+            border-radius: 4px;
             background-color: #ddd;
             cursor: pointer;
             font-size: 14px;
             font-weight: bold;
+            text-align: center;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
         .radio-group input[type="radio"]:checked + label {
@@ -96,67 +68,84 @@
         .radio-group label:hover {
             background-color: #339af0;
         }
-        .space-below {
+        button {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .btn-group button {
+            width: 48%;
+        }
+        .output-group {
+            margin-top: 20px;
+        }
+        .output-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            height: 150px;
+        }
+        .number-input {
+            display: flex;
+            gap: 10px;
             margin-bottom: 20px;
         }
+        .number-input input[type="number"] {
+            width: 48%;
+        }
+        .radio-group .space-right {
+            margin-right: 10px;
+        }
+        .reset-btn {
+            background-color: #f44336; /* Red color */
+        }
+
+        /* Menambahkan jarak antar tombol Nomor di Depan, Nomor di Belakang */
+        .radio-group {
+            gap: 10px;
+        }
+
+        /* Memberikan jarak satu enter di atas menu select nama */
+        .input-group.select-group {
+            margin-top: 20px;
+        }
     </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Number & Name Generator</h1>
-        <div class="number-input">
-            <label for="numberStart">Masukkan Angka Awal:</label>
-            <input type="number" id="numberStart" min="1" max="1000" value="1">
-        </div>
-        <div class="number-input">
-            <label for="numberEnd">Masukkan Angka Akhir:</label>
-            <input type="number" id="numberEnd" min="1" max="1000" value="10">
-        </div>
-        <div class="input-group">
-            <label for="inputText">Masukkan Teks (Email):</label>
-            <textarea id="inputText" placeholder="Masukkan email di sini..."></textarea>
-        </div>
-
-        <div class="input-group">
-            <label for="formatOption">Pilih Format Output:</label>
-            <div class="radio-group">
-                <input type="radio" id="numberFront" name="format" value="front" checked>
-                <label for="numberFront">Nomor di Depan</label>
-
-                <input type="radio" id="numberBack" name="format" value="back">
-                <label for="numberBack">Nomor di Belakang</label>
-
-                <input type="radio" id="onlyNumber" name="format" value="number">
-                <label for="onlyNumber">Hanya Nomor</label>
-
-                <input type="radio" id="onlyName" name="format" value="name">
-                <label for="onlyName">Hanya Nama</label>
-            </div>
-        </div>
-
-        <button class="space-below" onclick="generateOutput()">Hasilkan Teks</button>
-
-        <div class="number-input">
-            <label for="nameLength">Batas Jumlah Huruf Nama:</label>
-            <input type="number" id="nameLength" min="2" max="20" value="6">
-        </div>
-        <div class="number-input">
-            <label for="nameCount">Jumlah Nama yang Dihasilkan:</label>
-            <input type="number" id="nameCount" min="1" max="20" value="1">
-        </div>
-
-        <button class="space-below" onclick="generateName()">Generate Nama</button>
-
-        <div class="output-group">
-            <label for="outputText">Hasil:</label>
-            <textarea id="outputText" readonly></textarea>
-        </div>
-        <div class="btn-group">
-            <button onclick="copyToClipboard()">Salin Semua</button>
-        </div>
-    </div>
-    
     <script>
+        const jsonUrl = "https://raw.githubusercontent.com/muzans/muzans.github.io/refs/heads/main/base.json";
+        let femaleFirstNames = [];
+        let maleFirstNames = [];
+        let lastNames = [];
+
+        async function fetchData() {
+            try {
+                const response = await fetch(jsonUrl);
+                const data = await response.json();
+                femaleFirstNames = data.femaleFirstNames;
+                maleFirstNames = data.maleFirstNames;
+                lastNames = data.lastNames;
+            } catch (error) {
+                alert("Gagal memuat data nama!");
+                console.error(error);
+            }
+        }
+
         function isValidEmail(email) {
             const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return emailPattern.test(email);
@@ -204,32 +193,98 @@
             document.execCommand('copy');
         }
 
+        function resetAll() {
+            document.getElementById('numberStart').value = 1;
+            document.getElementById('numberEnd').value = 10;
+            document.getElementById('inputText').value = '';
+            document.getElementById('outputText').value = '';
+            document.getElementById('nameType').value = '';
+            document.getElementById('nameCount').value = 1;
+            document.querySelector('input[name="format"]:checked').checked = false;
+        }
+
         function generateName() {
-            const konsonan = ['b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z'];
-            const vokal = ['a', 'e', 'i', 'o', 'u'];
+            const nameType = document.getElementById('nameType').value;
+            const nameCount = parseInt(document.getElementById('nameCount').value, 10);
+            let outputText = '';
 
-            let length = parseInt(document.getElementById('nameLength').value);
-            let jumlahKombinasi = parseInt(document.getElementById('nameCount').value);
-            let hasilNama = new Set();
-
-            while (hasilNama.size < jumlahKombinasi) {
-                let name = '';
-                let useKonsonan = true;
-
-                for (let i = 0; i < length; i++) {
-                    if (useKonsonan) {
-                        name += konsonan[Math.floor(Math.random() * konsonan.length)];
-                    } else {
-                        name += vokal[Math.floor(Math.random() * vokal.length)];
-                    }
-                    useKonsonan = !useKonsonan;
-                }
-
-                hasilNama.add(name);
+            if (nameType === '' || nameCount <= 0) {
+                alert('Silakan pilih jenis nama dan masukkan jumlah nama yang valid!');
+                return;
             }
 
-            document.getElementById('outputText').value = Array.from(hasilNama).join('\n');
+            const actualNameCount = Math.max(nameCount, 1); // Menghindari jumlah nama 0 atau kurang
+
+            for (let i = 0; i < actualNameCount; i++) {
+                let name = '';
+                if (nameType === 'firstName') {
+                    const randomIndex = Math.floor(Math.random() * femaleFirstNames.length);
+                    name = femaleFirstNames[randomIndex]; // Ambil nama depan perempuan
+                } else if (nameType === 'lastName') {
+                    const randomIndex = Math.floor(Math.random() * lastNames.length);
+                    name = lastNames[randomIndex]; // Ambil nama belakang
+                }
+                outputText += `${name}\n`;
+            }
+
+            document.getElementById('outputText').value = outputText;
         }
+
+        window.onload = fetchData;
     </script>
+</head>
+<body>
+    <div class="container">
+        <div class="number-input">
+            <input type="number" id="numberStart" min="1" max="1000" value="1">
+            <input type="number" id="numberEnd" min="1" max="1000" value="10">
+        </div>
+
+        <div class="input-group">
+            <label for="inputText">Masukkan Teks (Email):</label>
+            <textarea id="inputText" placeholder="Masukkan email di sini..."></textarea>
+        </div>
+
+        <div class="radio-group">
+            <input type="radio" id="numberFront" name="format" value="front">
+            <label for="numberFront">Nomor di Depan</label>
+            <input type="radio" id="numberBack" name="format" value="back">
+            <label for="numberBack">Nomor di Belakang</label>
+        </div>
+
+        <div class="radio-group">
+            <input type="radio" id="onlyNumber" name="format" value="number">
+            <label for="onlyNumber">Hanya Nomor</label>
+            <input type="radio" id="onlyName" name="format" value="name">
+            <label for="onlyName">Hanya Nama</label>
+        </div>
+
+        <button onclick="generateOutput()">Hasilkan Teks</button>
+
+        <div class="output-group">
+            <label for="outputText">Hasil:</label>
+            <textarea id="outputText" readonly></textarea>
+        </div>
+
+        <div class="btn-group">
+            <button onclick="copyToClipboard()">Salin Semua</button>
+            <button class="reset-btn" onclick="resetAll()">Reset</button>
+        </div>
+
+        <div class="input-group select-group">
+            <select id="nameType">
+                <option value="">--Pilih--</option>
+                <option value="firstName">Nama Depan</option>
+                <option value="lastName">Nama Belakang</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label for="nameCount">Jumlah Nama:</label>
+            <input type="number" id="nameCount" min="1" max="100" value="1">
+        </div>
+
+        <button onclick="generateName()">Generate Nama</button>
+    </div>
 </body>
 </html>
