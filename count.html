@@ -34,7 +34,7 @@
         }
 
         input[type="number"], input[type="email"], input[type="text"] {
-            width: 100%; /* Sesuaikan panjang input dengan panjang tombol */
+            width: 100%;
             box-sizing: border-box;
             padding: 12px;
             margin-bottom: 15px;
@@ -59,7 +59,7 @@
         }
 
         button {
-            width: 100%; /* Panjang tombol sama dengan input */
+            width: 100%;
             padding: 12px;
             border: none;
             border-radius: 5px;
@@ -117,6 +117,104 @@
         .green {
             background-color: green;
         }
+
+        /* Progress bar */
+        .progress-container {
+            width: 100%;
+            background-color: #ddd;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background-color: #4caf50;
+            width: 0%;
+            border-radius: 5px;
+        }
+
+        /* Flex container for Angka Mulai and Batas Angka */
+        .input-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .input-row div {
+            flex: 1; /* Memastikan kedua input memiliki ukuran yang sama */
+        }
+
+        /* Hide label for Angka Mulai and Batas Angka */
+        .input-row label {
+            display: none;
+        }
+
+        /* Toggle switch styles */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 100px; /* Adjust width */
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            border-radius: 50%;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+        }
+
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(60px); /* Adjust translation to match the width of the switch */
+        }
+
+        .switch-text {
+            font-size: 14px;
+            color: #555;
+            vertical-align: middle;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: all 0.4s ease;
+            width: 100%;
+            text-align: center;
+        }
+
+        .switch-text-off {
+            left: 10px; /* Place on the left when off */
+        }
+
+        .switch-text-on {
+            right: 10px; /* Place on the right when on */
+        }
     </style>
     <script>
         let count = 0;
@@ -128,9 +226,8 @@
             document.getElementById("startInput").value = localStorage.getItem("startInput") || '';
             document.getElementById("maxInput").value = localStorage.getItem("maxInput") || '';
             document.getElementById("emailInput").value = localStorage.getItem("emailInput") || '';
-            document.getElementById("prefix").checked = localStorage.getItem("prefix") === 'true';
-            document.getElementById("suffix").checked = localStorage.getItem("suffix") === 'true';
             count = parseInt(localStorage.getItem("count")) || 0;
+            document.getElementById("prefix").checked = localStorage.getItem("prefix") === "true";
             updateDisplay();
             updateNotification();
         }
@@ -150,7 +247,7 @@
         function updateDisplay() {
             const emailInput = document.getElementById("emailInput").value;
             const prefix = document.getElementById("prefix").checked ? count : '';
-            const suffix = document.getElementById("suffix").checked ? count : '';
+            const suffix = !document.getElementById("prefix").checked ? count : '';
             const [baseEmail, domain = ''] = emailInput.split('@');
 
             const result = `${prefix}${baseEmail}${suffix}${domain ? `@${domain}` : ''}`;
@@ -158,23 +255,28 @@
 
             localStorage.setItem("emailInput", emailInput);
             localStorage.setItem("prefix", document.getElementById("prefix").checked);
-            localStorage.setItem("suffix", document.getElementById("suffix").checked);
+            localStorage.setItem("suffix", !document.getElementById("prefix").checked);
             copied = false;
             updateNotification();
+
+            updateProgressBar();
+        }
+
+        function updateProgressBar() {
+            const progressBar = document.getElementById("progressBar");
+            const progress = ((count - min) / (max - min)) * 100;
+            progressBar.style.width = Math.min(Math.max(progress, 0), 100) + "%";
         }
 
         function increment() {
-            if (document.getElementById("prefix").checked || document.getElementById("suffix").checked) {
-                if (count < max) {
-                    count++;
-                    updateDisplay();
-                    copyToClipboard();
-                    saveLog();
-                } else {
-                    alert("Batas maksimum tercapai!");
-                }
+            if (count < max) {
+                count++;
+                updateDisplay();
+                copyToClipboard();
+                saveLog();
+                changeNotificationDotColor();
             } else {
-                alert("Silakan pilih Didepan atau Dibelakang terlebih dahulu.");
+                alert("Batas maksimum tercapai!");
             }
         }
 
@@ -185,12 +287,12 @@
             document.getElementById("emailInput").value = '';
             document.getElementById("resultBox").value = '0';
             document.getElementById("prefix").checked = false;
-            document.getElementById("suffix").checked = false;
 
             localStorage.clear();
             copied = false;
             updateNotification();
             displayLog();
+            resetProgressBar(); // Reset the progress bar
         }
 
         function copyToClipboard() {
@@ -211,7 +313,7 @@
 
         function saveAsFile() {
             const logs = JSON.parse(localStorage.getItem("logs")) || [];
-            const blob = new Blob([logs.join('\n')], { type: 'text/plain' });
+            const blob = new Blob([logs.join("\n")], { type: 'text/plain' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
             link.download = 'hasil.txt';
@@ -229,6 +331,19 @@
             notificationDot.className = copied ? "notification-dot green" : "notification-dot red";
         }
 
+        function changeNotificationDotColor() {
+            const notificationDot = document.getElementById("notificationDot");
+            notificationDot.className = "notification-dot green"; // Change to green when the increment button is pressed.
+            setTimeout(() => {
+                notificationDot.className = "notification-dot red"; // Change back to red after 0.5 seconds.
+            }, 500);
+        }
+
+        function resetProgressBar() {
+            const progressBar = document.getElementById("progressBar");
+            progressBar.style.width = "0%"; // Reset the progress bar to 0%
+        }
+
         window.onload = function() {
             loadInputs();
             displayLog();
@@ -239,18 +354,32 @@
     <div class="container">
         <div id="notificationDot" class="notification-dot red"></div>
 
-        <label for="startInput">Angka Mulai:</label>
-        <input type="number" id="startInput" placeholder="Masukkan angka mulai" oninput="autoSetLimits()" />
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div id="progressBar" class="progress-bar"></div>
+        </div>
 
-        <label for="maxInput">Batas Angka:</label>
-        <input type="number" id="maxInput" placeholder="Masukkan batas angka" oninput="autoSetLimits()" />
+        <!-- Angka Mulai and Batas Angka in one row -->
+        <div class="input-row">
+            <div>
+                <input type="number" id="startInput" placeholder="Start" oninput="autoSetLimits()" />
+            </div>
+            <div>
+                <input type="number" id="maxInput" placeholder="End" oninput="autoSetLimits()" />
+            </div>
+        </div>
 
         <label for="emailInput">Email:</label>
         <input type="email" id="emailInput" placeholder="Masukkan email" oninput="updateDisplay()" />
 
+        <!-- Toggle Switch -->
         <div class="checkbox-group">
-            <label><input type="radio" name="combination" id="prefix" onclick="updateDisplay()"> Didepan</label>
-            <label><input type="radio" name="combination" id="suffix" onclick="updateDisplay()"> Dibelakang</label>
+            <label class="switch">
+                <input type="checkbox" id="prefix" onclick="updateDisplay()">
+                <span class="slider"></span>
+                <span class="switch-text switch-text-off"></span>
+                <span class="switch-text switch-text-on"></span>
+            </label>
         </div>
 
         <label for="resultBox">Hasil:</label>
