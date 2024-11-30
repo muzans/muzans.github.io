@@ -3,77 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Counter Angka dan Kombinasi Nama Acak</title>
+    <title>Counter Email</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #e8f0fe;
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
+
         .container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
             max-width: 400px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        input[type="number"], input[type="email"], input[type="text"] {
-            width: calc(100% - 22px);
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-        button {
             width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
+            position: relative;
         }
-        button.add { background-color: #28a745; color: white; }
-        button.copy { background-color: #007bff; color: white; }
-        button.reset { background-color: #dc3545; color: white; }
-        .large-button { font-size: 20px; padding: 15px; }
-        .checkbox-group { margin: 10px 0; display: flex; justify-content: flex-start; align-items: center; }
-        .checkbox-group label { margin-right: 5px; }
-        .log { margin-top: 20px; padding: 10px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; width: calc(100% - 22px); height: 40px; overflow-y: auto; }
-        #nama-kombinasi {
-            width: calc(100% - 22px); /* Sesuaikan dengan hasil input */
-            padding: 10px; /* Sama dengan padding pada resultBox */
-            font-size: 16px; /* Ukuran font yang sama */
-            border-radius: 4px; /* Radius border yang sama */
-            border: 1px solid #ccc; /* Gaya border yang sama */
+
+        label {
+            display: block;
+            font-weight: bold;
+            color: #555;
+            margin: 10px 0 5px;
+        }
+
+        input[type="number"], input[type="email"], input[type="text"] {
+            width: 100%; /* Sesuaikan panjang input dengan panjang tombol */
+            box-sizing: border-box;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        input[type="text"]:read-only {
+            background-color: #f9f9f9;
+            color: #555;
+        }
+
+        .checkbox-group {
+            display: flex;
+            justify-content: space-between;
             margin-bottom: 20px;
         }
-        #nama-kombinasi:focus { border-color: #007bff; }
-        .button { background-color: #007bff; color: #ffffff; padding: 12px 20px; font-size: 18px; border: none; border-radius: 8px; cursor: pointer; }
-        .button:hover { background-color: #0056b3; }
+
+        .checkbox-group label {
+            font-size: 14px;
+        }
+
+        button {
+            width: 100%; /* Panjang tombol sama dengan input */
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            background-color: #007bff;
+            color: white;
+        }
+
+        button:focus {
+            outline: none;
+        }
+
+        button.reset {
+            background-color: #dc3545;
+        }
+
+        button.reset:hover {
+            background-color: #c82333;
+        }
+
+        button.save {
+            background-color: #28a745;
+        }
+
+        button.save:hover {
+            background-color: #218838;
+        }
+
+        .log {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            height: 100px;
+            overflow-y: auto;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .notification-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .red {
+            background-color: red;
+        }
+
+        .green {
+            background-color: green;
+        }
     </style>
     <script>
         let count = 0;
         let min = 0;
         let max = Infinity;
+        let copied = false;
 
         function loadInputs() {
             document.getElementById("startInput").value = localStorage.getItem("startInput") || '';
             document.getElementById("maxInput").value = localStorage.getItem("maxInput") || '';
             document.getElementById("emailInput").value = localStorage.getItem("emailInput") || '';
+            document.getElementById("prefix").checked = localStorage.getItem("prefix") === 'true';
+            document.getElementById("suffix").checked = localStorage.getItem("suffix") === 'true';
             count = parseInt(localStorage.getItem("count")) || 0;
             updateDisplay();
+            updateNotification();
         }
 
-        function setLimits() {
+        function autoSetLimits() {
             const startInput = parseInt(document.getElementById("startInput").value) || 0;
             const maxInput = parseInt(document.getElementById("maxInput").value);
             count = startInput;
             min = startInput;
             max = !isNaN(maxInput) ? maxInput : Infinity;
+
             localStorage.setItem("startInput", startInput);
             localStorage.setItem("maxInput", maxInput);
             updateDisplay();
@@ -81,12 +149,18 @@
 
         function updateDisplay() {
             const emailInput = document.getElementById("emailInput").value;
-            let prefix = document.getElementById("prefix").checked ? count.toString() : '';
-            let suffix = document.getElementById("suffix").checked ? count.toString() : '';
-            const baseEmail = emailInput.split('@')[0];
-            const domain = emailInput.split('@')[1] ? '@' + emailInput.split('@')[1] : '';
-            document.getElementById("resultBox").value = prefix + baseEmail + suffix + domain;
+            const prefix = document.getElementById("prefix").checked ? count : '';
+            const suffix = document.getElementById("suffix").checked ? count : '';
+            const [baseEmail, domain = ''] = emailInput.split('@');
+
+            const result = `${prefix}${baseEmail}${suffix}${domain ? `@${domain}` : ''}`;
+            document.getElementById("resultBox").value = result;
+
             localStorage.setItem("emailInput", emailInput);
+            localStorage.setItem("prefix", document.getElementById("prefix").checked);
+            localStorage.setItem("suffix", document.getElementById("suffix").checked);
+            copied = false;
+            updateNotification();
         }
 
         function increment() {
@@ -94,6 +168,7 @@
                 if (count < max) {
                     count++;
                     updateDisplay();
+                    copyToClipboard();
                     saveLog();
                 } else {
                     alert("Batas maksimum tercapai!");
@@ -111,126 +186,81 @@
             document.getElementById("resultBox").value = '0';
             document.getElementById("prefix").checked = false;
             document.getElementById("suffix").checked = false;
-            max = Infinity;
+
             localStorage.clear();
+            copied = false;
+            updateNotification();
             displayLog();
         }
 
-        function copyResult() {
+        function copyToClipboard() {
             const resultBox = document.getElementById("resultBox");
             resultBox.select();
             document.execCommand("copy");
-        }
-
-        function toggleCheckbox(selected) {
-            document.getElementById("prefix").checked = selected === 'prefix';
-            document.getElementById("suffix").checked = selected === 'suffix';
-        }
-
-        function incrementAndCopy() {
-            increment();
-            copyResult();
+            copied = true;
+            updateNotification();
         }
 
         function saveLog() {
             const result = document.getElementById("resultBox").value;
-            let logs = JSON.parse(localStorage.getItem("logs")) || [];
+            const logs = JSON.parse(localStorage.getItem("logs")) || [];
             logs.push(result);
             localStorage.setItem("logs", JSON.stringify(logs));
             displayLog();
         }
 
-        function displayLog() {
-            const logContainer = document.getElementById("logContainer");
+        function saveAsFile() {
             const logs = JSON.parse(localStorage.getItem("logs")) || [];
+            const blob = new Blob([logs.join('\n')], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'hasil.txt';
+            link.click();
+        }
+
+        function displayLog() {
+            const logs = JSON.parse(localStorage.getItem("logs")) || [];
+            const logContainer = document.getElementById("logContainer");
             logContainer.innerHTML = logs.map(log => `<div>${log}</div>`).reverse().join('');
+        }
+
+        function updateNotification() {
+            const notificationDot = document.getElementById("notificationDot");
+            notificationDot.className = copied ? "notification-dot green" : "notification-dot red";
         }
 
         window.onload = function() {
             loadInputs();
             displayLog();
         };
-
-        // Kombinasi Nama Acak
-        const jsonUrl = "https://raw.githubusercontent.com/muzans/muzans.github.io/refs/heads/main/base.json";
-        let femaleFirstNames = [];
-        let maleFirstNames = [];
-        let lastNames = [];
-
-        async function fetchData() {
-            try {
-                const response = await fetch(jsonUrl);
-                const data = await response.json();
-                femaleFirstNames = data.femaleFirstNames;
-                maleFirstNames = data.maleFirstNames;
-                lastNames = data.lastNames;
-                generateRandomName(); // Generate nama pertama kali saat data di-load
-            } catch (error) {
-                document.getElementById("nama-kombinasi").value = "Gagal memuat data.";
-                console.error("Error fetching data:", error);
-            }
-        }
-
-        function generateRandomName() {
-            const isFemale = Math.random() < 0.5;
-            let randomFirstName;
-            const randomLastName = lastNames[Math.floor(Math.random() * lastNames.length)];
-            
-            if (isFemale && femaleFirstNames.length > 0) {
-                randomFirstName = femaleFirstNames[Math.floor(Math.random() * femaleFirstNames.length)];
-            } else if (!isFemale && maleFirstNames.length > 0) {
-                randomFirstName = maleFirstNames[Math.floor(Math.random() * maleFirstNames.length)];
-            } else {
-                document.getElementById("nama-kombinasi").value = "Data nama belum tersedia.";
-                return;
-            }
-
-            const fullName = `${randomFirstName} ${randomLastName}`;
-            const nameBox = document.getElementById("nama-kombinasi");
-            nameBox.value = fullName;
-            copyToClipboard(fullName);
-        }
-
-        function copyToClipboard(text) {
-            const tempInput = document.createElement("textarea");
-            tempInput.value = text;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand("copy");
-            document.body.removeChild(tempInput);
-        }
-
-        fetchData();
     </script>
 </head>
 <body>
     <div class="container">
+        <div id="notificationDot" class="notification-dot red"></div>
+
         <label for="startInput">Angka Mulai:</label>
-        <input type="number" id="startInput" placeholder="Masukkan angka mulai" />
-        
+        <input type="number" id="startInput" placeholder="Masukkan angka mulai" oninput="autoSetLimits()" />
+
         <label for="maxInput">Batas Angka:</label>
-        <input type="number" id="maxInput" placeholder="Masukkan batas angka" />
-        <button class="add" onclick="setLimits()">Tetapkan Batas</button>
-        
-        <button class="reset" onclick="reset()">Reset</button>
-        <button class="copy large-button" onclick="incrementAndCopy()">Mulai</button>
-        
-        <input type="email" id="emailInput" placeholder="Masukkan email" />
-        
+        <input type="number" id="maxInput" placeholder="Masukkan batas angka" oninput="autoSetLimits()" />
+
+        <label for="emailInput">Email:</label>
+        <input type="email" id="emailInput" placeholder="Masukkan email" oninput="updateDisplay()" />
+
         <div class="checkbox-group">
-            <label><input type="radio" name="combination" id="prefix" onclick="toggleCheckbox('prefix')"> Didepan</label>
-            <label><input type="radio" name="combination" id="suffix" onclick="toggleCheckbox('suffix')"> Dibelakang</label>
-        </div>
-        
-        <label for="resultBox">Hasil:</label>
-        <input type="text" id="resultBox" readonly value="0" />
-        
-        <div class="log" id="logContainer">
-            <h3>Riwayat:</h3>
+            <label><input type="radio" name="combination" id="prefix" onclick="updateDisplay()"> Didepan</label>
+            <label><input type="radio" name="combination" id="suffix" onclick="updateDisplay()"> Dibelakang</label>
         </div>
 
-        <input type="text" id="nama-kombinasi" readonly placeholder="Nama akan muncul di sini..." />
-        <button class="button" onclick="generateRandomName()">Acak</button>
+        <label for="resultBox">Hasil:</label>
+        <input type="text" id="resultBox" readonly value="0" />
+
+        <button onclick="increment()">Mulai</button>
+        <button class="reset" onclick="reset()">Reset</button>
+        <button class="save" onclick="saveAsFile()">Simpan Hasil</button>
+
+        <div class="log" id="logContainer"></div>
     </div>
 </body>
 </html>
