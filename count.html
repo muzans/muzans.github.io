@@ -118,7 +118,6 @@
             background-color: green;
         }
 
-        /* Progress bar */
         .progress-container {
             width: 100%;
             background-color: #ddd;
@@ -133,7 +132,6 @@
             border-radius: 5px;
         }
 
-        /* Flex container for Angka Mulai and Batas Angka */
         .input-row {
             display: flex;
             justify-content: space-between;
@@ -142,19 +140,17 @@
         }
 
         .input-row div {
-            flex: 1; /* Memastikan kedua input memiliki ukuran yang sama */
+            flex: 1;
         }
 
-        /* Hide label for Angka Mulai and Batas Angka */
         .input-row label {
             display: none;
         }
 
-        /* Toggle switch styles */
         .switch {
             position: relative;
             display: inline-block;
-            width: 100px; /* Adjust width */
+            width: 100px;
             height: 34px;
         }
 
@@ -193,7 +189,7 @@
         }
 
         input:checked + .slider:before {
-            transform: translateX(60px); /* Adjust translation to match the width of the switch */
+            transform: translateX(60px);
         }
 
         .switch-text {
@@ -209,11 +205,11 @@
         }
 
         .switch-text-off {
-            left: 10px; /* Place on the left when off */
+            left: 10px;
         }
 
         .switch-text-on {
-            right: 10px; /* Place on the right when on */
+            right: 10px;
         }
     </style>
     <script>
@@ -235,10 +231,10 @@
         function autoSetLimits() {
             const startInput = parseInt(document.getElementById("startInput").value) || 0;
             const maxInput = parseInt(document.getElementById("maxInput").value);
-            count = startInput;
             min = startInput;
             max = !isNaN(maxInput) ? maxInput : Infinity;
 
+            saveCount(); // Save the current count to localStorage
             localStorage.setItem("startInput", startInput);
             localStorage.setItem("maxInput", maxInput);
             updateDisplay();
@@ -255,7 +251,6 @@
 
             localStorage.setItem("emailInput", emailInput);
             localStorage.setItem("prefix", document.getElementById("prefix").checked);
-            localStorage.setItem("suffix", !document.getElementById("prefix").checked);
             copied = false;
             updateNotification();
 
@@ -271,6 +266,7 @@
         function increment() {
             if (count < max) {
                 count++;
+                saveCount(); // Save the count
                 updateDisplay();
                 copyToClipboard();
                 saveLog();
@@ -282,6 +278,7 @@
 
         function reset() {
             count = 0;
+            saveCount();
             document.getElementById("startInput").value = '';
             document.getElementById("maxInput").value = '';
             document.getElementById("emailInput").value = '';
@@ -292,7 +289,7 @@
             copied = false;
             updateNotification();
             displayLog();
-            resetProgressBar(); // Reset the progress bar
+            resetProgressBar();
         }
 
         function copyToClipboard() {
@@ -342,6 +339,11 @@
         function resetProgressBar() {
             const progressBar = document.getElementById("progressBar");
             progressBar.style.width = "0%"; // Reset the progress bar to 0%
+        }
+
+        function saveCount() {
+            // Save the current count to localStorage
+            localStorage.setItem("count", count);
         }
 
         window.onload = function() {
