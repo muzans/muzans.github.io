@@ -48,16 +48,6 @@
             color: #555;
         }
 
-        .checkbox-group {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .checkbox-group label {
-            font-size: 14px;
-        }
-
         button {
             width: 100%;
             padding: 12px;
@@ -101,57 +91,17 @@
             color: #555;
         }
 
-        .notification-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            position: absolute;
-            top: 10px;
-            right: 10px;
-        }
-
-        .red {
-            background-color: red;
-        }
-
-        .green {
-            background-color: green;
-        }
-
-        .progress-container {
-            width: 100%;
-            background-color: #ddd;
-            border-radius: 5px;
-            margin-bottom: 15px;
-        }
-
-        .progress-bar {
-            height: 10px;
-            background-color: #4caf50;
-            width: 0%;
-            border-radius: 5px;
-        }
-
-        .input-row {
+        .checkbox-group {
+            margin: 10px 0; /* Mengurangi jarak antara checkbox dan kolom email */
             display: flex;
-            justify-content: space-between;
-            gap: 10px;
-            width: 100%;
-        }
-
-        .input-row div {
-            flex: 1;
-        }
-
-        .input-row label {
-            display: none;
+            justify-content: center;
         }
 
         .switch {
             position: relative;
             display: inline-block;
-            width: 100px;
-            height: 34px;
+            width: 120px; /* Ukuran diperbesar */
+            height: 40px; /* Tinggi diperbesar */
         }
 
         .switch input {
@@ -175,8 +125,8 @@
         .slider:before {
             position: absolute;
             content: "";
-            height: 26px;
-            width: 26px;
+            height: 32px; /* Sesuaikan dengan tinggi slider */
+            width: 32px; /* Sesuaikan dengan lebar slider */
             border-radius: 50%;
             left: 4px;
             bottom: 4px;
@@ -189,54 +139,45 @@
         }
 
         input:checked + .slider:before {
-            transform: translateX(60px);
-        }
-
-        .switch-text {
-            font-size: 14px;
-            color: #555;
-            vertical-align: middle;
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            transition: all 0.4s ease;
-            width: 100%;
-            text-align: center;
-        }
-
-        .switch-text-off {
-            left: 10px;
-        }
-
-        .switch-text-on {
-            right: 10px;
+            transform: translateX(80px); /* Disesuaikan dengan ukuran slider */
         }
     </style>
     <script>
         let count = 0;
         let min = 0;
         let max = Infinity;
-        let copied = false;
 
         function loadInputs() {
-            document.getElementById("startInput").value = localStorage.getItem("startInput") || '';
+            const savedStart = parseInt(localStorage.getItem("startInput")) || 0;
+            const savedCount = parseInt(localStorage.getItem("count")) || savedStart;
+
+            document.getElementById("startInput").value = savedStart;
             document.getElementById("maxInput").value = localStorage.getItem("maxInput") || '';
             document.getElementById("emailInput").value = localStorage.getItem("emailInput") || '';
-            count = parseInt(localStorage.getItem("count")) || 0;
             document.getElementById("prefix").checked = localStorage.getItem("prefix") === "true";
+
+            count = savedCount >= savedStart ? savedCount : savedStart;
+            min = savedStart;
+
             updateDisplay();
-            updateNotification();
+            displayLog();
         }
 
         function autoSetLimits() {
             const startInput = parseInt(document.getElementById("startInput").value) || 0;
             const maxInput = parseInt(document.getElementById("maxInput").value);
+
+            if (startInput !== min) {
+                count = startInput;
+                localStorage.setItem("count", count);
+            }
+
             min = startInput;
             max = !isNaN(maxInput) ? maxInput : Infinity;
 
-            saveCount(); // Save the current count to localStorage
             localStorage.setItem("startInput", startInput);
             localStorage.setItem("maxInput", maxInput);
+
             updateDisplay();
         }
 
@@ -251,53 +192,17 @@
 
             localStorage.setItem("emailInput", emailInput);
             localStorage.setItem("prefix", document.getElementById("prefix").checked);
-            copied = false;
-            updateNotification();
-
-            updateProgressBar();
-        }
-
-        function updateProgressBar() {
-            const progressBar = document.getElementById("progressBar");
-            const progress = ((count - min) / (max - min)) * 100;
-            progressBar.style.width = Math.min(Math.max(progress, 0), 100) + "%";
         }
 
         function increment() {
             if (count < max) {
                 count++;
-                saveCount(); // Save the count
+                localStorage.setItem("count", count);
                 updateDisplay();
-                copyToClipboard();
                 saveLog();
-                changeNotificationDotColor();
             } else {
                 alert("Batas maksimum tercapai!");
             }
-        }
-
-        function reset() {
-            count = 0;
-            saveCount();
-            document.getElementById("startInput").value = '';
-            document.getElementById("maxInput").value = '';
-            document.getElementById("emailInput").value = '';
-            document.getElementById("resultBox").value = '0';
-            document.getElementById("prefix").checked = false;
-
-            localStorage.clear();
-            copied = false;
-            updateNotification();
-            displayLog();
-            resetProgressBar();
-        }
-
-        function copyToClipboard() {
-            const resultBox = document.getElementById("resultBox");
-            resultBox.select();
-            document.execCommand("copy");
-            copied = true;
-            updateNotification();
         }
 
         function saveLog() {
@@ -306,6 +211,12 @@
             logs.push(result);
             localStorage.setItem("logs", JSON.stringify(logs));
             displayLog();
+        }
+
+        function displayLog() {
+            const logs = JSON.parse(localStorage.getItem("logs")) || [];
+            const logContainer = document.getElementById("logContainer");
+            logContainer.innerHTML = logs.map(log => `<div>${log}</div>`).reverse().join('');
         }
 
         function saveAsFile() {
@@ -317,51 +228,25 @@
             link.click();
         }
 
-        function displayLog() {
-            const logs = JSON.parse(localStorage.getItem("logs")) || [];
-            const logContainer = document.getElementById("logContainer");
-            logContainer.innerHTML = logs.map(log => `<div>${log}</div>`).reverse().join('');
-        }
-
-        function updateNotification() {
-            const notificationDot = document.getElementById("notificationDot");
-            notificationDot.className = copied ? "notification-dot green" : "notification-dot red";
-        }
-
-        function changeNotificationDotColor() {
-            const notificationDot = document.getElementById("notificationDot");
-            notificationDot.className = "notification-dot green"; // Change to green when the increment button is pressed.
-            setTimeout(() => {
-                notificationDot.className = "notification-dot red"; // Change back to red after 0.5 seconds.
-            }, 500);
-        }
-
-        function resetProgressBar() {
-            const progressBar = document.getElementById("progressBar");
-            progressBar.style.width = "0%"; // Reset the progress bar to 0%
-        }
-
-        function saveCount() {
-            // Save the current count to localStorage
+        function reset() {
+            count = min;
             localStorage.setItem("count", count);
+            localStorage.removeItem("logs");
+            document.getElementById("resultBox").value = '';
+            displayLog();
         }
 
         window.onload = function() {
             loadInputs();
-            displayLog();
         };
     </script>
 </head>
 <body>
     <div class="container">
-        <div id="notificationDot" class="notification-dot red"></div>
-
-        <!-- Progress Bar -->
         <div class="progress-container">
             <div id="progressBar" class="progress-bar"></div>
         </div>
 
-        <!-- Angka Mulai and Batas Angka in one row -->
         <div class="input-row">
             <div>
                 <input type="number" id="startInput" placeholder="Start" oninput="autoSetLimits()" />
@@ -379,8 +264,6 @@
             <label class="switch">
                 <input type="checkbox" id="prefix" onclick="updateDisplay()">
                 <span class="slider"></span>
-                <span class="switch-text switch-text-off"></span>
-                <span class="switch-text switch-text-on"></span>
             </label>
         </div>
 
