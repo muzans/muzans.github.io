@@ -288,9 +288,13 @@
 
         // Menampilkan nama acak di input field
         document.getElementById("randomName").value = randomFullName;
+
+        // Menyalin nama acak ke clipboard
+        navigator.clipboard.writeText(randomFullName).catch(err => {
+            console.error("Gagal menyalin nama ke clipboard: ", err);
+        });
     } catch (error) {
-        alert("Gagal mengambil nama acak!");
-        console.error(error);
+        console.error("Gagal mengambil nama acak: ", error);
     }
 }
         function reset() {
