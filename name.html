@@ -104,6 +104,11 @@
             justify-content: center;
             margin-top: 10px;
         }
+        .save-btn-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
     </style>
 </head>
 <body>
@@ -122,7 +127,6 @@
         <button class="btn-reset" onclick="resetForm()">Reset</button>
         
         <select id="emailDomain" style="margin-right: 10px;">
-            <option value="">Tidak ada</option>
             <option value="@gmail.com">@gmail.com</option>
             <option value="@yahoo.com">@yahoo.com</option>
             <option value="@hotmail.com">@hotmail.com</option>
@@ -148,6 +152,11 @@
     <div class="button-center">
         <button class="button" onclick="generateRandomName()">Acak</button>
     </div>
+</div>
+
+<!-- Tombol Simpan -->
+<div class="save-btn-container">
+    <button class="btn-generate" onclick="saveLogHistory()">Simpan</button>
 </div>
 
 <script>
@@ -208,7 +217,7 @@
         result += emailDomain;
 
         document.getElementById('resultText').value = result;
-        copyText(result);
+        autoCopyText(result);  // Salin otomatis
         addLog(result);
         updateGenerateCount();
         saveToLocalStorage();  // Simpan perubahan ke LocalStorage
@@ -222,10 +231,6 @@
 
     function getRandomChar(chars) {
         return chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-
-    function copyText(text) {
-        navigator.clipboard.writeText(text);
     }
 
     function addLog(text) {
@@ -247,63 +252,79 @@
         document.getElementById('charCount').value = 10;
         document.getElementById('resultText').value = '';
         document.getElementById('logHistory').innerHTML = '';
-        document.getElementById('emailDomain').value = '';
+        document.getElementById('emailDomain').value = '@gmail.com';
         generateCount = 0;
         document.getElementById('totalCount').textContent = `Total: ${generateCount}`;
+    }
+
+    // Fungsi untuk menyalin teks secara otomatis
+    function autoCopyText(text) {
+        const tempInput = document.createElement("textarea");
+        tempInput.value = text;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand("copy");
+        document.body.removeChild(tempInput);
+    }
+
+    // Fungsi untuk menyimpan log history sebagai file .txt
+    function saveLogHistory() {
+        const logHistory = document.getElementById('logHistory').innerText;
+        const date = new Date();
+        const formattedDate = date.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+        const fileName = `Akun(${formattedDate}).txt`;
+
+        const blob = new Blob([logHistory], { type: 'text/plain' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = fileName;
+
+        // Klik tautan untuk memulai unduhan
+        link.click();
     }
 
     // Ambil data dari LocalStorage saat halaman dimuat
     window.onload = loadFromLocalStorage;
 
     const jsonUrl = "https://raw.githubusercontent.com/muzans/muzans.github.io/refs/heads/main/base.json";
-let firstNames = [];
-let lastNames = [];
+    let firstNames = [];
+    let lastNames = [];
 
-// Fungsi untuk mengambil data dari JSON
-async function fetchData() {
-    try {
-        const response = await fetch(jsonUrl);
-        const data = await response.json();
-        firstNames = data.FirstNames || [];
-        lastNames = data.LastNames || [];
-        generateRandomName(); // Generate nama acak setelah data diambil
-    } catch (error) {
-        document.getElementById("nama-kombinasi").value = "Gagal memuat data.";
-        console.error("Error fetching data:", error);
-    }
-}
-
-// Fungsi untuk mengacak nama
-function generateRandomName() {
-    if (firstNames.length === 0 || lastNames.length === 0) {
-        document.getElementById("nama-kombinasi").value = "Data nama belum tersedia.";
-        return;
+    // Fungsi untuk mengambil data dari JSON
+    async function fetchData() {
+        try {
+            const response = await fetch(jsonUrl);
+            const data = await response.json();
+            firstNames = data.FirstNames || [];
+            lastNames = data.LastNames || [];
+            generateRandomName(); // Generate nama acak setelah data diambil
+        } catch (error) {
+            document.getElementById("nama-kombinasi").value = "Gagal memuat data.";
+            console.error("Error fetching data:", error);
+        }
     }
 
-    // Ambil nama depan dan belakang secara acak
-    const randomFirstName = firstNames[Math.floor(Math.random() * firstNames.length)];
-    const randomLastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+    // Fungsi untuk mengacak nama
+    function generateRandomName() {
+        if (firstNames.length === 0 || lastNames.length === 0) {
+            document.getElementById("nama-kombinasi").value = "Data nama belum tersedia.";
+            return;
+        }
 
-    // Gabungkan menjadi nama lengkap
-    const fullName = `${randomFirstName} ${randomLastName}`;
-    document.getElementById("nama-kombinasi").value = fullName;
+        // Ambil nama depan dan belakang secara acak
+        const randomFirstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+        const randomLastName = lastNames[Math.floor(Math.random() * lastNames.length)];
 
-    // Salin ke clipboard
-    copyToClipboard(fullName);
-}
+        // Gabungkan menjadi nama lengkap
+        const fullName = `${randomFirstName} ${randomLastName}`;
+        document.getElementById("nama-kombinasi").value = fullName;
 
-// Fungsi untuk menyalin teks ke clipboard
-function copyToClipboard(text) {
-    const tempInput = document.createElement("textarea");
-    tempInput.value = text;
-    document.body.appendChild(tempInput);
-    tempInput.select();
-    document.execCommand("copy");
-    document.body.removeChild(tempInput);
-}
+        // Salin ke clipboard
+        autoCopyText(fullName);
+    }
 
-// Panggil fetchData saat halaman dimuat
-fetchData();
+    // Panggil fetchData saat halaman dimuat
+    fetchData();
 </script>
 
 </body>
