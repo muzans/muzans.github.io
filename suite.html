@@ -202,31 +202,31 @@
         }
 
         function generateName() {
-            const nameType = document.getElementById('nameType').value;
-            const nameCount = parseInt(document.getElementById('nameCount').value, 10);
-            let outputText = '';
+    const nameType = document.getElementById('nameType').value;
+    const nameCount = parseInt(document.getElementById('nameCount').value, 10);
+    let outputText = '';
 
-            if (nameType === '' || nameCount <= 0) {
-                alert('Silakan pilih jenis nama dan masukkan jumlah nama yang valid!');
-                return;
-            }
+    if (!nameType || nameCount <= 0) {
+        alert('Silakan pilih jenis nama dan masukkan jumlah nama yang valid!');
+        return;
+    }
 
-            const actualNameCount = Math.max(nameCount, 1); // Menghindari jumlah nama 0 atau kurang
+    const actualNameCount = Math.max(nameCount, 1);
 
-            for (let i = 0; i < actualNameCount; i++) {
-                let name = '';
-                if (nameType === 'FirstNames') {
-                    const randomIndex = Math.floor(Math.random() * FirstNames.length);
-                    name = FirstNames[randomIndex]; // Ambil nama depan
-                } else if (nameType === 'LastNames') {
-                    const randomIndex = Math.floor(Math.random() * LastNames.length);
-                    name = LastNames[randomIndex]; // Ambil nama belakang
-                }
-                outputText += `${name}\n`;
-            }
-
-            document.getElementById('outputText').value = outputText;
+    for (let i = 0; i < actualNameCount; i++) {
+        let name = '';
+        if (nameType === 'firstName') {
+            const randomIndex = Math.floor(Math.random() * FirstNames.length);
+            name = FirstNames[randomIndex]; // Ambil nama depan
+        } else if (nameType === 'lastName') {
+            const randomIndex = Math.floor(Math.random() * LastNames.length);
+            name = LastNames[randomIndex]; // Ambil nama belakang
         }
+        outputText += `${name}\n`;
+    }
+
+    document.getElementById('outputText').value = outputText;
+}
 
         window.onload = fetchData;
     </script>
