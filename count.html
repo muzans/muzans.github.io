@@ -26,6 +26,33 @@
             position: relative;
         }
 
+        #progressBarContainer {
+            width: 100%;
+            background-color: #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            height: 20px;
+        }
+
+        #progressBar {
+            height: 100%;
+            background-color: #007bff;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .input-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .input-row input {
+            flex: 1;
+        }
+
         label {
             display: block;
             font-weight: bold;
@@ -100,8 +127,8 @@
         .switch {
             position: relative;
             display: inline-block;
-            width: 120px;
-            height: 40px;
+            width: 100px;
+            height: 20px;
         }
 
         .switch input {
@@ -125,8 +152,8 @@
         .slider:before {
             position: absolute;
             content: "";
-            height: 32px;
-            width: 32px;
+            height: 12px;
+            width: 12px;
             border-radius: 50%;
             left: 4px;
             bottom: 4px;
@@ -140,23 +167,6 @@
 
         input:checked + .slider:before {
             transform: translateX(80px);
-        }
-
-        .progress {
-            width: 100%;
-            height: 20px;
-            background-color: #f4f4f4;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            overflow: hidden;
-            margin-top: 10px;
-        }
-
-        .progress-bar {
-            height: 100%;
-            background-color: #dc3545;
-            width: 0;
-            transition: width 0.4s ease;
         }
     </style>
     <script>
@@ -196,8 +206,13 @@
             localStorage.setItem("startInput", startInput);
             localStorage.setItem("maxInput", maxInput);
 
-            updateDisplay();
             updateProgressBar();
+            updateDisplay();
+        }
+
+        function updateProgressBar() {
+            const progress = ((count - min) / (max - min)) * 100;
+            document.getElementById("progressBar").style.width = `${Math.min(Math.max(progress, 0), 100)}%`;
         }
 
         function updateDisplay() {
@@ -218,9 +233,9 @@
                 count++;
                 localStorage.setItem("count", count);
                 updateDisplay();
+                updateProgressBar();
                 saveLog();
                 autoCopy();
-                updateProgressBar();
             } else {
                 alert("Batas maksimum tercapai!");
             }
@@ -247,23 +262,6 @@
             logContainer.innerHTML = logs.map(log => `<div>${log}</div>`).reverse().join('');
         }
 
-        function updateProgressBar() {
-            const progressBar = document.getElementById("progressBar");
-
-            // Pastikan max lebih besar dari min untuk menghindari pembagian nol
-            if (max <= min) {
-                progressBar.style.width = "0%";
-                return;
-            }
-
-            // Hitung total rentang dan progres saat ini
-            const total = max - min;
-            const progress = ((count - min) / total) * 100;
-
-            // Pastikan nilai progres berada dalam rentang 0% hingga 100%
-            progressBar.style.width = `${Math.max(0, Math.min(progress, 100))}%`;
-        }
-
         function saveAsFile() {
             const logs = JSON.parse(localStorage.getItem("logs")) || [];
             const blob = new Blob([logs.join("\n")], { type: 'text/plain' });
@@ -273,33 +271,52 @@
             link.click();
         }
 
+        async function fetchRandomName() {
+    try {
+        const response = await fetch('https://raw.githubusercontent.com/muzans/muzans.github.io/refs/heads/main/base.json');
+        const data = await response.json();
+
+        // Mengambil nama depan dan belakang secara acak dari JSON
+        const firstNames = data.FirstNames;
+        const lastNames = data.LastNames;
+
+        const randomFirstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+        const randomLastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+
+        // Menggabungkan nama depan dan belakang
+        const randomFullName = `${randomFirstName} ${randomLastName}`;
+
+        // Menampilkan nama acak di input field
+        document.getElementById("randomName").value = randomFullName;
+    } catch (error) {
+        alert("Gagal mengambil nama acak!");
+        console.error(error);
+    }
+}
         function reset() {
             count = min;
             localStorage.setItem("count", count);
             localStorage.removeItem("logs");
             document.getElementById("resultBox").value = '';
-            displayLog();
             updateProgressBar();
+            displayLog();
         }
 
         window.onload = function() {
             loadInputs();
+            fetchRandomName();
         };
     </script>
 </head>
 <body>
     <div class="container">
-        <div class="progress-container">
-            <div id="progressBar" class="progress-bar"></div>
+        <div id="progressBarContainer">
+            <div id="progressBar"></div>
         </div>
 
         <div class="input-row">
-            <div>
-                <input type="number" id="startInput" placeholder="Start" oninput="autoSetLimits()" />
-            </div>
-            <div>
-                <input type="number" id="maxInput" placeholder="End" oninput="autoSetLimits()" />
-            </div>
+            <input type="number" id="startInput" placeholder="Start" oninput="autoSetLimits()" />
+            <input type="number" id="maxInput" placeholder="End" oninput="autoSetLimits()" />
         </div>
 
         <label for="emailInput">Email:</label>
@@ -322,9 +339,12 @@
 
         <div class="log" id="logContainer"></div>
 
-        <div class="progress">
-            <div id="progressBar" class="progress-bar"></div>
-        </div>
+<!-- Random Name Section -->
+<div>
+    <label for="randomName">Nama Acak:</label>
+    <input type="text" id="randomName" readonly />
+    <button onclick="fetchRandomName()">Acak</button>
+</div>
     </div>
 </body>
 </html>
