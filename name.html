@@ -256,53 +256,54 @@
     window.onload = loadFromLocalStorage;
 
     const jsonUrl = "https://raw.githubusercontent.com/muzans/muzans.github.io/refs/heads/main/base.json";
-    let femaleFirstNames = [];
-    let maleFirstNames = [];
-    let lastNames = [];
+let firstNames = [];
+let lastNames = [];
 
-    async function fetchData() {
-        try {
-            const response = await fetch(jsonUrl);
-            const data = await response.json();
-            femaleFirstNames = data.femaleFirstNames;
-            maleFirstNames = data.maleFirstNames;
-            lastNames = data.lastNames;
-            generateRandomName();
-        } catch (error) {
-            document.getElementById("nama-kombinasi").value = "Gagal memuat data.";
-            console.error("Error fetching data:", error);
-        }
+// Fungsi untuk mengambil data dari JSON
+async function fetchData() {
+    try {
+        const response = await fetch(jsonUrl);
+        const data = await response.json();
+        firstNames = data.FirstNames || [];
+        lastNames = data.LastNames || [];
+        generateRandomName(); // Generate nama acak setelah data diambil
+    } catch (error) {
+        document.getElementById("nama-kombinasi").value = "Gagal memuat data.";
+        console.error("Error fetching data:", error);
+    }
+}
+
+// Fungsi untuk mengacak nama
+function generateRandomName() {
+    if (firstNames.length === 0 || lastNames.length === 0) {
+        document.getElementById("nama-kombinasi").value = "Data nama belum tersedia.";
+        return;
     }
 
-    function generateRandomName() {
-        const isFemale = Math.random() < 0.5;
-        let randomFirstName;
-        const randomLastName = lastNames[Math.floor(Math.random() * lastNames.length)];
-        
-        if (isFemale && femaleFirstNames.length > 0) {
-            randomFirstName = femaleFirstNames[Math.floor(Math.random() * femaleFirstNames.length)];
-        } else if (!isFemale && maleFirstNames.length > 0) {
-            randomFirstName = maleFirstNames[Math.floor(Math.random() * maleFirstNames.length)];
-        } else {
-            document.getElementById("nama-kombinasi").value = "Data nama belum tersedia.";
-            return;
-        }
+    // Ambil nama depan dan belakang secara acak
+    const randomFirstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+    const randomLastName = lastNames[Math.floor(Math.random() * lastNames.length)];
 
-        const fullName = `${randomFirstName} ${randomLastName}`;
-        document.getElementById("nama-kombinasi").value = fullName;
-        copyToClipboard(fullName);
-    }
+    // Gabungkan menjadi nama lengkap
+    const fullName = `${randomFirstName} ${randomLastName}`;
+    document.getElementById("nama-kombinasi").value = fullName;
 
-    function copyToClipboard(text) {
-        const tempInput = document.createElement("textarea");
-        tempInput.value = text;
-        document.body.appendChild(tempInput);
-        tempInput.select();
-        document.execCommand("copy");
-        document.body.removeChild(tempInput);
-    }
+    // Salin ke clipboard
+    copyToClipboard(fullName);
+}
 
-    fetchData();
+// Fungsi untuk menyalin teks ke clipboard
+function copyToClipboard(text) {
+    const tempInput = document.createElement("textarea");
+    tempInput.value = text;
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    document.execCommand("copy");
+    document.body.removeChild(tempInput);
+}
+
+// Panggil fetchData saat halaman dimuat
+fetchData();
 </script>
 
 </body>
