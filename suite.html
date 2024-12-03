@@ -129,17 +129,15 @@
     </style>
     <script>
         const jsonUrl = "https://raw.githubusercontent.com/muzans/muzans.github.io/refs/heads/main/base.json";
-        let femaleFirstNames = [];
-        let maleFirstNames = [];
-        let lastNames = [];
+        let FirstNames = [];
+        let LastNames = [];
 
         async function fetchData() {
             try {
                 const response = await fetch(jsonUrl);
                 const data = await response.json();
-                femaleFirstNames = data.femaleFirstNames;
-                maleFirstNames = data.maleFirstNames;
-                lastNames = data.lastNames;
+                FirstNames = data.FirstNames;
+                LastNames = data.LastNames;
             } catch (error) {
                 alert("Gagal memuat data nama!");
                 console.error(error);
@@ -217,12 +215,12 @@
 
             for (let i = 0; i < actualNameCount; i++) {
                 let name = '';
-                if (nameType === 'firstName') {
+                if (nameType === 'FirstName') {
                     const randomIndex = Math.floor(Math.random() * FirstNames.length);
-                    name = FirstNames[randomIndex]; // Ambil nama depan perempuan
-                } else if (nameType === 'lastName') {
-                    const randomIndex = Math.floor(Math.random() * lastNames.length);
-                    name = lastNames[randomIndex]; // Ambil nama belakang
+                    name = FirstNames[randomIndex]; // Ambil nama depan
+                } else if (nameType === 'LastName') {
+                    const randomIndex = Math.floor(Math.random() * LastNames.length);
+                    name = LastNames[randomIndex]; // Ambil nama belakang
                 }
                 outputText += `${name}\n`;
             }
