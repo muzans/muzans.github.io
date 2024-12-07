@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Counter Email</title>
     <style>
+        /* Gaya tetap sama seperti sebelumnya */
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f4f4f9;
@@ -16,6 +17,18 @@
             height: 100vh;
         }
 
+        .version-label {
+            position: absolute;
+            top: -40px;
+            right: 20px;
+            font-size: 14px;
+            color: #555;
+            background-color: #f4f4f9;
+            padding: 5px 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            font-weight: bold;
+}
         .container {
             background: #ffffff;
             padding: 30px;
@@ -169,150 +182,206 @@
             transform: translateX(80px);
         }
     </style>
-    <script>
-        let count = 0;
-        let min = 0;
-        let max = Infinity;
+    <<script>
+    let count = 0; // Variabel penghitung utama
+    let min = 0;   // Nilai awal
+    let max = Infinity; // Batas maksimum
 
-        function loadInputs() {
-            const savedStart = parseInt(localStorage.getItem("startInput")) || 0;
-            const savedCount = parseInt(localStorage.getItem("count")) || savedStart;
+    function loadInputs() {
+        const savedStart = parseInt(localStorage.getItem("startInput")) || 0;
+        const savedCount = parseInt(localStorage.getItem("count")) || savedStart;
 
-            document.getElementById("startInput").value = savedStart;
-            document.getElementById("maxInput").value = localStorage.getItem("maxInput") || '';
-            document.getElementById("emailInput").value = localStorage.getItem("emailInput") || '';
-            document.getElementById("prefix").checked = localStorage.getItem("prefix") === "true";
+        document.getElementById("startInput").value = savedStart;
+        document.getElementById("maxInput").value = localStorage.getItem("maxInput") || '';
+        document.getElementById("emailInput").value = localStorage.getItem("emailInput") || '';
+        document.getElementById("prefix").checked = localStorage.getItem("prefix") === "true";
 
-            count = savedCount >= savedStart ? savedCount : savedStart;
-            min = savedStart;
+        count = savedCount >= savedStart ? savedCount : savedStart;
+        min = savedStart;
 
-            updateDisplay();
-            updateProgressBar();
-            displayLog();
+        updateDisplay();
+        updateProgressBar();
+        displayLog();
+    }
+
+    function autoSetLimits() {
+        const startInput = parseInt(document.getElementById("startInput").value) || 0;
+        const maxInput = parseInt(document.getElementById("maxInput").value);
+
+        if (startInput !== min) {
+            count = startInput; // Perbarui nilai `count` jika `min` berubah
+            localStorage.setItem("count", count);
         }
 
-        function autoSetLimits() {
-            const startInput = parseInt(document.getElementById("startInput").value) || 0;
-            const maxInput = parseInt(document.getElementById("maxInput").value);
+        min = startInput;
+        max = !isNaN(maxInput) ? maxInput : Infinity;
 
-            if (startInput !== min) {
-                count = startInput;
-                localStorage.setItem("count", count);
-            }
+        localStorage.setItem("startInput", startInput);
+        localStorage.setItem("maxInput", maxInput);
 
-            min = startInput;
-            max = !isNaN(maxInput) ? maxInput : Infinity;
+        updateProgressBar();
+        updateDisplay();
+    }
 
-            localStorage.setItem("startInput", startInput);
-            localStorage.setItem("maxInput", maxInput);
+    function updateProgressBar() {
+        const progress = ((count - min) / (max - min)) * 100;
+        document.getElementById("progressBar").style.width = `${Math.min(Math.max(progress, 0), 100)}%`;
+    }
 
-            updateProgressBar();
-            updateDisplay();
-        }
+    function updateDisplay() {
+        const emailInput = document.getElementById("emailInput").value;
+        const prefix = document.getElementById("prefix").checked ? count : '';
+        const suffix = !document.getElementById("prefix").checked ? count : '';
+        const [baseEmail, domain = ''] = emailInput.split('@');
 
-        function updateProgressBar() {
-            const progress = ((count - min) / (max - min)) * 100;
-            document.getElementById("progressBar").style.width = `${Math.min(Math.max(progress, 0), 100)}%`;
-        }
+        const result = `${prefix}${baseEmail}${suffix}${domain ? `@${domain}` : ''}`;
+        document.getElementById("resultBox").value = result;
 
-        function updateDisplay() {
-            const emailInput = document.getElementById("emailInput").value;
-            const prefix = document.getElementById("prefix").checked ? count : '';
-            const suffix = !document.getElementById("prefix").checked ? count : '';
-            const [baseEmail, domain = ''] = emailInput.split('@');
+        localStorage.setItem("emailInput", emailInput);
+        localStorage.setItem("prefix", document.getElementById("prefix").checked);
+    }
 
-            const result = `${prefix}${baseEmail}${suffix}${domain ? `@${domain}` : ''}`;
-            document.getElementById("resultBox").value = result;
-
-            localStorage.setItem("emailInput", emailInput);
-            localStorage.setItem("prefix", document.getElementById("prefix").checked);
-        }
-
-        function increment() {
-            if (count < max) {
-                count++;
-                localStorage.setItem("count", count);
-                updateDisplay();
-                updateProgressBar();
-                saveLog();
-                autoCopy();
-            } else {
-                alert("Batas maksimum tercapai!");
-            }
-        }
-
-        function autoCopy() {
-            const resultBox = document.getElementById("resultBox");
-            resultBox.select();
-            resultBox.setSelectionRange(0, 99999); // For mobile devices
-            document.execCommand("copy");
-        }
-
-        function saveLog() {
-            const result = document.getElementById("resultBox").value;
-            const logs = JSON.parse(localStorage.getItem("logs")) || [];
-            logs.push(result);
-            localStorage.setItem("logs", JSON.stringify(logs));
-            displayLog();
-        }
-
-        function displayLog() {
-            const logs = JSON.parse(localStorage.getItem("logs")) || [];
-            const logContainer = document.getElementById("logContainer");
-            logContainer.innerHTML = logs.map(log => `<div>${log}</div>`).reverse().join('');
-        }
-
-        function saveAsFile() {
-            const logs = JSON.parse(localStorage.getItem("logs")) || [];
-            const blob = new Blob([logs.join("\n")], { type: 'text/plain' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'hasil.txt';
-            link.click();
-        }
-
-        async function fetchRandomName() {
-    try {
-        const response = await fetch('https://raw.githubusercontent.com/muzans/muzans.github.io/refs/heads/main/base.json');
-        const data = await response.json();
-
-        // Mengambil nama depan dan belakang secara acak dari JSON
-        const firstNames = data.FirstNames;
-        const lastNames = data.LastNames;
-
-        const randomFirstName = firstNames[Math.floor(Math.random() * firstNames.length)];
-        const randomLastName = lastNames[Math.floor(Math.random() * lastNames.length)];
-
-        // Menggabungkan nama depan dan belakang
-        const randomFullName = `${randomFirstName} ${randomLastName}`;
-
-        // Menampilkan nama acak di input field
-        document.getElementById("randomName").value = randomFullName;
-
-        // Menyalin nama acak ke clipboard
-        navigator.clipboard.writeText(randomFullName).catch(err => {
-            console.error("Gagal menyalin nama ke clipboard: ", err);
-        });
-    } catch (error) {
-        console.error("Gagal mengambil nama acak: ", error);
+    function autoCopy(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text)
+            .then(() => console.log("Teks berhasil disalin ke clipboard!"))
+            .catch(err => {
+                console.error("Clipboard API gagal:", err);
+                fallbackCopyText(text);
+            });
+    } else {
+        fallbackCopyText(text); // Gunakan fallback jika Clipboard API tidak tersedia
     }
 }
-        function reset() {
-            count = min;
-            localStorage.setItem("count", count);
-            localStorage.removeItem("logs");
-            document.getElementById("resultBox").value = '';
-            updateProgressBar();
-            displayLog();
+
+function fallbackCopyText(text) {
+    const tempInput = document.createElement("textarea");
+    tempInput.value = text;
+    tempInput.style.position = "absolute";
+    tempInput.style.left = "-9999px"; // Pindahkan elemen ke luar layar
+    document.body.appendChild(tempInput);
+    tempInput.select();
+
+    try {
+        document.execCommand("copy");
+        console.log("Teks berhasil disalin dengan fallback.");
+    } catch (err) {
+        console.error("Fallback error:", err);
+    } finally {
+        document.body.removeChild(tempInput);
+    }
+}
+
+function increment() {
+    if (count < max) {
+        count++; // Naikkan nilai counter
+        localStorage.setItem("count", count); // Simpan ke localStorage
+        updateDisplay(); // Perbarui tampilan
+        updateProgressBar(); // Perbarui progress bar
+        saveLog(); // Simpan ke log
+
+        const result = document.getElementById("resultBox").value;
+        autoCopy(result); // Auto-copy hasil ke clipboard
+    } else {
+        alert("Batas maksimum tercapai!");
+    }
+}
+
+function fetchRandomName() {
+    fetch('https://raw.githubusercontent.com/muzans/muzans.github.io/refs/heads/main/base.json')
+        .then(response => response.json())
+        .then(data => {
+            const firstNames = data.FirstNames;
+            const lastNames = data.LastNames;
+
+            const randomFirstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+            const randomLastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+
+            const randomFullName = `${randomFirstName} ${randomLastName}`;
+            document.getElementById("randomName").value = randomFullName;
+
+            // Simpan nama acak ke localStorage
+            localStorage.setItem("randomName", randomFullName);
+
+            // Auto-copy nama acak
+            autoCopy(randomFullName);
+        })
+        .catch(error => console.error("Gagal mengambil nama acak:", error));
+}
+
+function loadRandomName() {
+    const savedName = localStorage.getItem("randomName");
+    if (savedName) {
+        document.getElementById("randomName").value = savedName; // Tampilkan nama yang disimpan
+    }
+}
+
+    function saveLog() {
+        const result = document.getElementById("resultBox").value;
+        const logs = JSON.parse(localStorage.getItem("logs")) || [];
+        logs.push(result);
+        localStorage.setItem("logs", JSON.stringify(logs));
+        displayLog();
+    }
+
+    function displayLog() {
+        const logs = JSON.parse(localStorage.getItem("logs")) || [];
+        const logContainer = document.getElementById("logContainer");
+        logContainer.innerHTML = logs.map(log => `<div>${log}</div>`).reverse().join('');
+    }
+    
+    function saveAsFile() {
+        // Ambil log dari localStorage
+        const logs = JSON.parse(localStorage.getItem("logs")) || [];
+        if (logs.length === 0) {
+            alert("Tidak ada log untuk disimpan.");
+            return;
         }
 
-        window.onload = function() {
-            loadInputs();
-            fetchRandomName();
-        };
-    </script>
+        // Gabungkan log menjadi string dengan pemisah baris
+        const logContent = logs.join("\n");
+
+        // Buat file Blob dengan konten log
+        const blob = new Blob([logContent], { type: "text/plain;charset=utf-8" });
+
+        // Buat elemen link untuk mengunduh file
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `log-history-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.txt`;
+
+        // Klik link untuk mengunduh file
+        link.style.display = "none";
+        document.body.appendChild(link); // Tambahkan ke DOM sementara
+        link.click();
+        document.body.removeChild(link); // Hapus elemen setelah selesai
+
+        // Lepaskan URL objek untuk mencegah kebocoran memori
+        URL.revokeObjectURL(link.href);
+    }
+
+    function reset() {
+    // Tampilkan konfirmasi
+    const confirmation = confirm("Temen to ora?.");
+    if (!confirmation) return; // Batalkan jika memilih "Tidak"
+
+    // Reset data
+    count = min; // Reset nilai `count` ke nilai awal
+    localStorage.setItem("count", count); // Simpan ke `localStorage`
+    localStorage.removeItem("logs"); // Hapus log
+    document.getElementById("resultBox").value = ''; // Kosongkan hasil
+    updateProgressBar();
+    displayLog();
+}
+
+    window.onload = function () {
+    loadInputs(); // Fungsi untuk memuat data lainnya
+    loadRandomName(); // Memuat nama acak yang tersimpan
+};
+
+</script>
 </head>
 <body>
+    <!-- Konten tetap sama seperti sebelumnya -->
     <div class="container">
         <div id="progressBarContainer">
             <div id="progressBar"></div>
@@ -326,7 +395,6 @@
         <label for="emailInput">Email:</label>
         <input type="email" id="emailInput" placeholder="Masukkan email" oninput="updateDisplay()" />
 
-        <!-- Toggle Switch -->
         <div class="checkbox-group">
             <label class="switch">
                 <input type="checkbox" id="prefix" onclick="updateDisplay()">
@@ -343,12 +411,13 @@
 
         <div class="log" id="logContainer"></div>
 
-<!-- Random Name Section -->
-<div>
-    <label for="randomName">Nama Acak:</label>
-    <input type="text" id="randomName" readonly />
-    <button onclick="fetchRandomName()">Acak</button>
-</div>
+        <div>
+            <label for="randomName">Nama Acak:</label>
+            <input type="text" id="randomName" readonly />
+            <button onclick="fetchRandomName()">Acak</button>
+        </div>
+        
+        <div class="version-label">Versi Ke Telu</div>
     </div>
 </body>
 </html>
