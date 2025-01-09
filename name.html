@@ -126,16 +126,18 @@
     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
         <button class="btn-reset" onclick="resetForm()">Reset</button>
         
-        <select id="emailDomain" style="margin-right: 10px;">
-            <option value="@gmail.com">@gmail.com</option>
-            <option value="@yahoo.com">@yahoo.com</option>
-            <option value="@hotmail.com">@hotmail.com</option>
-            <option value="@outlook.com">@outlook.com</option>
-            <option value="@protonmail.me">@protonmail.me</option>
-            <option value="@mail.com">@mail.com</option>
-            <option value="@aol.com">@aol.com</option>
-            <option value="@gmx.com">@gmx.com</option>
-        </select>
+        <select id="emailDomain" style="margin-right: 10px;" onchange="toggleCustomDomainInput()">
+    <option value="@gmail.com">@gmail.com</option>
+    <option value="@yahoo.com">@yahoo.com</option>
+    <option value="@hotmail.com">@hotmail.com</option>
+    <option value="@outlook.com">@outlook.com</option>
+    <option value="@protonmail.me">@protonmail.me</option>
+    <option value="@mail.com">@mail.com</option>
+    <option value="@aol.com">@aol.com</option>
+    <option value="@gmx.com">@gmx.com</option>
+    <option value="custom">Custom</option>
+</select>
+<input type="text" id="customDomain" placeholder="Masukkan" style="display: flex; justify-content: space-between; align-items: center; margin-right: 10px;">
 
         <button class="btn-generate" onclick="generateText()">Mulai</button>
     </div>
@@ -197,31 +199,48 @@
         }
     }
 
-    // Fungsi untuk generate teks
-    function generateText() {
-        const consonants = 'bcdfghklmnprstwy';
-        const vowels = 'aeiou';
-        const rareChars = 'zvxqj';
-        const charCount = document.getElementById('charCount').value;
-        const emailDomain = document.getElementById('emailDomain').value;
-        let result = '';
+    function toggleCustomDomainInput() {
+    const emailDomain = document.getElementById("emailDomain");
+    const customDomainInput = document.getElementById("customDomain");
 
-        for (let i = 0; i < charCount; i++) {
-            if (i % 2 === 0) {
-                result += getRandomCharWithReducedRareChars(consonants, rareChars);
-            } else {
-                result += getRandomChar(vowels);
-            }
-        }
-
-        result += emailDomain;
-
-        document.getElementById('resultText').value = result;
-        autoCopyText(result);  // Salin otomatis
-        addLog(result);
-        updateGenerateCount();
-        saveToLocalStorage();  // Simpan perubahan ke LocalStorage
+    if (emailDomain.value === "custom") {
+        customDomainInput.style.display = "inline-block";
+        customDomainInput.value = ""; // Kosongkan input saat dipilih
+    } else {
+        customDomainInput.style.display = "none";
     }
+}
+
+function generateText() {
+    const consonants = 'bcdfghklmnprstwy';
+    const vowels = 'aeiou';
+    const rareChars = 'zvxqj';
+    const charCount = document.getElementById('charCount').value;
+    const emailDomain = document.getElementById('emailDomain').value;
+    const customDomain = document.getElementById('customDomain').value;
+    let result = '';
+
+    for (let i = 0; i < charCount; i++) {
+        if (i % 2 === 0) {
+            result += getRandomCharWithReducedRareChars(consonants, rareChars);
+        } else {
+            result += getRandomChar(vowels);
+        }
+    }
+
+    // Tambahkan domain jika bukan Custom atau jika domain kustom telah diisi
+    if (emailDomain !== "custom") {
+        result += emailDomain;
+    } else if (customDomain.trim() !== "") {
+        result += `@${customDomain.trim()}`;
+    }
+
+    document.getElementById('resultText').value = result;
+    autoCopyText(result);  // Salin otomatis
+    addLog(result);
+    updateGenerateCount();
+    saveToLocalStorage();  // Simpan perubahan ke LocalStorage
+}
 
     function getRandomCharWithReducedRareChars(consonants, rareChars) {
         const useRareChar = Math.random() < 0.2;
