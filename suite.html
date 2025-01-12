@@ -201,7 +201,15 @@
             document.querySelector('input[name="format"]:checked').checked = false;
         }
 
-        function generateName() {
+        function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+function generateName() {
     const nameType = document.getElementById('nameType').value;
     const nameCount = parseInt(document.getElementById('nameCount').value, 10);
     let outputText = '';
@@ -211,16 +219,27 @@
         return;
     }
 
-    const actualNameCount = Math.max(nameCount, 1);
+    const actualNameCount = Math.min(nameCount, FirstNames.length * LastNames.length); // Batasi jumlah nama agar tidak melebihi kombinasi yang tersedia
+
+    // Buat salinan array untuk diacak
+    const shuffledFirstNames = shuffleArray([...FirstNames]);
+    const shuffledLastNames = shuffleArray([...LastNames]);
 
     for (let i = 0; i < actualNameCount; i++) {
         let name = '';
         if (nameType === 'firstName') {
-            const randomIndex = Math.floor(Math.random() * FirstNames.length);
-            name = FirstNames[randomIndex]; // Ambil nama depan
+            name = shuffledFirstNames[i % shuffledFirstNames.length]; // Nama depan tanpa pengulangan
         } else if (nameType === 'lastName') {
-            const randomIndex = Math.floor(Math.random() * LastNames.length);
-            name = LastNames[randomIndex]; // Ambil nama belakang
+            name = shuffledLastNames[i % shuffledLastNames.length]; // Nama belakang tanpa pengulangan
+        } else if (nameType === 'fullName') {
+            const firstName = shuffledFirstNames[i % shuffledFirstNames.length];
+            const lastName = shuffledLastNames[i % shuffledLastNames.length];
+            name = `${firstName} ${lastName}`; // Gabungan nama depan dan belakang
+        } else if (nameType === 'fullNameWithMiddle') {
+            const firstName = shuffledFirstNames[i % shuffledFirstNames.length];
+            const middleName = shuffledFirstNames[(i + 1) % shuffledFirstNames.length]; // Ambil nama tengah berbeda
+            const lastName = shuffledLastNames[i % shuffledLastNames.length];
+            name = `${firstName} ${middleName} ${lastName}`; // Gabungan nama depan, tengah, dan belakang
         }
         outputText += `${name}\n`;
     }
@@ -270,11 +289,15 @@
         </div>
 
         <div class="input-group select-group">
+        	
             <select id="nameType">
-                <option value="">--Pilih--</option>
-                <option value="firstName">Nama Depan</option>
-                <option value="lastName">Nama Belakang</option>
+    <option value="">--Pilih--</option>
+    <option value="firstName">Nama Depan</option>
+    <option value="lastName">Nama Belakang</option>
+    <option value="fullName">Nama Lengkap (Depan & Belakang)</option>
+    <option value="fullNameWithMiddle">Nama Lengkap (Depan, Tengah, Belakang)</option>
             </select>
+
         </div>
 
         <div class="input-group">
