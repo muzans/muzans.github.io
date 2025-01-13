@@ -40,41 +40,56 @@
             width: 100%;
         }
         .result-box textarea {
-            height: 80px;
-            resize: none;
-        }
-        .log-container {
-            background-color: #fafafa;
-            border: 2px solid #ccc;
-            border-radius: 8px;
-            padding: 10px;
-            box-sizing: border-box;
-            height: 100px;
-            overflow-y: auto;
-            width: 100%;
-        }
-        .log-title {
-            font-weight: bold;
-            font-size: 16px;
-            color: #333;
-            margin-bottom: 5px;
-            text-align: center;
-            padding: 5px 0;
-        }
-        .log-history {
-            margin: 5px 0;
-            padding: 5px;
-            border-radius: 4px;
-            font-size: 14px;
-            color: #333;
-            word-wrap: break-word;
-        }
-        .log-history:nth-child(odd) {
-            background-color: #d9edf7;
-        }
-        .log-history:nth-child(even) {
-            background-color: #fcf8e3;
-        }
+    height: 40px; /* Sesuaikan tinggi dengan input kolom nama */
+    resize: none;
+    width: 100%; /* Sesuaikan lebar */
+    box-sizing: border-box; /* Agar padding tidak memengaruhi lebar */
+}
+
+.box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px; /* Menyamakan lebar box dengan elemen Acak Nama */
+    margin-bottom: 20px;
+}
+
+.log-container {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    height: 150px;
+    overflow-y: auto;
+    width: 100%;
+    max-width: 400px; /* Sama dengan lebar box sebelumnya */
+    background-color: #ffffff;
+    margin: 20px 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.log-title {
+    font-weight: bold;
+    font-size: 12px;
+    color: #333;
+    text-align: center;
+    margin-bottom: 0px;
+    margin-top: 10px;
+}
+
+.log-history {
+    font-size: 14px;
+    color: #333;
+    padding: 5px;
+    margin: 5px 0;
+    border-bottom: 1px dashed #ddd;
+    word-wrap: break-word;
+}
+
+.log-history:last-child {
+    border-bottom: none;
+}
         .total-count {
             font-weight: bold;
             text-align: center;
@@ -88,7 +103,7 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            margin-right: 10px;
+            
         }
         .btn-reset {
             background-color: #d9534f;
@@ -109,40 +124,83 @@
             display: flex;
             justify-content: center;
         }
+        .btn-hitung {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn-hitung:hover {
+    background-color: #007bff;
+}
+        
+        .input-box label {
+    font-size: 12px; /* Ganti dengan ukuran yang diinginkan */
+}
+
+.result-box label {
+    font-size: 12px; /* Ganti dengan ukuran yang diinginkan */
+}
+        
+        #emailsuite {
+    height: 40px; /* Sama seperti tinggi elemen lain */
+    resize: none;
+    width: 100%; /* Sesuaikan lebar dengan kolom lainnya */
+    box-sizing: border-box; /* Agar padding tidak memengaruhi lebar */
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 8px;
+}
+
+#totalCount {
+    font-size: 12px; /* Ganti angka dengan ukuran yang Anda inginkan */
+    font-weight: bold; /* Untuk menonjolkan teks */
+    color: #333; /* Opsional: Ubah warna teks */
+    text-align: center; /* Opsional: Teks rata tengah */
+    margin-top: 10px; /* Sesuaikan jarak atas */
+}
+
+#emailDomain {
+    font-size: 14px; /* Ukuran teks yang nyaman */
+    height: 38px;    /* Sesuaikan tinggi dengan tombol */
+}
+
     </style>
 </head>
 <body>
 
 <div class="box">
     <div class="input-box">
-        <label>Jumlah Huruf Kombinasi:</label>
+        <label>Jumlah Huruf:</label>
         <input type="number" id="charCount" min="1" value="10">
     </div>
     <div class="result-box">
-        <label>Hasil Generasi:</label>
+        <label>Hasil:</label>
         <textarea id="resultText" readonly placeholder="Hasil generasi teks akan muncul di sini"></textarea>
     </div>
-    <div class="total-count" id="totalCount">Total: 0</div>
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-        <button class="btn-reset" onclick="resetForm()">Reset</button>
-        
-        <select id="emailDomain" style="margin-right: 10px;" onchange="toggleCustomDomainInput()">
-    <option value="@gmail.com">@gmail.com</option>
-    <option value="@yahoo.com">@yahoo.com</option>
-    <option value="@hotmail.com">@hotmail.com</option>
-    <option value="@outlook.com">@outlook.com</option>
-    <option value="@protonmail.me">@protonmail.me</option>
-    <option value="@mail.com">@mail.com</option>
-    <option value="@aol.com">@aol.com</option>
-    <option value="@gmx.com">@gmx.com</option>
-    <option value="custom">Custom</option>
-</select>
-<input type="text" id="customDomain" placeholder="Masukkan" style="display: flex; justify-content: space-between; align-items: center; margin-right: 10px;">
-
-        <button class="btn-generate" onclick="generateText()">Mulai</button>
-    </div>
+    <div class="input-box">
+    <label>Email Count:</label>
+    <textarea id="emailsuite" placeholder="Isi Email"></textarea>
 </div>
+</div>
+    <div class="total-count" id="totalCount">Total: 0</div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; gap: 20px;">
+        <button class="btn-hitung" style="flex: 1;" onclick="incrementEmail()">Hitung</button>
 
+    <!-- Kolom teks untuk domain email -->
+<input 
+    type="text" 
+    id="emailDomain" 
+    placeholder="Masukkan domain (contoh: @gmail.com)" 
+    style="flex: 5; text-align: center; border-radius: 5px; padding: 8px;"
+    onblur="addDefaultAtSymbol(); saveToLocalStorage()">
+
+<button class="btn-generate" style="flex: 1;" onclick="generateText(); autoCopyText(document.getElementById('resultText').value)">Mulai</button>
+
+</div>
 <div class="log-title">Log History</div>
 <div class="log-container">
     <div class="log-history" id="logHistory"></div>
@@ -151,75 +209,122 @@
 <!-- Generator Nama Acak -->
 <div class="box">
     <input type="text" id="nama-kombinasi" readonly placeholder="Nama akan muncul di sini...">
-    <div class="button-center">
+    <div class="button-center" style="display: flex; justify-content: center; gap: 10px;">
+        
+        <button class="btn-generate" onclick="saveLogHistory()">Simpan</button>
+        
         <button class="button" onclick="generateRandomName()">Acak</button>
+        
+        <button class="btn-reset" onclick="resetForm(); localStorage.clear()">Reset</button>
+       
     </div>
-</div>
-
-<!-- Tombol Simpan -->
-<div class="save-btn-container">
-    <button class="btn-generate" onclick="saveLogHistory()">Simpan</button>
 </div>
 
 <script>
     let generateCount = 0;
 
     // Fungsi untuk menyimpan data ke LocalStorage
-    function saveToLocalStorage() {
-        localStorage.setItem('charCount', document.getElementById('charCount').value);
-        localStorage.setItem('emailDomain', document.getElementById('emailDomain').value);
-        localStorage.setItem('resultText', document.getElementById('resultText').value);
-        localStorage.setItem('generateCount', generateCount);
-        localStorage.setItem('logHistory', document.getElementById('logHistory').innerHTML);
-    }
-
-    // Fungsi untuk mengambil data dari LocalStorage
-    function loadFromLocalStorage() {
-        const charCount = localStorage.getItem('charCount');
-        const emailDomain = localStorage.getItem('emailDomain');
-        const resultText = localStorage.getItem('resultText');
-        const logHistory = localStorage.getItem('logHistory');
-        const storedGenerateCount = localStorage.getItem('generateCount');
-
-        if (charCount) {
-            document.getElementById('charCount').value = charCount;
-        }
-        if (emailDomain) {
-            document.getElementById('emailDomain').value = emailDomain;
-        }
-        if (resultText) {
-            document.getElementById('resultText').value = resultText;
-        }
-        if (logHistory) {
-            document.getElementById('logHistory').innerHTML = logHistory;
-        }
-        if (storedGenerateCount) {
-            generateCount = parseInt(storedGenerateCount, 10);
-            document.getElementById('totalCount').textContent = `Total: ${generateCount}`;
-        }
-    }
-
-    function toggleCustomDomainInput() {
-    const emailDomain = document.getElementById("emailDomain");
-    const customDomainInput = document.getElementById("customDomain");
-
-    if (emailDomain.value === "custom") {
-        customDomainInput.style.display = "inline-block";
-        customDomainInput.value = ""; // Kosongkan input saat dipilih
-    } else {
-        customDomainInput.style.display = "none";
-    }
+function saveToLocalStorage() {
+    localStorage.setItem('charCount', document.getElementById('charCount').value);
+    localStorage.setItem('resultText', document.getElementById('resultText').value);
+    localStorage.setItem('emailsuite', document.getElementById('emailsuite').value);
+    localStorage.setItem('emailDomain', document.getElementById('emailDomain').value);
+    localStorage.setItem('logHistory', document.getElementById('logHistory').innerHTML);
+    localStorage.setItem('generateCount', generateCount);
 }
 
-function generateText() {
+// Fungsi untuk mengambil data dari LocalStorage
+function loadFromLocalStorage() {
+    document.getElementById('charCount').value = localStorage.getItem('charCount') || 10;
+    document.getElementById('resultText').value = localStorage.getItem('resultText') || '';
+    document.getElementById('emailsuite').value = localStorage.getItem('emailsuite') || '';
+    document.getElementById('emailDomain').value = localStorage.getItem('emailDomain') || '@gmail.com';
+    document.getElementById('logHistory').innerHTML = localStorage.getItem('logHistory') || '';
+    generateCount = parseInt(localStorage.getItem('generateCount'), 10) || 0;
+    document.getElementById('totalCount').textContent = `Total: ${generateCount}`;
+}
+
+// Simpan data setiap kali ada perubahan
+document.getElementById('charCount').addEventListener('input', saveToLocalStorage);
+document.getElementById('resultText').addEventListener('input', saveToLocalStorage);
+document.getElementById('emailsuite').addEventListener('input', saveToLocalStorage);
+document.getElementById('emailDomain').addEventListener('blur', saveToLocalStorage);
+
+
+// Tambahkan auto-save untuk log history saat log berubah
+const logHistoryContainer = document.getElementById('logHistory');
+const observer = new MutationObserver(saveToLocalStorage);
+observer.observe(logHistoryContainer, { childList: true });
+    
+    function incrementEmail() {
+    const emailBox = document.getElementById("emailsuite");
+    const logHistory = document.getElementById("logHistory");
+
+    // Ambil email dari input
+    let email = emailBox.value.trim();
+    if (!email) {
+        alert("Kolom email kosong.");
+        return;
+    }
+
+    // Pisahkan username dan domain
+    const atIndex = email.lastIndexOf("@");
+    if (atIndex === -1) {
+        alert("Format email tidak valid.");
+        return;
+    }
+
+    let username = email.substring(0, atIndex); // Username sebelum @
+    const domain = email.substring(atIndex);   // Domain setelah @
+
+    // Cari angka di username
+    let match = username.match(/(\d+)/); // Cari angka berapa pun di username
+    if (match) {
+        // Jika ada angka, increment angka terakhir yang ditemukan
+        const number = parseInt(match[0], 10) + 1; // Increment angka
+        username = username.replace(match[0], number); // Ganti angka lama dengan angka baru
+    } else {
+        // Jika tidak ada angka, tambahkan angka "1" di akhir
+        username += "1";
+    }
+
+    // Buat email baru
+    const newEmail = `${username}${domain}`;
+
+    // Tambahkan ke log history
+    const logEntry = document.createElement("div");
+    logEntry.className = "log-history";
+    logEntry.textContent = newEmail;
+    logHistory.insertBefore(logEntry, logHistory.firstChild);
+
+    // Salin email baru ke clipboard
+    autoCopyText(newEmail);
+
+    // Perbarui kolom email dengan email baru
+    emailBox.value = newEmail;
+}
+
+    
+
+    function generateText() {
     const consonants = 'bcdfghklmnprstwy';
     const vowels = 'aeiou';
     const rareChars = 'zvxqj';
-    const charCount = document.getElementById('charCount').value;
-    const emailDomain = document.getElementById('emailDomain').value;
-    const customDomain = document.getElementById('customDomain').value;
+    const charCount = parseInt(document.getElementById('charCount').value) || 10; // Ambil nilai jumlah huruf (default: 10)
+    const emailBox = document.getElementById('emailsuite');
+    const emailDomainField = document.getElementById('emailDomain');
+    let emailDomain = emailDomainField.value.trim();
+
+    // Tambahkan '@' jika domain tidak valid
+    if (emailDomain === '') {
+        emailDomain = '@gmail.com'; // Default domain jika kosong
+    } else if (!emailDomain.startsWith('@')) {
+        emailDomain = `@${emailDomain}`;
+    }
+
     let result = '';
 
+    // Generate teks sesuai jumlah huruf
     for (let i = 0; i < charCount; i++) {
         if (i % 2 === 0) {
             result += getRandomCharWithReducedRareChars(consonants, rareChars);
@@ -228,29 +333,32 @@ function generateText() {
         }
     }
 
-    // Tambahkan domain jika bukan Custom atau jika domain kustom telah diisi
-    if (emailDomain !== "custom") {
-        result += emailDomain;
-    } else if (customDomain.trim() !== "") {
-        result += `@${customDomain.trim()}`;
-    }
+    // Gabungkan teks yang dihasilkan dengan domain
+    result += emailDomain;
 
+    // Tampilkan hasil pada kolom hasil generasi
     document.getElementById('resultText').value = result;
-    autoCopyText(result);  // Salin otomatis
+
+    // Tambahkan ke log history
     addLog(result);
+
+    // Perbarui jumlah generate
     updateGenerateCount();
-    saveToLocalStorage();  // Simpan perubahan ke LocalStorage
+
+    // Simpan ke LocalStorage
+    saveToLocalStorage();
 }
 
-    function getRandomCharWithReducedRareChars(consonants, rareChars) {
-        const useRareChar = Math.random() < 0.2;
-        const chars = useRareChar ? rareChars : consonants;
-        return chars.charAt(Math.floor(Math.random() * chars.length));
-    }
+// Fungsi tambahan untuk memilih huruf secara acak
+function getRandomCharWithReducedRareChars(consonants, rareChars) {
+    const useRareChar = Math.random() < 0.2;
+    const chars = useRareChar ? rareChars : consonants;
+    return chars.charAt(Math.floor(Math.random() * chars.length));
+}
 
-    function getRandomChar(chars) {
-        return chars.charAt(Math.floor(Math.random() * chars.length));
-    }
+function getRandomChar(chars) {
+    return chars.charAt(Math.floor(Math.random() * chars.length));
+}
 
     function addLog(text) {
         const logHistory = document.getElementById('logHistory');
@@ -267,14 +375,15 @@ function generateText() {
     }
 
     function resetForm() {
-        localStorage.clear();  // Hapus semua data di LocalStorage
-        document.getElementById('charCount').value = 10;
-        document.getElementById('resultText').value = '';
-        document.getElementById('logHistory').innerHTML = '';
-        document.getElementById('emailDomain').value = '@gmail.com';
-        generateCount = 0;
-        document.getElementById('totalCount').textContent = `Total: ${generateCount}`;
-    }
+    localStorage.clear();  // Hapus semua data di LocalStorage
+    document.getElementById('charCount').value = 10;
+    document.getElementById('resultText').value = '';
+    document.getElementById('emailsuite').value = '';
+    document.getElementById('emailDomain').value = '@gmail.com';
+    document.getElementById('logHistory').innerHTML = '';
+    generateCount = 0;
+    document.getElementById('totalCount').textContent = `Total: ${generateCount}`;
+}
 
     // Fungsi untuk menyalin teks secara otomatis
     function autoCopyText(text) {
