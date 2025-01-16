@@ -217,6 +217,9 @@
         <button class="button" onclick="generateRandomName()">Acak</button>
         
         <button class="btn-reset" onclick="resetForm(); localStorage.clear()">Reset</button>
+        
+        <!-- Tombol Domain Acak -->
+        <button class="button" onclick="addRandomDomain();">Domain</button>
        
     </div>
 </div>
@@ -452,10 +455,44 @@ function getRandomChar(chars) {
         autoCopyText(fullName);
     }
 
+
+let randomDomains = [];
+
+// Ambil data domain acak dari JSON
+async function fetchData() {
+    try {
+        const response = await fetch(jsonUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        firstNames = data.FirstNames || [];
+        lastNames = data.LastNames || [];
+        randomDomains = data.Domains || [];
+
+        console.log("Domains loaded:", randomDomains); // Debug: pastikan data terisi
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
+}
+
+// Fungsi untuk menambahkan domain acak ke kolom domain
+function addRandomDomain() {
+    if (randomDomains.length === 0) {
+        alert("Domain acak belum tersedia.");
+        return;
+    }
+
+    const randomDomain = randomDomains[Math.floor(Math.random() * randomDomains.length)];
+    const emailDomainField = document.getElementById('emailDomain');
+    emailDomainField.value = `@${randomDomain}`;
+    saveToLocalStorage();
+}
+
     // Panggil fetchData saat halaman dimuat
     fetchData();
 </script>
 <footer style="margin-top: 20px; text-align: center; font-size: 12px; color: #555;">
-    Versi: 3.0.0 | Build: 2025-01-13
+    Versi: 4.0.0 | Build: 2025-01-16
 </body>
 </html>
