@@ -388,6 +388,23 @@ function loadRandomName() {
     loadRandomName(); // Memuat nama acak yang tersimpan
 };
 
+document.querySelectorAll('input').forEach(input => {
+    input.addEventListener('focus', () => {
+        document.body.style.overflow = 'hidden';
+    });
+    input.addEventListener('blur', () => {
+        document.body.style.overflow = '';
+    });
+});
+
+window.addEventListener('resize', () => {
+    if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') {
+        window.setTimeout(() => {
+            document.activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+    }
+});
+
 </script>
 </head>
 <body>
