@@ -126,6 +126,10 @@
         .input-group.select-group {
             margin-top: 20px;
         }
+        
+        .input-group.insert-group {
+    margin-top: 10px; /* Menambahkan jarak 10px di atas elemen */
+}
     </style>
     <script>
         const jsonUrl = "https://raw.githubusercontent.com/muzans/muzans.github.io/refs/heads/main/base.json";
@@ -209,9 +213,13 @@
     return array;
 }
 
+
 function generateName() {
     const nameType = document.getElementById('nameType').value;
     const nameCount = parseInt(document.getElementById('nameCount').value, 10);
+    const insertLetters = document.getElementById('insertLetters').value.trim();
+    const insertPosition = document.querySelector('input[name="insertPosition"]:checked')?.value;
+
     let outputText = '';
 
     if (!nameType || nameCount <= 0) {
@@ -219,33 +227,44 @@ function generateName() {
         return;
     }
 
-    const actualNameCount = Math.min(nameCount, FirstNames.length * LastNames.length); // Batasi jumlah nama agar tidak melebihi kombinasi yang tersedia
-
-    // Buat salinan array untuk diacak
     const shuffledFirstNames = shuffleArray([...FirstNames]);
     const shuffledLastNames = shuffleArray([...LastNames]);
 
-    for (let i = 0; i < actualNameCount; i++) {
+    for (let i = 0; i < nameCount; i++) {
         let name = '';
         if (nameType === 'firstName') {
-            name = shuffledFirstNames[i % shuffledFirstNames.length]; // Nama depan tanpa pengulangan
+            name = shuffledFirstNames[i % shuffledFirstNames.length];
         } else if (nameType === 'lastName') {
-            name = shuffledLastNames[i % shuffledLastNames.length]; // Nama belakang tanpa pengulangan
+            name = shuffledLastNames[i % shuffledLastNames.length];
         } else if (nameType === 'fullName') {
             const firstName = shuffledFirstNames[i % shuffledFirstNames.length];
             const lastName = shuffledLastNames[i % shuffledLastNames.length];
-            name = `${firstName} ${lastName}`; // Gabungan nama depan dan belakang
+            name = `${firstName} ${lastName}`;
         } else if (nameType === 'fullNameWithMiddle') {
             const firstName = shuffledFirstNames[i % shuffledFirstNames.length];
-            const middleName = shuffledFirstNames[(i + 1) % shuffledFirstNames.length]; // Ambil nama tengah berbeda
+            const middleName = shuffledFirstNames[(i + 1) % shuffledFirstNames.length];
             const lastName = shuffledLastNames[i % shuffledLastNames.length];
-            name = `${firstName} ${middleName} ${lastName}`; // Gabungan nama depan, tengah, dan belakang
+            name = `${firstName} ${middleName} ${lastName}`;
         }
+
+        // Sisipkan huruf tanpa spasi otomatis
+        if (insertLetters) {
+            if (insertPosition === 'front') {
+                name = insertLetters + name; // Sisipan di depan
+            } else if (insertPosition === 'random') {
+                const randomIndex = Math.floor(Math.random() * (name.length + 1)); // Posisi acak dalam nama
+                name = name.slice(0, randomIndex) + insertLetters + name.slice(randomIndex);
+            } else if (insertPosition === 'end') {
+                name = name + insertLetters; // Sisipan di belakang
+            }
+        }
+
         outputText += `${name}\n`;
     }
 
     document.getElementById('outputText').value = outputText;
 }
+
 
         window.onload = fetchData;
     </script>
@@ -287,6 +306,24 @@ function generateName() {
             <button onclick="copyToClipboard()">Salin Semua</button>
             <button class="reset-btn" onclick="resetAll()">Reset</button>
         </div>
+        
+        
+        <div class="input-group insert-group">
+    <label for="insertLetters">Sisipkan Huruf:</label>
+    <input type="text" id="insertLetters" placeholder="Masukkan huruf yang akan disisipkan...">
+</div>
+
+<div class="radio-group">
+    <input type="radio" id="insertFront" name="insertPosition" value="front">
+    <label for="insertFront">Di Depan</label>
+    
+    <input type="radio" id="insertRandom" name="insertPosition" value="random">
+    <label for="insertRandom">Random</label>
+    
+    <input type="radio" id="insertEnd" name="insertPosition" value="end">
+    <label for="insertEnd">Di Belakang</label>
+</div>
+
 
         <div class="input-group select-group">
         	
