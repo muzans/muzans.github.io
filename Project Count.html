@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Generator Teks dan Nama Acak</title>
+    <style>
+        body {
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #e8f0fe;
+            padding: 20px;
+        }
+        .box {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 20px;
+        }
+        .input-box, .result-box, .log-container {
+            margin-bottom: 15px;
+        }
+        .input-box label, .result-box label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="number"], textarea, input[type="text"], select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+            width: 100%;
+        }
+        .result-box textarea {
+    height: 40px; /* Sesuaikan tinggi dengan input kolom nama */
+    resize: none;
+    width: 100%; /* Sesuaikan lebar */
+    box-sizing: border-box; /* Agar padding tidak memengaruhi lebar */
+}
+
+.box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px; /* Menyamakan lebar box dengan elemen Acak Nama */
+    margin-bottom: 20px;
+}
+
+.log-container {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    height: 150px;
+    overflow-y: auto;
+    width: 100%;
+    max-width: 400px; /* Sama dengan lebar box sebelumnya */
+    background-color: #ffffff;
+    margin: 20px 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.log-title {
+    font-weight: bold;
+    font-size: 12px;
+    color: #333;
+    text-align: center;
+    margin-bottom: 0px;
+    margin-top: 10px;
+}
+
+.log-history {
+    font-size: 14px;
+    color: #333;
+    padding: 5px;
+    margin: 5px 0;
+    border-bottom: 1px dashed #ddd;
+    word-wrap: break-word;
+}
+
+.log-history:last-child {
+    border-bottom: none;
+}
+        .total-count {
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+            color: #333;
+        }
+        .btn-reset, .btn-generate, .button {
+            background-color: #5cb85c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            
+        }
+        .btn-reset {
+            background-color: #d9534f;
+        }
+        .button {
+            background-color: #007bff;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .button-center {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .save-btn-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .btn-hitung {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn-hitung:hover {
+    background-color: #007bff;
+}
+        
+        .input-box label {
+    font-size: 12px; /* Ganti dengan ukuran yang diinginkan */
+}
+
+.result-box label {
+    font-size: 12px; /* Ganti dengan ukuran yang diinginkan */
+}
+        
+        #emailsuite {
+    height: 40px; /* Sama seperti tinggi elemen lain */
+    resize: none;
+    width: 100%; /* Sesuaikan lebar dengan kolom lainnya */
+    box-sizing: border-box; /* Agar padding tidak memengaruhi lebar */
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 8px;
+}
+
+#totalCount {
+    font-size: 12px; /* Ganti angka dengan ukuran yang Anda inginkan */
+    font-weight: bold; /* Untuk menonjolkan teks */
+    color: #333; /* Opsional: Ubah warna teks */
+    text-align: center; /* Opsional: Teks rata tengah */
+    margin-top: 10px; /* Sesuaikan jarak atas */
+}
+
+#emailDomain {
+    font-size: 14px; /* Ukuran teks yang nyaman */
+    height: 38px;    /* Sesuaikan tinggi dengan tombol */
+}
+
+        /* Styling for the container */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            font-size: 18px;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background-color: #ccc;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-switch .switch-circle {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 26px;
+            height: 26px;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        /* When the switch is ON */
+        .toggle-switch input:checked + .switch-circle {
+            transform: translateX(30px);
+        }
+
+        /* When the toggle switch is ON */
+        .toggle-switch input:checked {
+            background-color: #4CAF50;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <div class="input-box">
+        <label>Min:</label>
+        <input type="number" id="countmin" min="0">
+    </div>
+    <div class="result-box">
+        <label>Max:</label>
+        <input type="number" id="countmax" min="1">
+    </div>
+    <div class="input-box">
+    <label>Email Count:</label>
+    <textarea id="emailsuite" placeholder="Isi email/gsuite"></textarea>
+</div>
+</div>
+    <div class="total-count" id="totalCount">Total: 0</div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; gap: 20px;">
+        <button class="btn-hitung" style="flex: 1;" onclick="incrementEmail()">Hitung</button>
+
+    <!-- Kolom teks untuk domain email -->    <div     <div class="toggle-container">
+        <label class="toggle-switch">
+            <input type="checkbox">
+            <span class="switch-circle"></span>
+        </label>
+    </div>
+
+
+<button class="btn-generate" style="flex: 1;" onclick="generateText(); autoCopyText(document.getElementById('resultText').value)">Mulai</button>
+
+</div>
+<div class="log-title">Log History</div>
+<div class="log-container">
+    <div class="log-history" id="logHistory"></div>
+</div>
+
+<!-- Generator Nama Acak -->
+<div class="box">
+    <input type="text" id="nama-kombinasi" readonly placeholder="Nama akan muncul di sini...">
+    <div class="button-center" style="display: flex; justify-content: center; gap: 10px;">
+        
+        <!-- Tombol Menu -->
+        <button class="button" onclick="window.location.href='https://muzans.github.io/';">Menu</button>
+    
+        <button class="btn-generate" onclick="saveLogHistory()">Simpan</button>
+        
+        <button class="button" onclick="generateRandomName()">Acak</button>
+        
+        <button class="btn-reset" onclick="resetForm(); localStorage.clear()">Reset</button>
+        
+        <!-- Tombol Domain Acak -->
+        <button class="button" onclick="addRandomDomain();">Domain</button>
+       
+    </div>
+</div>
+
+<script>
+
+
+</script>
+</script>
+<footer style="margin-top: 20px; text-align: center; font-size: 12px; color: #555;">
+    Versi: 4.1.0-beta | Build: 2025-01-17
+</body>
+</html>

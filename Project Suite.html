@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Data ke Google Sheets</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            text-align: center;
+        }
+        h2, h3 {
+            color: #333;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+            text-align: left;
+        }
+        input {
+            width: 95%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+        .row input {
+            flex: 1;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 15px;
+            border: none;
+            color: white;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-primary {
+            background-color: #007bff;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-success {
+            background-color: #28a745;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .btn-warning {
+            background-color: #ffc107;
+            color: black;
+        }
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+        .info {
+            font-size: 12px;
+            color: #777;
+            margin-top: 10px;
+        }
+    </style>
+    <script>
+        
+        // Fungsi untuk menyimpan data ke localStorage
+function saveData() {
+    const formData = {
+        spreadsheetId: document.getElementById("spreadsheetId").value,
+        sheetName: document.getElementById("sheetName").value,
+        jumlahNama: document.getElementById("jumlahNama").value,
+        hurufDisisipkan: document.getElementById("hurufDisisipkan").value,
+        email: document.getElementById("email").value,
+        password: document.getElementById("password").value,
+        unit: document.getElementById("unit").value
+    };
+    localStorage.setItem("formData", JSON.stringify(formData));
+}
+
+// Fungsi untuk memuat data dari localStorage saat halaman dimuat
+function loadData() {
+    const storedData = localStorage.getItem("formData");
+    if (storedData) {
+        const formData = JSON.parse(storedData);
+        document.getElementById("spreadsheetId").value = formData.spreadsheetId || "";
+        document.getElementById("sheetName").value = formData.sheetName || "";
+        document.getElementById("jumlahNama").value = formData.jumlahNama || "";
+        document.getElementById("hurufDisisipkan").value = formData.hurufDisisipkan || "";
+        document.getElementById("email").value = formData.email || "";
+        document.getElementById("password").value = formData.password || "";
+        document.getElementById("unit").value = formData.unit || "";
+    }
+}
+
+// Fungsi untuk mereset semua input dan menghapus localStorage
+function resetForm() {
+    document.getElementById("spreadsheetId").value = "";
+    document.getElementById("sheetName").value = "";
+    document.getElementById("jumlahNama").value = "";
+    document.getElementById("hurufDisisipkan").value = "";
+    document.getElementById("email").value = "";
+    document.getElementById("password").value = "";
+    document.getElementById("unit").value = "";
+    localStorage.removeItem("formData");
+}
+
+// Event listener untuk menyimpan data saat ada perubahan di input
+document.addEventListener("DOMContentLoaded", loadData);
+document.querySelectorAll("input").forEach(input => {
+    input.addEventListener("input", saveData);
+});
+
+const jsonUrl = "https://raw.githubusercontent.com/muzans/muzans.github.io/refs/heads/main/base.json";
+let FirstNames = [];
+let LastNames = [];
+
+// Ambil data nama dari JSON eksternal
+async function fetchNames() {
+    try {
+        const response = await fetch(jsonUrl);
+        const data = await response.json();
+        FirstNames = data.firstNames;
+        LastNames = data.lastNames;
+    } catch (error) {
+        console.error("Gagal mengambil data nama:", error);
+    }
+}
+
+// Fungsi untuk menyisipkan huruf di dalam nama (kecuali huruf pertama)
+function sisipkanHuruf(nama, huruf) {
+    if (!huruf) return nama;
+    const posisi = Math.floor(Math.random() * (nama.length - 1)) + 1;
+    return nama.slice(0, posisi) + huruf + nama.slice(posisi);
+}
+
+// Fungsi untuk mengisi Google Sheets mulai dari row 2
+async function submitData() {
+    const spreadsheetId = document.getElementById("spreadsheetId").value;
+    const sheetName = document.getElementById("sheetName").value;
+    const jumlahNama = parseInt(document.getElementById("jumlahNama").value);
+    const hurufDisisipkan = document.getElementById("hurufDisisipkan").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const unit = document.getElementById("unit").value;
+
+    if (!spreadsheetId || !sheetName || !jumlahNama || jumlahNama <= 0 || !unit.includes("/")) {
+        alert("Pastikan semua data diisi dengan benar!");
+        return;
+    }
+
+    let data = [];
+    for (let i = 0; i < jumlahNama; i++) {
+        // Ambil nama secara acak dari JSON
+        const firstName = FirstNames.length ? FirstNames[Math.floor(Math.random() * FirstNames.length)] : "Nama";
+        const lastName = LastNames.length ? LastNames[Math.floor(Math.random() * LastNames.length)] : "Belakang";
+
+        // Sisipkan huruf jika diisi
+        const modifiedFirstName = sisipkanHuruf(firstName, hurufDisisipkan);
+
+        // Generate email jika mengandung angka di username
+        let emailGenerated = email;
+        const match = email.match(/(\d+)/);
+        if (match) {
+            emailGenerated = email.replace(match[0], match[0] + (i + 1));
+        }
+
+        data.push([
+            modifiedFirstName, // Kolom A (First Name)
+            lastName,          // Kolom B (Last Name)
+            emailGenerated,    // Kolom C (Email)
+            password,          // Kolom D (Password)
+            "",                // Kolom E (Kosong)
+            unit,              // Kolom F (Unit, harus mengandung "/")
+            "FALSE"            // Kolom G (Status FALSE)
+        ]);
+    }
+
+    // Kirim data ke Google Sheets menggunakan API Fetch
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${sheetName}!A2:G${jumlahNama + 1}:append?valueInputOption=RAW`;
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ values: data })
+        });
+
+        if (response.ok) {
+            alert("Data berhasil dikirim mulai dari row 2!");
+        } else {
+            alert("Gagal mengirim data.");
+        }
+    } catch (error) {
+        console.error("Error:", error);
+    }
+}
+
+// Fungsi untuk mengosongkan semua data di Google Sheets
+async function clearData() {
+    const spreadsheetId = document.getElementById("spreadsheetId").value;
+    const sheetName = document.getElementById("sheetName").value;
+    if (!spreadsheetId || !sheetName) {
+        alert("Masukkan ID Spreadsheet dan Nama Sheet!");
+        return;
+    }
+
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${sheetName}!A2:G1000:clear`;
+    try {
+        const response = await fetch(url, { method: "POST" });
+        if (response.ok) {
+            alert("Data berhasil dihapus dari row 2 ke bawah!");
+        } else {
+            alert("Gagal menghapus data.");
+        }
+    } catch (error) {
+        console.error("Error:", error);
+    }
+}
+
+// Panggil fetchNames saat halaman dimuat
+fetchNames();
+        
+        
+        
+        
+        
+        
+        
+        
+    </script>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Input Data ke Google Sheets</h2>
+
+        <label for="spreadsheetId">ID Spreadsheet:</label>
+        <input type="text" id="spreadsheetId" placeholder="Masukkan ID Spreadsheet">
+
+        <label for="sheetName">Nama Sheet:</label>
+        <input type="text" id="sheetName" placeholder="Masukkan Nama Sheet">
+
+        <label for="jumlahNama">Jumlah Nama & Huruf Disisipkan:</label>
+        <div class="row">
+            <input type="number" id="jumlahNama" placeholder="Masukkan Jumlah Nama">
+            <input type="text" id="hurufDisisipkan" placeholder="Masukkan Huruf yang Disisipkan">
+        </div>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" placeholder="Masukkan Email">
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" placeholder="Masukkan Password">
+
+        <label for="unit">Unit:</label>
+        <input type="text" id="unit" placeholder="Masukkan Unit">
+
+        <button class="btn-success" onclick="submitData()">Input</button>
+        <button class="btn-warning" onclick="clearData()">Clear</button>
+        <button class="btn-danger" onclick="resetForm()">Reset</button>
+
+        <p class="info">Pastikan ID Spreadsheet sudah diatur agar bisa diakses publik.</p>
+    </div>
+
+</body>
+</html>
