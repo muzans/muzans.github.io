@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Halaman Utama</title>
     <style>
-        /* Reset margin dan padding */
         * {
             margin: 0;
             padding: 0;
@@ -13,14 +12,12 @@
             font-family: Arial, sans-serif;
         }
 
-        /* Animasi latar belakang halus */
         @keyframes gradientBackground {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
 
-        /* Body dan background */
         body {
             display: flex;
             justify-content: center;
@@ -31,55 +28,62 @@
             animation: gradientBackground 10s ease infinite;
         }
 
-        /* Container utama */
         .container {
             width: 90%;
-            max-width: 400px;
+            max-width: 600px;
             text-align: center;
-            background: rgba(255, 255, 255, 0.8); /* Semi-transparan untuk fokus pada konten */
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
         }
 
-        /* Header */
         h1 {
-            font-size: 1.8em;
-            margin-bottom: 20px;
+            font-size: 2em;
+            margin-bottom: 25px;
             color: #333;
         }
 
-        /* Daftar menu */
+        /* Menu fleksibel */
         .menu-list {
             display: flex;
-            flex-direction: column;
+            flex-wrap: wrap;
+            justify-content: center;
             gap: 15px;
         }
 
-        /* Gaya item menu */
         .menu-item {
+            flex: 1 1 calc(50% - 15px); /* Setiap tombol 50% dalam satu baris */
             padding: 15px;
-            border-radius: 10px;
+            border-radius: 12px;
             color: #fff;
-            font-size: 1.2em;
+            font-size: 1.3em;
             font-weight: bold;
             cursor: pointer;
             text-align: center;
             transition: transform 0.2s;
-            text-decoration: none; /* Menghilangkan garis bawah */
+            text-decoration: none;
+            min-width: 160px;
         }
 
-        /* Animasi saat menu ditekan */
         .menu-item:hover {
-            transform: scale(1.05);
+            transform: scale(1.08);
         }
 
-        /* Gradien untuk tiap menu */
         .menu-item:nth-child(1) { background: linear-gradient(45deg, #ff6b6b, #f06595); }
         .menu-item:nth-child(2) { background: linear-gradient(45deg, #42a5f5, #478ed1); }
         .menu-item:nth-child(3) { background: linear-gradient(45deg, #66bb6a, #43a047); }
         .menu-item:nth-child(4) { background: linear-gradient(45deg, #ffca28, #ffa726); }
         .menu-item:nth-child(5) { background: linear-gradient(45deg, #ab47bc, #8e24aa); }
+        .menu-item:nth-child(6) { background: linear-gradient(45deg, #ef5350, #e53935); }
+        .menu-item:nth-child(7) { background: linear-gradient(45deg, #26c6da, #00acc1); }
+
+        /* Responsif: jika layar kecil, menu menjadi satu kolom */
+        @media (max-width: 450px) {
+            .menu-item {
+                flex: 1 1 100%;
+            }
+        }
 
     </style>
 </head>
@@ -88,12 +92,12 @@
         <h1>Selamat Datang</h1>
         <div class="menu-list">
             <a href="https://muzans.github.io/Project%20Suite.html" class="menu-item">Project Suite</a>
-            <a
-<a href="https://muzans.github.io/name.html" class="menu-item">Generator Nama</a>
+            <a href="https://muzans.github.io/name.html" class="menu-item">Generator Nama</a>
             <a href="https://muzans.github.io/count.html" class="menu-item">Count Email</a>
             <a href="http://muzans.github.io/suite.html" class="menu-item">Suite Tools</a>
             <a href="http://muzans.github.io/gmdot.html" class="menu-item">Email Dot</a>
             <a href="http://muzans.github.io/privacy_policy.html" class="menu-item">Privacy Policy</a>
+            <a href="http://muzans.github.io/new_menu.html" class="menu-item">Coming Soon</a> <!-- Tambahan menu -->
         </div>
     </div>
 </body>
