@@ -2,427 +2,227 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
     <title>Counter Email</title>
     <style>
-        /* Gaya tetap sama seperti sebelumnya */
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            margin-top: 60px; /* Jarak atas 60px */
         }
-
-        .version-label {
-            position: absolute;
-            top: -40px;
-            right: 20px;
-            font-size: 14px;
-            color: #555;
-            background-color: #f4f4f9;
-            padding: 5px 10px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            font-weight: bold;
-}
         .container {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #ffffff;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    max-width: 400px;
-    width: 100%;
-}
-
-        #progressBarContainer {
-            width: 100%;
-            background-color: #ddd;
-            border-radius: 5px;
-            overflow: hidden;
-            margin-bottom: 20px;
-            height: 20px;
+            max-width: 320px;
+            margin: auto;
         }
-
-        #progressBar {
-            height: 100%;
-            background-color: #007bff;
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-
-        .input-row {
+        .flex {
             display: flex;
             justify-content: space-between;
             gap: 10px;
-            margin-bottom: 15px;
         }
-
-        .input-row input {
-            flex: 1;
-        }
-
-        label {
-            display: block;
-            font-weight: bold;
-            color: #555;
-            margin: 10px 0 5px;
-        }
-
-        input[type="number"], input[type="email"], input[type="text"] {
+        .input-field, .small-btn {
             width: 100%;
+            padding: 8px;
+            font-size: 16px;
+            text-align: center;
+            margin: 5px 0;
             box-sizing: border-box;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
         }
-
-        input[type="text"]:read-only {
-            background-color: #f9f9f9;
-            color: #555;
+        #resultBox {
+            margin-bottom: 40px; /* Jarak bawah 40px */
         }
-
-        button {
-            width: 100%;
-            padding: 12px;
+        .circle-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            font-size: 24px;
+            font-weight: bold;
             border: none;
-            border-radius: 5px;
-            font-size: 16px;
             cursor: pointer;
-            margin-bottom: 10px;
-            background-color: #007bff;
-            color: white;
+            transition: 0.2s;
         }
-
-        button:focus {
-            outline: none;
+        .circle-btn:hover {
+            opacity: 0.8;
         }
-
-        button.reset {
-            background-color: #dc3545;
-        }
-
-        button.reset:hover {
-            background-color: #c82333;
-        }
-
-        button.save {
-            background-color: #28a745;
-        }
-
-        button.save:hover {
-            background-color: #218838;
-        }
-
-        .log {
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 10px;
-            height: 100px;
-            overflow-y: auto;
-            font-size: 14px;
-            color: #555;
-        }
-
-        .checkbox-group {
-            margin: 10px 0;
+        .plus { background-color: #28a745; color: white; }
+        .minus { background-color: #dc3545; color: white; }
+        .counter-buttons {
             display: flex;
+            align-items: center;
             justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
         }
-
+        /* Toggle Switch */
         .switch {
             position: relative;
             display: inline-block;
-            width: 100px;
-            height: 20px;
+            width: 50px;
+            height: 24px;
         }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
+        .switch input { display: none; }
         .slider {
             position: absolute;
             cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             background-color: #ccc;
             transition: 0.4s;
-            border-radius: 34px;
+            border-radius: 24px;
         }
-
         .slider:before {
             position: absolute;
             content: "";
-            height: 12px;
-            width: 12px;
-            border-radius: 50%;
+            height: 18px;
+            width: 18px;
             left: 4px;
-            bottom: 4px;
+            bottom: 3px;
             background-color: white;
             transition: 0.4s;
+            border-radius: 50%;
         }
-
         input:checked + .slider {
-            background-color: #2196F3;
+            background-color: #28a745;
         }
-
         input:checked + .slider:before {
-            transform: translateX(80px);
+            transform: translateX(26px);
+        }
+        /* Footer */
+        .footer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: gray;
         }
     </style>
-    <<script>
-    let count = 0; // Variabel penghitung utama
-    let min = 0;   // Nilai awal
-    let max = Infinity; // Batas maksimum
+</head>
+<body>
 
-    function loadInputs() {
-        const savedStart = parseInt(localStorage.getItem("startInput")) || 0;
-        const savedCount = parseInt(localStorage.getItem("count")) || savedStart;
+<div class="container">
+    <div class="flex">
+        <button class="small-btn" onclick="reset()">Reset</button>
+        <button class="small-btn" onclick="openMenu()">Menu</button>
+    </div>
 
-        document.getElementById("startInput").value = savedStart;
-        document.getElementById("maxInput").value = localStorage.getItem("maxInput") || '';
-        document.getElementById("emailInput").value = localStorage.getItem("emailInput") || '';
-        document.getElementById("prefix").checked = localStorage.getItem("prefix") === "true";
+    <input type="number" id="startInput" class="input-field" placeholder="Start" oninput="autoSetLimits()">
+    <input type="number" id="maxInput" class="input-field" placeholder="End" oninput="autoSetLimits()">
+    <input type="email" id="emailInput" class="input-field" placeholder="Masukkan email" oninput="updateDisplay()">
+    
+    <input type="text" id="resultBox" class="input-field" readonly>
+    
+    <div class="counter-buttons">
+        <button class="circle-btn minus" onclick="decrement()">−</button>
 
-        count = savedCount >= savedStart ? savedCount : savedStart;
-        min = savedStart;
+        <!-- Toggle Switch -->
+        <label class="switch">
+            <input type="checkbox" id="toggleSwitch" onchange="toggleFormat()">
+            <span class="slider"></span>
+        </label>
 
-        updateDisplay();
-        updateProgressBar();
-        displayLog();
-    }
+        <button class="circle-btn plus" onclick="increment()">+</button>
+    </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">Versi 5.0.0 Beta</div>
+
+<script>
+    let count = 0;
+    let min = 0;
+    let max = Infinity;
+    let format = localStorage.getItem("toggleSwitch") === "true"; // Load toggle format dari localStorage
 
     function autoSetLimits() {
-        const startInput = parseInt(document.getElementById("startInput").value) || 0;
-        const maxInput = parseInt(document.getElementById("maxInput").value);
+        min = parseInt(document.getElementById("startInput").value) || 0;
+        max = parseInt(document.getElementById("maxInput").value);
 
-        if (startInput !== min) {
-            count = startInput; // Perbarui nilai `count` jika `min` berubah
-            localStorage.setItem("count", count);
+        if (isNaN(max)) {
+            max = Infinity;
         }
 
-        min = startInput;
-        max = !isNaN(maxInput) ? maxInput : Infinity;
+        localStorage.setItem("startInput", min);
+        localStorage.setItem("maxInput", max);
+        localStorage.setItem("count", count);
 
-        localStorage.setItem("startInput", startInput);
-        localStorage.setItem("maxInput", maxInput);
-
-        updateProgressBar();
         updateDisplay();
     }
 
-    function updateProgressBar() {
-        const progress = ((count - min) / (max - min)) * 100;
-        document.getElementById("progressBar").style.width = `${Math.min(Math.max(progress, 0), 100)}%`;
+    function increment() {
+        if (count >= max) {
+            alert("Batas maksimum tercapai!");
+            return;
+        }
+
+        count++;
+        localStorage.setItem("count", count);
+        updateDisplay();
+        autoCopy(document.getElementById("resultBox").value);
+    }
+
+    function decrement() {
+        if (count > min) {
+            count--;
+            localStorage.setItem("count", count);
+            updateDisplay();
+            autoCopy(document.getElementById("resultBox").value);
+        } else {
+            alert("Batas minimum tercapai!");
+        }
     }
 
     function updateDisplay() {
         const emailInput = document.getElementById("emailInput").value;
-        const prefix = document.getElementById("prefix").checked ? count : '';
-        const suffix = !document.getElementById("prefix").checked ? count : '';
-        const [baseEmail, domain = ''] = emailInput.split('@');
+        const emailParts = emailInput.split('@');
+        const baseEmail = emailParts[0] || "";
+        const domain = emailParts[1] ? `@${emailParts[1]}` : "";
 
-        const result = `${prefix}${baseEmail}${suffix}${domain ? `@${domain}` : ''}`;
-        document.getElementById("resultBox").value = result;
-
-        localStorage.setItem("emailInput", emailInput);
-        localStorage.setItem("prefix", document.getElementById("prefix").checked);
+        // Jika toggle switch aktif, angka di depan username
+        // Jika toggle switch mati, angka di depan @
+        let newEmail = format ? `${count}${baseEmail}${domain}` : `${baseEmail}${count}${domain}`;
+        
+        document.getElementById("resultBox").value = newEmail;
     }
 
     function autoCopy(text) {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text)
-            .then(() => console.log("Teks berhasil disalin ke clipboard!"))
-            .catch(err => {
-                console.error("Clipboard API gagal:", err);
-                fallbackCopyText(text);
-            });
-    } else {
-        fallbackCopyText(text); // Gunakan fallback jika Clipboard API tidak tersedia
-    }
-}
-
-function fallbackCopyText(text) {
-    const tempInput = document.createElement("textarea");
-    tempInput.value = text;
-    tempInput.style.position = "absolute";
-    tempInput.style.left = "-9999px"; // Pindahkan elemen ke luar layar
-    document.body.appendChild(tempInput);
-    tempInput.select();
-
-    try {
-        document.execCommand("copy");
-        console.log("Teks berhasil disalin dengan fallback.");
-    } catch (err) {
-        console.error("Fallback error:", err);
-    } finally {
-        document.body.removeChild(tempInput);
-    }
-}
-
-function increment() {
-    if (count < max) {
-        count++; // Naikkan nilai counter
-        localStorage.setItem("count", count); // Simpan ke localStorage
-        updateDisplay(); // Perbarui tampilan
-        updateProgressBar(); // Perbarui progress bar
-        saveLog(); // Simpan ke log
-
-        const result = document.getElementById("resultBox").value;
-        autoCopy(result); // Auto-copy hasil ke clipboard
-    } else {
-        alert("Batas maksimum tercapai!");
-    }
-}
-
-function fetchRandomName() {
-    fetch('https://raw.githubusercontent.com/muzans/muzans.github.io/refs/heads/main/base.json')
-        .then(response => response.json())
-        .then(data => {
-            const firstNames = data.FirstNames;
-            const lastNames = data.LastNames;
-
-            const randomFirstName = firstNames[Math.floor(Math.random() * firstNames.length)];
-            const randomLastName = lastNames[Math.floor(Math.random() * lastNames.length)];
-
-            const randomFullName = `${randomFirstName} ${randomLastName}`;
-            document.getElementById("randomName").value = randomFullName;
-
-            // Simpan nama acak ke localStorage
-            localStorage.setItem("randomName", randomFullName);
-
-            // Auto-copy nama acak
-            autoCopy(randomFullName);
-        })
-        .catch(error => console.error("Gagal mengambil nama acak:", error));
-}
-
-function loadRandomName() {
-    const savedName = localStorage.getItem("randomName");
-    if (savedName) {
-        document.getElementById("randomName").value = savedName; // Tampilkan nama yang disimpan
-    }
-}
-
-    function saveLog() {
-        const result = document.getElementById("resultBox").value;
-        const logs = JSON.parse(localStorage.getItem("logs")) || [];
-        logs.push(result);
-        localStorage.setItem("logs", JSON.stringify(logs));
-        displayLog();
-    }
-
-    function displayLog() {
-        const logs = JSON.parse(localStorage.getItem("logs")) || [];
-        const logContainer = document.getElementById("logContainer");
-        logContainer.innerHTML = logs.map(log => `<div>${log}</div>`).reverse().join('');
-    }
-    
-    function saveAsFile() {
-        // Ambil log dari localStorage
-        const logs = JSON.parse(localStorage.getItem("logs")) || [];
-        if (logs.length === 0) {
-            alert("Tidak ada log untuk disimpan.");
-            return;
-        }
-
-        // Gabungkan log menjadi string dengan pemisah baris
-        const logContent = logs.join("\n");
-
-        // Buat file Blob dengan konten log
-        const blob = new Blob([logContent], { type: "text/plain;charset=utf-8" });
-
-        // Buat elemen link untuk mengunduh file
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = `log-history-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.txt`;
-
-        // Klik link untuk mengunduh file
-        link.style.display = "none";
-        document.body.appendChild(link); // Tambahkan ke DOM sementara
-        link.click();
-        document.body.removeChild(link); // Hapus elemen setelah selesai
-
-        // Lepaskan URL objek untuk mencegah kebocoran memori
-        URL.revokeObjectURL(link.href);
+        navigator.clipboard.writeText(text).catch(() => {
+            const tempInput = document.createElement("textarea");
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+        });
     }
 
     function reset() {
-    // Tampilkan konfirmasi
-    const confirmation = confirm("Temen to ora?.");
-    if (!confirmation) return; // Batalkan jika memilih "Tidak"
+        if (!confirm("Yakin ingin mereset?")) return;
+        
+        count = min;
+        localStorage.setItem("count", count);
+        document.getElementById("resultBox").value = "";
+    }
 
-    // Reset data
-    count = min; // Reset nilai `count` ke nilai awal
-    localStorage.setItem("count", count); // Simpan ke `localStorage`
-    localStorage.removeItem("logs"); // Hapus log
-    document.getElementById("resultBox").value = ''; // Kosongkan hasil
-    updateProgressBar();
-    displayLog();
+    function openMenu() {
+        window.location.href = "https://muzans.github.io"; // Ganti dengan link yang diinginkan
+    }
 
-    document.getElementById("notification").style.display = "none";
-}
+    function toggleFormat() {
+        format = document.getElementById("toggleSwitch").checked;
+        localStorage.setItem("toggleSwitch", format);
+        updateDisplay();
+    }
 
     window.onload = function () {
-    loadInputs(); // Fungsi untuk memuat data lainnya
-    loadRandomName(); // Memuat nama acak yang tersimpan
-};
+        min = parseInt(localStorage.getItem("startInput")) || 0;
+        max = parseInt(localStorage.getItem("maxInput")) || Infinity;
+        count = parseInt(localStorage.getItem("count")) || min;
 
+        document.getElementById("startInput").value = min;
+        document.getElementById("maxInput").value = max === Infinity ? "" : max;
+        document.getElementById("emailInput").value = localStorage.getItem("emailInput") || "";
+        document.getElementById("toggleSwitch").checked = format;
+
+        updateDisplay();
+    };
 </script>
-</head>
-<body>
-    <!-- Konten tetap sama seperti sebelumnya -->
-    <div class="container">
-        <div id="progressBarContainer">
-            <div id="progressBar"></div>
-        </div>
 
-        <div class="input-row">
-            <input type="number" id="startInput" placeholder="Start" oninput="autoSetLimits()" />
-            <input type="number" id="maxInput" placeholder="End" oninput="autoSetLimits()" />
-        </div>
-
-        <label for="emailInput">Email:</label>
-        <input type="email" id="emailInput" placeholder="Masukkan email" oninput="updateDisplay()" />
-
-        <div class="checkbox-group">
-            <label class="switch">
-                <input type="checkbox" id="prefix" onclick="updateDisplay()">
-                <span class="slider"></span>
-            </label>
-        </div>
-
-        <label for="resultBox">Hasil:</label>
-        <input type="text" id="resultBox" readonly value="0" />
-
-        <button onclick="increment()">Mulai</button>
-        <button class="reset" onclick="reset()">Reset</button>
-        <button class="save" onclick="saveAsFile()">Simpan Hasil</button>
-
-        <div class="log" id="logContainer"></div>
-
-        <div>
-            <label for="randomName">Nama Acak:</label>
-            <input type="text" id="randomName" readonly />
-            <button onclick="fetchRandomName()">Acak</button>
-        </div>
-        
-        <div class="version-label">Versi Ke Telu</div>
-    </div>
 </body>
 </html>
