@@ -95,7 +95,7 @@
         .message {
             font-size: 16px;
             color: #333;
-            margin-bottom: 10px;
+            margin-top: 50px; /* Jarak bawah 40px */
         }
     </style>
 </head>
@@ -127,8 +127,7 @@
 
     <!-- Pesan tambahan di atas footer -->
     <div class="message">
-        <p>SEPURANE YO REK, TAK UPDATE MANEH</p>
-       <p>MAKLUM HAPENE BURIK, BEN GAK ABOT!</p>
+        <p>Sepurane yo rek, tak update maneh. Maklum hapene burik, ben gak abot!.</p>
     </div>
 </div>
 
@@ -204,15 +203,19 @@
     }
 
     function reset() {
-        if (!confirm("Yakin ingin mereset?")) return;
-        
         count = min;
-        localStorage.setItem("count", count);
+        min = 0;
+        max = Infinity;
+        document.getElementById("startInput").value = "";
+        document.getElementById("maxInput").value = "";
+        document.getElementById("emailInput").value = "";
         document.getElementById("resultBox").value = "";
+
+        localStorage.clear(); // Menghapus semua data yang disimpan di localStorage
     }
 
     function openMenu() {
-        window.location.href = "https://muzans.github.io"; // Ganti dengan link yang diinginkan
+        window.location.href = "https://example.com"; // Ganti dengan link yang diinginkan
     }
 
     function toggleFormat() {
