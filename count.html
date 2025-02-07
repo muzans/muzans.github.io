@@ -139,21 +139,32 @@
     let min = 0;
     let max = Infinity;
     let format = localStorage.getItem("toggleSwitch") === "true"; // Load toggle format dari localStorage
-
+    
+    
+    
     function autoSetLimits() {
-        min = parseInt(document.getElementById("startInput").value) || 0;
-        max = parseInt(document.getElementById("maxInput").value);
+    const newMin = parseInt(document.getElementById("startInput").value) || 0;
+    const newMax = parseInt(document.getElementById("maxInput").value);
 
-        if (isNaN(max)) {
-            max = Infinity;
-        }
+    // Update min dan max
+    min = newMin;
+    max = isNaN(newMax) || newMax < min ? Infinity : newMax;
 
-        localStorage.setItem("startInput", min);
-        localStorage.setItem("maxInput", max);
-        localStorage.setItem("count", count);
-
-        updateDisplay();
+    // Periksa dan perbarui nilai count jika lebih kecil dari min
+    if (count < min) {
+        count = min; // Set count ke nilai min jika count lebih kecil
     }
+
+    // Simpan ke localStorage
+    localStorage.setItem("startInput", min);
+    localStorage.setItem("maxInput", max);
+
+    // Update tampilan
+    updateDisplay();
+}
+
+document.getElementById("startInput").addEventListener("input", autoSetLimits);
+
 
     function increment() {
         if (count >= max) {
