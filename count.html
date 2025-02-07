@@ -5,98 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
     <title>Counter Email</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 20px;
-            margin-top: 60px; /* Jarak atas 60px */
-        }
-        .container {
-            max-width: 320px;
-            margin: auto;
-        }
-        .flex {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-        }
-        .input-field, .small-btn {
-            width: 100%;
-            padding: 8px;
-            font-size: 16px;
-            text-align: center;
-            margin: 5px 0;
-            box-sizing: border-box;
-        }
-        #resultBox {
-            margin-bottom: 40px; /* Jarak bawah 40px */
-        }
-        .circle-btn {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            font-size: 24px;
-            font-weight: bold;
-            border: none;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .circle-btn:hover {
-            opacity: 0.8;
-        }
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; margin-top: 60px; }
+        .container { max-width: 320px; margin: auto; }
+        .flex { display: flex; justify-content: space-between; gap: 10px; }
+        .input-field, .small-btn { width: 100%; padding: 8px; font-size: 16px; text-align: center; margin: 5px 0; box-sizing: border-box; }
+        #resultBox { margin-bottom: 40px; }
+        .circle-btn { width: 70px; height: 70px; border-radius: 50%; font-size: 24px; font-weight: bold; border: none; cursor: pointer; transition: 0.2s; }
+        .circle-btn:hover { opacity: 0.8; }
         .plus { background-color: #28a745; color: white; }
         .minus { background-color: #dc3545; color: white; }
-        .counter-buttons {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 10px;
-        }
-        /* Toggle Switch */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 24px;
-        }
+        .counter-buttons { display: flex; align-items: center; justify-content: center; gap: 15px; margin-top: 10px; }
+        .switch { position: relative; display: inline-block; width: 50px; height: 24px; }
         .switch input { display: none; }
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #ccc;
-            transition: 0.4s;
-            border-radius: 24px;
-        }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 4px;
-            bottom: 3px;
-            background-color: white;
-            transition: 0.4s;
-            border-radius: 50%;
-        }
-        input:checked + .slider {
-            background-color: #28a745;
-        }
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-        /* Footer */
-        .footer {
-            margin-top: 20px;
-            font-size: 14px;
-            color: gray;
-        }
-        .message {
-            font-size: 16px;
-            color: #333;
-            margin-top: 50px; /* Jarak bawah 40px */
-        }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: 0.4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 3px; background-color: white; transition: 0.4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #28a745; }
+        input:checked + .slider:before { transform: translateX(26px); }
+        .footer { margin-top: 20px; font-size: 14px; color: gray; }
+        .message { font-size: 16px; color: #333; margin-top: 50px; }
     </style>
 </head>
 <body>
@@ -115,55 +41,44 @@
     
     <div class="counter-buttons">
         <button class="circle-btn minus" onclick="decrement()">−</button>
-
-        <!-- Toggle Switch -->
         <label class="switch">
             <input type="checkbox" id="toggleSwitch" onchange="toggleFormat()">
             <span class="slider"></span>
         </label>
-
         <button class="circle-btn plus" onclick="increment()">+</button>
     </div>
 
-    <!-- Pesan tambahan di atas footer -->
     <div class="message">
         <p>Sepurane yo rek, tak update maneh. Maklum hapene burik, ben gak abot!.</p>
     </div>
 </div>
 
-<!-- Footer -->
 <div class="footer">Versi 5.0.0 Beta</div>
 
 <script>
     let count = 0;
     let min = 0;
     let max = Infinity;
-    let format = localStorage.getItem("toggleSwitch") === "true"; // Load toggle format dari localStorage
-    
-    
+    let format = localStorage.getItem("toggleSwitch") === "true";
+
     
     function autoSetLimits() {
-    const newMin = parseInt(document.getElementById("startInput").value) || 0;
-    const newMax = parseInt(document.getElementById("maxInput").value);
+    let newMin = parseInt(document.getElementById("startInput").value) || 0;
+    let newMax = parseInt(document.getElementById("maxInput").value);
 
-    // Update min dan max
     min = newMin;
     max = isNaN(newMax) || newMax < min ? Infinity : newMax;
 
-    // Periksa dan perbarui nilai count jika lebih kecil dari min
-    if (count < min) {
-        count = min; // Set count ke nilai min jika count lebih kecil
-    }
+    // **Pastikan count selalu mengikuti nilai min yang baru**
+    count = min;  
 
-    // Simpan ke localStorage
     localStorage.setItem("startInput", min);
     localStorage.setItem("maxInput", max);
-
-    // Update tampilan
-    updateDisplay();
+    localStorage.setItem("emailInput", emailInput);
+    localStorage.setItem("count", count);
+    
+    updateDisplay();  // Perbarui tampilan setelah perubahan
 }
-
-document.getElementById("startInput").addEventListener("input", autoSetLimits);
 
 
     function increment() {
@@ -171,9 +86,7 @@ document.getElementById("startInput").addEventListener("input", autoSetLimits);
             alert("Batas maksimum tercapai!");
             return;
         }
-
         count++;
-        localStorage.setItem("count", count);
         updateDisplay();
         autoCopy(document.getElementById("resultBox").value);
     }
@@ -181,7 +94,6 @@ document.getElementById("startInput").addEventListener("input", autoSetLimits);
     function decrement() {
         if (count > min) {
             count--;
-            localStorage.setItem("count", count);
             updateDisplay();
             autoCopy(document.getElementById("resultBox").value);
         } else {
@@ -190,17 +102,18 @@ document.getElementById("startInput").addEventListener("input", autoSetLimits);
     }
 
     function updateDisplay() {
-        const emailInput = document.getElementById("emailInput").value;
-        const emailParts = emailInput.split('@');
-        const baseEmail = emailParts[0] || "";
-        const domain = emailParts[1] ? `@${emailParts[1]}` : "";
+    const emailInput = document.getElementById("emailInput").value;
+    localStorage.setItem("emailInput", emailInput); // Simpan email
 
-        // Jika toggle switch aktif, angka di depan username
-        // Jika toggle switch mati, angka di depan @
-        let newEmail = format ? `${count}${baseEmail}${domain}` : `${baseEmail}${count}${domain}`;
-        
-        document.getElementById("resultBox").value = newEmail;
-    }
+    const emailParts = emailInput.split('@');
+    const baseEmail = emailParts[0] || "";
+    const domain = emailParts[1] ? `@${emailParts[1]}` : "";
+
+    let newEmail = format ? `${count}${baseEmail}${domain}` : `${baseEmail}${count}${domain}`;
+    
+    document.getElementById("resultBox").value = newEmail;
+    localStorage.setItem("count", count);
+}
 
     function autoCopy(text) {
         navigator.clipboard.writeText(text).catch(() => {
@@ -214,19 +127,20 @@ document.getElementById("startInput").addEventListener("input", autoSetLimits);
     }
 
     function reset() {
-        count = min;
-        min = 0;
+        min = parseInt(document.getElementById("startInput").value) || 0;
+        count = min; // Reset count ke nilai start yang baru
         max = Infinity;
+
         document.getElementById("startInput").value = "";
         document.getElementById("maxInput").value = "";
         document.getElementById("emailInput").value = "";
         document.getElementById("resultBox").value = "";
 
-        localStorage.clear(); // Menghapus semua data yang disimpan di localStorage
+        localStorage.clear();
     }
 
     function openMenu() {
-        window.location.href = "https://example.com"; // Ganti dengan link yang diinginkan
+        window.location.href = "https://example.com";
     }
 
     function toggleFormat() {
