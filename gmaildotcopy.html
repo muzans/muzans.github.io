@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Gmail Dot Generator</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #e8f0fd;
+      padding: 20px;
+      margin: 0;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 24px;
+      font-size: 22px;
+    }
+
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+    }
+
+    input, button {
+      font-size: 16px;
+      padding: 12px;
+      margin-top: 8px;
+      margin-bottom: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+
+    input {
+      width: 100%;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .button-row button {
+      flex: 1;
+      min-width: 100px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .button-row button:hover {
+      background-color: #0056b3;
+    }
+
+    .button-row button.reset-btn {
+      background-color: #dc3545;
+    }
+
+    .info-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+
+    .info-box {
+      flex: 1;
+      background: #ffffff;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .info-box div.value {
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 5px;
+    }
+
+    #result {
+      white-space: pre-wrap;
+      background: #ffffff;
+      padding: 15px;
+      min-height: 150px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Gmail Dot Generator</h2>
+
+  <label for="email">Email</label>
+  <input type="email" id="email" placeholder="Masukkan email Gmail" inputmode="email" />
+
+  <div class="button-row">
+    <button onclick="generateDots()">Generate</button>
+    <button onclick="copyNext()">Copy & Salin</button>
+    <button onclick="resetAll()" class="reset-btn">Reset</button>
+  </div>
+
+  <div class="info-row">
+    <div class="info-box">
+      <div>Jumlah Kombinasi</div>
+      <div class="value" id="jumlahKombinasi">0</div>
+    </div>
+    <div class="info-box">
+      <div>Jumlah Salin</div>
+      <div class="value" id="jumlahSalin">0</div>
+    </div>
+  </div>
+
+  <h3>Hasil:</h3>
+  <div id="result"></div>
+
+  <script>
+    let dotVariants = [];
+    let currentIndex = 0;
+
+    window.onload = function () {
+      const savedEmail = localStorage.getItem("emailInput");
+      const savedResults = localStorage.getItem("emailResults");
+      const savedIndex = localStorage.getItem("emailIndex");
+      const savedJumlah = localStorage.getItem("jumlahKombinasi");
+      const savedSalin = localStorage.getItem("jumlahSalin");
+
+      if (savedEmail) document.getElementById("email").value = savedEmail;
+      if (savedResults) document.getElementById("result").textContent = savedResults;
+      if (savedIndex) currentIndex = parseInt(savedIndex, 10);
+      if (savedJumlah) document.getElementById("jumlahKombinasi").textContent = savedJumlah;
+      if (savedSalin) document.getElementById("jumlahSalin").textContent = savedSalin;
+
+      if (savedEmail) {
+        const username = savedEmail.split('@')[0];
+        dotVariants = generateGmailDots(username)
+          .filter(e => e !== username)
+          .map(u => u + "@gmail.com");
+      }
+    };
+
+    function generateDots() {
+      const email = document.getElementById("email").value.trim().toLowerCase();
+      if (!email.includes('@') || !email.endsWith('@gmail.com')) {
+        alert("Masukkan email valid dengan domain @gmail.com");
+        return;
+      }
+
+      const username = email.split('@')[0];
+      const domain = '@gmail.com';
+
+      dotVariants = generateGmailDots(username)
+        .filter(e => e !== username)
+        .map(u => u + domain);
+      currentIndex = 0;
+
+      localStorage.setItem("emailInput", email);
+      localStorage.setItem("emailResults", "");
+      localStorage.setItem("emailIndex", "0");
+      localStorage.setItem("jumlahKombinasi", dotVariants.length);
+      localStorage.setItem("jumlahSalin", "0");
+
+      document.getElementById("result").textContent = "";
+      document.getElementById("jumlahKombinasi").textContent = dotVariants.length;
+      document.getElementById("jumlahSalin").textContent = "0";
+    }
+
+    function generateGmailDots(username) {
+      const results = new Set();
+      const n = username.length;
+      const total = Math.pow(2, n - 1);
+
+      for (let i = 1; i < total; i++) {
+        let withDots = '';
+        for (let j = 0; j < n; j++) {
+          withDots += username[j];
+          if (j < n - 1 && (i & (1 << j))) {
+            withDots += '.';
+          }
+        }
+        results.add(withDots);
+      }
+
+      return Array.from(results);
+    }
+
+    function copyNext() {
+      if (dotVariants.length === 0) {
+        alert("Klik 'Generate' terlebih dahulu.");
+        return;
+      }
+
+      if (currentIndex >= dotVariants.length) {
+        alert("Semua kombinasi sudah disalin.");
+        return;
+      }
+
+      const resultDiv = document.getElementById("result");
+      const nextEmail = dotVariants[currentIndex];
+
+      resultDiv.textContent += nextEmail + "\n";
+
+      navigator.clipboard.writeText(nextEmail)
+        .then(() => console.log("Disalin:", nextEmail))
+        .catch(err => console.error("Gagal salin:", err));
+
+      currentIndex++;
+
+      let jumlahSalin = parseInt(localStorage.getItem("jumlahSalin") || "0", 10) + 1;
+      document.getElementById("jumlahSalin").textContent = jumlahSalin;
+
+      localStorage.setItem("emailResults", resultDiv.textContent);
+      localStorage.setItem("emailIndex", currentIndex.toString());
+      localStorage.setItem("jumlahSalin", jumlahSalin.toString());
+    }
+
+    function resetAll() {
+      document.getElementById("email").value = "";
+      document.getElementById("result").textContent = "";
+      document.getElementById("jumlahKombinasi").textContent = "0";
+      document.getElementById("jumlahSalin").textContent = "0";
+      dotVariants = [];
+      currentIndex = 0;
+      localStorage.clear();
+    }
+  </script>
+
+</body>
+</html>
