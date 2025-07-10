@@ -8,14 +8,14 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #e8f0fd;
-            margin: 40px 0 0; /* Tambahkan jarak atas 40px, hilangkan margin samping */
-            padding: 20px 20px 80px; /* Padding bawah untuk footer */
+            margin: 40px 0 0;
+            padding: 20px 20px 80px;
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* Ubah dari center ke flex-start untuk mendukung jarak atas */
+            align-items: flex-start;
             min-height: 100vh;
-            overflow: hidden; /* Mencegah scroll */
-            touch-action: manipulation; /* Mencegah zoom */
+            overflow: hidden;
+            touch-action: manipulation;
         }
         .container {
             max-width: 600px;
@@ -33,7 +33,6 @@
         textarea {
             width: 100%;
             max-width: 100%;
-            height: 200px;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 8px;
@@ -41,6 +40,9 @@
             font-size: 14px;
             background-color: #fff;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        #inputData {
+            height: 200px;
         }
         input[type="file"] {
             width: 100%;
@@ -66,15 +68,19 @@
             border-radius: 8px;
             cursor: pointer;
             color: #fff;
-            background-color: #4a90e2;
-            transition: background-color 0.3s, transform 0.1s;
+            transition: opacity 0.1s; /* Ubah dari transform ke opacity */
+        }
+        #processFile {
+            background-color: #28a745; /* Hijau untuk Proses File */
+        }
+        #copyNext {
+            background-color: #007bff; /* Biru untuk Copy Next */
+        }
+        #reset {
+            background-color: #dc3545; /* Merah untuk Reset */
         }
         button:hover {
-            background-color: #357abd;
-            transform: translateY(-2px);
-        }
-        button:active {
-            transform: translateY(0);
+            opacity: 0.9; /* Efek hover tanpa mengubah posisi */
         }
         .info {
             width: 100%;
@@ -84,13 +90,19 @@
         }
         #output {
             width: 100%;
+            max-width: 100%;
+            height: 30px;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 8px;
             background-color: #fff;
-            min-height: 20px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            resize: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             text-align: center;
+            line-height: 1.5; /* Efek jarak seperti 1 enter */
         }
         .error {
             color: #d32f2f;
@@ -114,9 +126,9 @@
         <textarea id="inputData" placeholder="Paste list nama, email, atau angka (pisahkan dengan enter) atau input file.txt"></textarea>
         <input type="file" id="fileInput" accept=".txt">
         <div class="button-container">
-            <button onclick="processFile()">Proses File</button>
-            <button onclick="copyNext()">Copy Next</button>
-            <button onclick="reset()">Reset</button>
+            <button id="processFile" onclick="processFile()">Proses File</button>
+            <button id="copyNext" onclick="copyNext()">Copy Next</button>
+            <button id="reset" onclick="reset()">Reset</button>
         </div>
         <div class="info">
             Jumlah List: <span id="totalList">0</span>
@@ -124,12 +136,10 @@
         <div class="info">
             Jumlah Salin: <span id="copyCount">0</span>
         </div>
-        <div class="info">
-            Data yang di-copy: <span id="output"></span>
-        </div>
+        <textarea id="output" readonly></textarea>
     </div>
     <footer>
-        Dibuat pada: 05:46 PM WIB, Kamis, 10 Juli 2025
+        Dibuat pada: 20:19 PM WIB, Kamis, 10 Juli 2025
     </footer>
 
     <script>
@@ -175,7 +185,7 @@
         function processFile() {
             const file = document.getElementById('fileInput').files[0];
             if (!file) {
-                document.getElementById('output').innerText = 'Pilih file .txt terlebih dahulu!';
+                document.getElementById('output').value = 'Pilih file .txt terlebih dahulu!';
                 document.getElementById('output').classList.add('error');
                 return;
             }
@@ -185,22 +195,22 @@
                 dataList = text.split(/\r?\n/).filter(line => line.trim() !== '');
                 currentIndex = 0;
                 copyCount = 0;
-                document.getElementById('output').innerText = 'File berhasil diproses!';
+                document.getElementById('output').value = 'File berhasil diproses!';
                 document.getElementById('output').classList.remove('error');
                 updateDisplay();
                 console.log('File processed:', dataList); // Debugging
             };
             reader.onerror = function() {
-                document.getElementById('output').innerText = 'Gagal membaca file!';
+                document.getElementById('output').value = 'Gagal membaca file!';
                 document.getElementById('output').classList.add('error');
             };
             reader.readAsText(file);
         }
 
-        // Fungsi copy next menggunakan textarea sementara
-        function copyNext() {
+        // Fungsi copy next menggunakan Clipboard API
+        async function copyNext() {
             if (dataList.length === 0) {
-                document.getElementById('output').innerText = 'Tidak ada data untuk di-copy!';
+                document.getElementById('output').value = 'Tidak ada data untuk di-copy!';
                 document.getElementById('output').classList.add('error');
                 console.log('No data to copy'); // Debugging
                 return;
@@ -214,28 +224,37 @@
                     console.log('Skipped empty line'); // Debugging
                     return;
                 }
-                // Gunakan textarea sementara untuk copy
-                const tempTextArea = document.createElement('textarea');
-                tempTextArea.value = textToCopy;
-                document.body.appendChild(tempTextArea);
-                tempTextArea.select();
                 try {
-                    document.execCommand('copy');
-                    document.getElementById('output').innerText = textToCopy;
-                    document.getElementById('output').classList.remove('error');
-                    copyCount++;
-                    dataList.splice(currentIndex, 1); // Hapus data yang sudah di-copy
-                    updateDisplay();
-                    console.log('Copied:', textToCopy); // Debugging
+                    if (navigator.clipboard) {
+                        await navigator.clipboard.writeText(textToCopy);
+                        document.getElementById('output').value = textToCopy;
+                        document.getElementById('output').classList.remove('error');
+                        copyCount++;
+                        dataList.splice(currentIndex, 1); // Hapus data yang sudah di-copy
+                        updateDisplay();
+                        console.log('Copied:', textToCopy); // Debugging
+                    } else {
+                        // Fallback untuk browser yang tidak mendukung Clipboard API
+                        const tempTextArea = document.createElement('textarea');
+                        tempTextArea.value = textToCopy;
+                        document.body.appendChild(tempTextArea);
+                        tempTextArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(tempTextArea);
+                        document.getElementById('output').value = textToCopy;
+                        document.getElementById('output').classList.remove('error');
+                        copyCount++;
+                        dataList.splice(currentIndex, 1); // Hapus data yang sudah di-copy
+                        updateDisplay();
+                        console.log('Copied (fallback):', textToCopy); // Debugging
+                    }
                 } catch (err) {
-                    document.getElementById('output').innerText = 'Gagal copy ke clipboard! Coba lagi.';
+                    document.getElementById('output').value = 'Gagal copy ke clipboard! Coba lagi.';
                     document.getElementById('output').classList.add('error');
                     console.error('Copy failed:', err); // Debugging
-                } finally {
-                    document.body.removeChild(tempTextArea);
                 }
             } else {
-                document.getElementById('output').innerText = 'Semua data sudah di-copy!';
+                document.getElementById('output').value = 'Semua data sudah di-copy!';
                 document.getElementById('output').classList.add('error');
                 console.log('All data copied'); // Debugging
             }
@@ -247,7 +266,8 @@
             currentIndex = 0;
             copyCount = 0;
             document.getElementById('inputData').value = '';
-            document.getElementById('output').innerText = '';
+            document.getElementById('output').value = '';
+            document.getElementById('fileInput').value = ''; // Kosongkan input file
             document.getElementById('output').classList.remove('error');
             localStorage.removeItem('dataList');
             localStorage.removeItem('copyCount');
