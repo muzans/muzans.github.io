@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Textbox Data Processor</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e8f0fd;
+            margin: 40px 0 0; /* Tambahkan jarak atas 40px, hilangkan margin samping */
+            padding: 20px 20px 80px; /* Padding bawah untuk footer */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Ubah dari center ke flex-start untuk mendukung jarak atas */
+            min-height: 100vh;
+            overflow: hidden; /* Mencegah scroll */
+            touch-action: manipulation; /* Mencegah zoom */
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        h2 {
+            color: #333;
+            text-align: center;
+            margin: 0;
+        }
+        textarea {
+            width: 100%;
+            max-width: 100%;
+            height: 200px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            resize: vertical;
+            font-size: 14px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        input[type="file"] {
+            width: 100%;
+            max-width: 100%;
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+        }
+        button {
+            flex: 1;
+            max-width: 150px;
+            padding: 12px;
+            font-size: 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #fff;
+            background-color: #4a90e2;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+        button:hover {
+            background-color: #357abd;
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .info {
+            width: 100%;
+            text-align: center;
+            font-size: 14px;
+            color: #333;
+        }
+        #output {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #fff;
+            min-height: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .error {
+            color: #d32f2f;
+        }
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #4a90e2;
+            color: #fff;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Data UID Count</h2>
+        <textarea id="inputData" placeholder="Paste list nama, email, atau angka (pisahkan dengan enter) atau input file.txt"></textarea>
+        <input type="file" id="fileInput" accept=".txt">
+        <div class="button-container">
+            <button onclick="processFile()">Proses File</button>
+            <button onclick="copyNext()">Copy Next</button>
+            <button onclick="reset()">Reset</button>
+        </div>
+        <div class="info">
+            Jumlah List: <span id="totalList">0</span>
+        </div>
+        <div class="info">
+            Jumlah Salin: <span id="copyCount">0</span>
+        </div>
+        <div class="info">
+            Data yang di-copy: <span id="output"></span>
+        </div>
+    </div>
+    <footer>
+        Dibuat pada: 05:46 PM WIB, Kamis, 10 Juli 2025
+    </footer>
+
+    <script>
+        let dataList = [];
+        let currentIndex = 0;
+        let copyCount = 0;
+
+        // Fungsi untuk memperbarui tampilan dan localStorage
+        function updateDisplay() {
+            document.getElementById('inputData').value = dataList.join('\n');
+            document.getElementById('totalList').innerText = dataList.length;
+            document.getElementById('copyCount').innerText = copyCount;
+            localStorage.setItem('dataList', JSON.stringify(dataList));
+            localStorage.setItem('copyCount', copyCount.toString());
+            console.log('Updated dataList:', dataList); // Debugging
+        }
+
+        // Fungsi untuk memuat data dari localStorage
+        function loadData() {
+            const savedData = localStorage.getItem('dataList');
+            const savedCount = localStorage.getItem('copyCount');
+            if (savedData) {
+                dataList = JSON.parse(savedData).filter(line => line.trim() !== '');
+                currentIndex = 0;
+            }
+            if (savedCount) {
+                copyCount = parseInt(savedCount);
+            }
+            updateDisplay();
+        }
+
+        // Event listener untuk input textarea
+        document.getElementById('inputData').addEventListener('input', function() {
+            const input = document.getElementById('inputData').value;
+            dataList = input.split(/\r?\n/).filter(line => line.trim() !== '');
+            currentIndex = 0;
+            copyCount = 0;
+            updateDisplay();
+            console.log('Textarea input processed:', dataList); // Debugging
+        });
+
+        // Fungsi untuk memproses file .txt
+        function processFile() {
+            const file = document.getElementById('fileInput').files[0];
+            if (!file) {
+                document.getElementById('output').innerText = 'Pilih file .txt terlebih dahulu!';
+                document.getElementById('output').classList.add('error');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                dataList = text.split(/\r?\n/).filter(line => line.trim() !== '');
+                currentIndex = 0;
+                copyCount = 0;
+                document.getElementById('output').innerText = 'File berhasil diproses!';
+                document.getElementById('output').classList.remove('error');
+                updateDisplay();
+                console.log('File processed:', dataList); // Debugging
+            };
+            reader.onerror = function() {
+                document.getElementById('output').innerText = 'Gagal membaca file!';
+                document.getElementById('output').classList.add('error');
+            };
+            reader.readAsText(file);
+        }
+
+        // Fungsi copy next menggunakan textarea sementara
+        function copyNext() {
+            if (dataList.length === 0) {
+                document.getElementById('output').innerText = 'Tidak ada data untuk di-copy!';
+                document.getElementById('output').classList.add('error');
+                console.log('No data to copy'); // Debugging
+                return;
+            }
+            if (currentIndex < dataList.length) {
+                const textToCopy = String(dataList[currentIndex]).trim(); // Pastikan string
+                if (textToCopy === '') {
+                    dataList.splice(currentIndex, 1); // Hapus baris kosong
+                    updateDisplay();
+                    copyNext(); // Lewati baris kosong
+                    console.log('Skipped empty line'); // Debugging
+                    return;
+                }
+                // Gunakan textarea sementara untuk copy
+                const tempTextArea = document.createElement('textarea');
+                tempTextArea.value = textToCopy;
+                document.body.appendChild(tempTextArea);
+                tempTextArea.select();
+                try {
+                    document.execCommand('copy');
+                    document.getElementById('output').innerText = textToCopy;
+                    document.getElementById('output').classList.remove('error');
+                    copyCount++;
+                    dataList.splice(currentIndex, 1); // Hapus data yang sudah di-copy
+                    updateDisplay();
+                    console.log('Copied:', textToCopy); // Debugging
+                } catch (err) {
+                    document.getElementById('output').innerText = 'Gagal copy ke clipboard! Coba lagi.';
+                    document.getElementById('output').classList.add('error');
+                    console.error('Copy failed:', err); // Debugging
+                } finally {
+                    document.body.removeChild(tempTextArea);
+                }
+            } else {
+                document.getElementById('output').innerText = 'Semua data sudah di-copy!';
+                document.getElementById('output').classList.add('error');
+                console.log('All data copied'); // Debugging
+            }
+        }
+
+        // Fungsi reset
+        function reset() {
+            dataList = [];
+            currentIndex = 0;
+            copyCount = 0;
+            document.getElementById('inputData').value = '';
+            document.getElementById('output').innerText = '';
+            document.getElementById('output').classList.remove('error');
+            localStorage.removeItem('dataList');
+            localStorage.removeItem('copyCount');
+            updateDisplay();
+            console.log('Data reset'); // Debugging
+        }
+
+        // Muat data dari localStorage saat halaman dimuat
+        loadData();
+    </script>
+</body>
+</html>
