@@ -10,6 +10,7 @@
       background: #e8f0fd;
       padding: 20px;
       margin: 0;
+      overflow: hidden; /* Mencegah scroll halaman */
     }
 
     h2 {
@@ -48,19 +49,23 @@
     .button-row button {
       flex: 1;
       min-width: 100px;
-      background-color: #007bff;
-      color: white;
       border: none;
       cursor: pointer;
-      transition: background 0.3s ease;
     }
 
-    .button-row button:hover {
-      background-color: #0056b3;
+    .generate-btn {
+      background-color: #28a745; /* Warna hijau untuk tombol Generate */
+      color: white;
+    }
+
+    .button-row button.copy-btn {
+      background-color: #007bff; /* Warna biru untuk tombol Copy */
+      color: white;
     }
 
     .button-row button.reset-btn {
-      background-color: #dc3545;
+      background-color: #dc3545; /* Warna merah untuk tombol Reset */
+      color: white;
     }
 
     .info-row {
@@ -90,10 +95,25 @@
       white-space: pre-wrap;
       background: #ffffff;
       padding: 15px;
-      min-height: 150px;
+      height: 150px; /* Tinggi tetap */
+      overflow-y: auto; /* Scroll hanya di dalam textbox */
       border: 1px solid #ddd;
       border-radius: 8px;
       font-size: 15px;
+      resize: none; /* Mencegah perubahan ukuran */
+      display: flex;
+      flex-direction: column-reverse; /* Menampilkan terbaru di atas */
+      justify-content: flex-end; /* Memastikan konten terbaru di bagian atas */
+    }
+
+    footer {
+      text-align: center;
+      font-size: 14px;
+      color: white;
+      background-color: #007bff; /* Warna biru sesuai gambar */
+      padding: 10px 0;
+      margin-top: 5em; /* Jarak setara 5 baris kosong */
+      width: 100%;
     }
   </style>
 </head>
@@ -105,8 +125,8 @@
   <input type="email" id="email" placeholder="Masukkan email Gmail" inputmode="email" />
 
   <div class="button-row">
-    <button onclick="generateDots()">Generate</button>
-    <button onclick="copyNext()">Copy</button>
+    <button onclick="generateDots()" class="generate-btn">Generate</button>
+    <button onclick="copyNext()" class="copy-btn">Copy</button>
     <button onclick="resetAll()" class="reset-btn">Reset</button>
   </div>
 
@@ -123,6 +143,10 @@
 
   <h3>Hasil:</h3>
   <div id="result"></div>
+
+  <footer>
+    Dibuat pada: 05:46 PM WIB, Kamis, 10 Juli 2025
+  </footer>
 
   <script>
     let dotVariants = [];
@@ -142,7 +166,7 @@
       if (savedSalin) document.getElementById("jumlahSalin").textContent = savedSalin;
 
       if (savedEmail) {
-        const username = savedEmail.split('@')[0];
+        const username = savedEmail.split('@')[0].replace(/\./g, ''); // Menghapus titik dari username
         dotVariants = generateGmailDots(username)
           .filter(e => e !== username)
           .map(u => u + "@gmail.com");
@@ -156,7 +180,7 @@
         return;
       }
 
-      const username = email.split('@')[0];
+      const username = email.split('@')[0].replace(/\./g, ''); // Menghapus titik dari username
       const domain = '@gmail.com';
 
       dotVariants = generateGmailDots(username)
@@ -180,7 +204,7 @@
       const n = username.length;
       const total = Math.pow(2, n - 1);
 
-      for (let i = 1; i < total; i++) {
+      for (let i = 0; i < total; i++) {
         let withDots = '';
         for (let j = 0; j < n; j++) {
           withDots += username[j];
@@ -208,7 +232,7 @@
       const resultDiv = document.getElementById("result");
       const nextEmail = dotVariants[currentIndex];
 
-      resultDiv.textContent += nextEmail + "\n";
+      resultDiv.textContent = nextEmail + "\n" + resultDiv.textContent;
 
       navigator.clipboard.writeText(nextEmail)
         .then(() => console.log("Disalin:", nextEmail))
@@ -222,6 +246,9 @@
       localStorage.setItem("emailResults", resultDiv.textContent);
       localStorage.setItem("emailIndex", currentIndex.toString());
       localStorage.setItem("jumlahSalin", jumlahSalin.toString());
+
+      // Memastikan posisi scroll diatur ke atas
+      resultDiv.scrollTop = 0;
     }
 
     function resetAll() {
