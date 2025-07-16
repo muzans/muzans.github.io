@@ -9,7 +9,11 @@
         .container { max-width: 320px; margin: auto; }
         .flex { display: flex; justify-content: space-between; gap: 10px; }
         .input-field, .small-btn { width: 100%; padding: 8px; font-size: 16px; text-align: center; margin: 5px 0; box-sizing: border-box; }
+        #resultBox, #emailInput, #pastereff { height: 40px; } /* Samakan tinggi pastereff dengan emailInput */
+        #pastereff { resize: none; overflow: hidden; } /* Hilangkan scroll pada pastereff */
+        #hasilreff { height: 100px; margin-bottom: 10px; } /* Tinggi lebih besar untuk hasilreff */
         #resultBox { margin-bottom: 40px; }
+        #pastereff { margin-bottom: 10px; } /* Jarak kecil antara pastereff dan hasilreff */
         .circle-btn { width: 70px; height: 70px; border-radius: 50%; font-size: 24px; font-weight: bold; border: none; cursor: pointer; transition: 0.2s; }
         .circle-btn:hover { opacity: 0.8; }
         .plus { background-color: #28a745; color: white; }
@@ -23,6 +27,8 @@
         input:checked + .slider:before { transform: translateX(26px); }
         .footer { margin-top: 20px; font-size: 14px; color: gray; }
         .message { font-size: 16px; color: #333; margin-top: 50px; }
+        .reff-buttons { display: flex; justify-content: space-between; gap: 10px; margin-top: 0; }
+        .spacer { margin-top: 20px; } /* Jarak 1 enter di atas pastereff */
     </style>
 </head>
 <body>
@@ -48,12 +54,21 @@
         <button class="circle-btn plus" onclick="increment()">+</button>
     </div>
 
+    <div class="spacer"></div> <!-- Jarak 1 enter di atas pastereff -->
+    <textarea id="pastereff" class="input-field" placeholder="Paste reff di sini"></textarea>
+    <textarea id="hasilreff" class="input-field" readonly></textarea>
+
+    <div class="reff-buttons">
+        <button class="small-btn" onclick="saveHasilReff()">Simpan</button>
+        <button class="small-btn" onclick="resetHasilReff()">Reset</button>
+    </div>
+
     <div class="message">
         <p>☕</p>
     </div>
 </div>
 
-<div class="footer">Versi 5.0.0 Beta</div>
+<div class="footer">Versi 6.0.0 Beta | Update 16-7-2025</div>
 
 <script>
     let count = 0;
@@ -61,105 +76,212 @@
     let max = Infinity;
     let format = localStorage.getItem("toggleSwitch") === "true";
 
-    
     function autoSetLimits() {
-    let newMin = parseInt(document.getElementById("startInput").value) || 0;
-    let newMax = parseInt(document.getElementById("maxInput").value);
+        try {
+            let newMin = parseInt(document.getElementById("startInput").value) || 0;
+            let newMax = parseInt(document.getElementById("maxInput").value);
 
-    min = newMin;
-    max = isNaN(newMax) || newMax < min ? Infinity : newMax;
+            min = newMin;
+            max = isNaN(newMax) || newMax < min ? Infinity : newMax;
+            count = min;
 
-    // **Pastikan count selalu mengikuti nilai min yang baru**
-    count = min;  
-
-    localStorage.setItem("startInput", min);
-    localStorage.setItem("maxInput", max);
-    localStorage.setItem("emailInput", emailInput);
-    localStorage.setItem("count", count);
-    
-    updateDisplay();  // Perbarui tampilan setelah perubahan
-}
-
+            localStorage.setItem("startInput", min);
+            localStorage.setItem("maxInput", max);
+            localStorage.setItem("emailInput", document.getElementById("emailInput").value);
+            localStorage.setItem("count", count);
+            
+            updateDisplay();
+        } catch (e) {
+            console.error("Error in autoSetLimits:", e);
+        }
+    }
 
     function increment() {
-        if (count >= max) {
-            alert("Batas maksimum tercapai!");
-            return;
+        try {
+            if (count >= max) {
+                alert("Batas maksimum tercapai!");
+                return;
+            }
+            count++;
+            updateDisplay();
+            autoCopy(document.getElementById("resultBox").value);
+        } catch (e) {
+            console.error("Error in increment:", e);
         }
-        count++;
-        updateDisplay();
-        autoCopy(document.getElementById("resultBox").value);
     }
 
     function decrement() {
-        if (count > min) {
-            count--;
-            updateDisplay();
-            autoCopy(document.getElementById("resultBox").value);
-        } else {
-            alert("Batas minimum tercapai!");
+        try {
+            if (count > min) {
+                count--;
+                updateDisplay();
+                autoCopy(document.getElementById("resultBox").value);
+            } else {
+                alert("Batas minimum tercapai!");
+            }
+        } catch (e) {
+            console.error("Error in decrement:", e);
         }
     }
 
     function updateDisplay() {
-    const emailInput = document.getElementById("emailInput").value;
-    localStorage.setItem("emailInput", emailInput); // Simpan email
+        try {
+            const emailInput = document.getElementById("emailInput").value;
+            localStorage.setItem("emailInput", emailInput);
 
-    const emailParts = emailInput.split('@');
-    const baseEmail = emailParts[0] || "";
-    const domain = emailParts[1] ? `@${emailParts[1]}` : "";
+            const emailParts = emailInput.split('@');
+            const baseEmail = emailParts[0] || "";
+            const domain = emailParts[1] ? `@${emailParts[1]}` : "";
 
-    let newEmail = format ? `${count}${baseEmail}${domain}` : `${baseEmail}${count}${domain}`;
-    
-    document.getElementById("resultBox").value = newEmail;
-    localStorage.setItem("count", count);
-}
+            let newEmail = format ? `${count}${baseEmail}${domain}` : `${baseEmail}${count}${domain}`;
+            
+            document.getElementById("resultBox").value = newEmail;
+            localStorage.setItem("count", count);
+        } catch (e) {
+            console.error("Error in updateDisplay:", e);
+        }
+    }
 
     function autoCopy(text) {
-        navigator.clipboard.writeText(text).catch(() => {
+        try {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).catch((e) => {
+                    console.error("Clipboard API failed:", e);
+                    fallbackCopy(text);
+                });
+            } else {
+                fallbackCopy(text);
+            }
+        } catch (e) {
+            console.error("Error in autoCopy:", e);
+            alert("Gagal menyalin ke clipboard. Pastikan halaman dijalankan di localhost atau HTTPS.");
+        }
+    }
+
+    function fallbackCopy(text) {
+        try {
             const tempInput = document.createElement("textarea");
             tempInput.value = text;
             document.body.appendChild(tempInput);
             tempInput.select();
             document.execCommand("copy");
             document.body.removeChild(tempInput);
-        });
+        } catch (e) {
+            console.error("Fallback copy failed:", e);
+            alert("Gagal menyalin ke clipboard. Pastikan halaman dijalankan di localhost atau HTTPS.");
+        }
+    }
+
+    function updateHasilReff(e) {
+        try {
+            e.preventDefault();
+            console.log("Paste event triggered"); // Debugging
+            let pastedText = "";
+            if (e.type === "paste" && e.clipboardData) {
+                pastedText = e.clipboardData.getData("text").trim();
+            } else if (e.type === "input") {
+                pastedText = document.getElementById("pastereff").value.trim();
+            }
+            console.log("Pasted text:", pastedText); // Debugging
+            if (pastedText) {
+                const hasilreff = document.getElementById("hasilreff");
+                hasilreff.value = hasilreff.value ? `${hasilreff.value}\n${pastedText}` : pastedText;
+                document.getElementById("pastereff").value = "";
+                localStorage.setItem("hasilreff", hasilreff.value);
+                localStorage.setItem("pastereff", "");
+                hasilreff.scrollTop = hasilreff.scrollHeight; // Scroll ke bawah
+                console.log("hasilreff updated:", hasilreff.value); // Debugging
+            }
+        } catch (e) {
+            console.error("Error in updateHasilReff:", e);
+        }
+    }
+
+    function saveHasilReff() {
+        try {
+            const hasilreff = document.getElementById("hasilreff").value;
+            if (hasilreff) {
+                autoCopy(hasilreff);
+                alert("Isi hasilreff telah disalin!");
+            } else {
+                alert("Tidak ada teks untuk disalin!");
+            }
+        } catch (e) {
+            console.error("Error in saveHasilReff:", e);
+        }
+    }
+
+    function resetHasilReff() {
+        try {
+            document.getElementById("hasilreff").value = "";
+            document.getElementById("pastereff").value = "";
+            localStorage.removeItem("hasilreff");
+            localStorage.removeItem("pastereff");
+        } catch (e) {
+            console.error("Error in resetHasilReff:", e);
+        }
     }
 
     function reset() {
-        min = parseInt(document.getElementById("startInput").value) || 0;
-        count = min; // Reset count ke nilai start yang baru
-        max = Infinity;
+        try {
+            min = parseInt(document.getElementById("startInput").value) || 0;
+            count = min;
+            max = Infinity;
 
-        document.getElementById("startInput").value = "";
-        document.getElementById("maxInput").value = "";
-        document.getElementById("emailInput").value = "";
-        document.getElementById("resultBox").value = "";
+            document.getElementById("startInput").value = "";
+            document.getElementById("maxInput").value = "";
+            document.getElementById("emailInput").value = "";
+            document.getElementById("resultBox").value = "";
+            document.getElementById("pastereff").value = "";
+            document.getElementById("hasilreff").value = "";
 
-        localStorage.clear();
+            localStorage.clear();
+        } catch (e) {
+            console.error("Error in reset:", e);
+        }
     }
 
     function openMenu() {
-        window.location.href = "https://muzans.github.io";
+        try {
+            window.location.href = "https://muzans.github.io";
+        } catch (e) {
+            console.error("Error in openMenu:", e);
+        }
     }
 
     function toggleFormat() {
-        format = document.getElementById("toggleSwitch").checked;
-        localStorage.setItem("toggleSwitch", format);
-        updateDisplay();
+        try {
+            format = document.getElementById("toggleSwitch").checked;
+            localStorage.setItem("toggleSwitch", format);
+            updateDisplay();
+        } catch (e) {
+            console.error("Error in toggleFormat:", e);
+        }
     }
 
     window.onload = function () {
-        min = parseInt(localStorage.getItem("startInput")) || 0;
-        max = parseInt(localStorage.getItem("maxInput")) || Infinity;
-        count = parseInt(localStorage.getItem("count")) || min;
+        try {
+            min = parseInt(localStorage.getItem("startInput")) || 0;
+            max = parseInt(localStorage.getItem("maxInput")) || Infinity;
+            count = parseInt(localStorage.getItem("count")) || min;
 
-        document.getElementById("startInput").value = min;
-        document.getElementById("maxInput").value = max === Infinity ? "" : max;
-        document.getElementById("emailInput").value = localStorage.getItem("emailInput") || "";
-        document.getElementById("toggleSwitch").checked = format;
+            document.getElementById("startInput").value = min;
+            document.getElementById("maxInput").value = max === Infinity ? "" : max;
+            document.getElementById("emailInput").value = localStorage.getItem("emailInput") || "";
+            document.getElementById("toggleSwitch").checked = format;
+            document.getElementById("hasilreff").value = localStorage.getItem("hasilreff") || "";
+            document.getElementById("pastereff").value = localStorage.getItem("pastereff") || "";
 
-        updateDisplay();
+            updateDisplay();
+
+            // Tambahkan event listener untuk paste dan input
+            const pastereff = document.getElementById("pastereff");
+            pastereff.addEventListener("paste", updateHasilReff);
+            pastereff.addEventListener("input", updateHasilReff); // Fallback untuk input
+            console.log("Paste and input event listeners added"); // Debugging
+        } catch (e) {
+            console.error("Error in window.onload:", e);
+        }
     };
 </script>
 
