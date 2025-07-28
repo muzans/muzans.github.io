@@ -27,7 +27,7 @@
         .message { font-size: 16px; color: #333; margin-top: 20px; }
         .spacer { margin-top: 32px; }
         .error-message { color: #dc3545; font-size: 14px; margin-top: 10px; display: none; }
-        .acak-container { display: flex; justify-content: center; gap: 10px; } /* Untuk tata letak tombol Acak */
+        .acak-container { display: flex; justify-content: center; gap: 10px;}
     </style>
 </head>
 <body>
@@ -56,7 +56,7 @@
     <div class="spacer"></div>
     <input type="text" id="nama-kombinasi" class="input-field" placeholder="Nama acak" readonly>
     <div class="acak-container">
-        <button class="small-btn" onclick="generateRandomName()">Acak</button>
+        <button class="small-btn" onclick="generateAndCopyName()">Acak</button>
     </div>
     <div id="errorMessage" class="error-message"></div>
 
@@ -104,14 +104,13 @@
             firstNames = data.FirstNames;
             lastNames = data.LastNames;
             hideError();
-            generateRandomName(); // Generate nama acak setelah data diambil
         } catch (error) {
             showError("Gagal memuat data nama dari GitHub. Coba lagi nanti.");
             console.error("Error fetching data:", error);
         }
     }
 
-    // Fungsi untuk mengacak nama
+    // Fungsi untuk mengacak nama tanpa menyalin
     function generateRandomName() {
         try {
             if (firstNames.length === 0 || lastNames.length === 0) {
@@ -128,12 +127,23 @@
             const fullName = `${randomFirstName} ${randomLastName}`;
             document.getElementById("nama-kombinasi").value = fullName;
             localStorage.setItem("nama-kombinasi", fullName);
-
-            // Salin ke clipboard
-            autoCopy(fullName);
         } catch (e) {
             showError("Gagal menghasilkan nama acak.");
             console.error("Error in generateRandomName:", e);
+        }
+    }
+
+    // Fungsi untuk tombol Acak: menghasilkan nama dan menyalin ke clipboard
+    function generateAndCopyName() {
+        try {
+            generateRandomName();
+            const fullName = document.getElementById("nama-kombinasi").value;
+            if (fullName && fullName !== "Data nama belum tersedia.") {
+                autoCopy(fullName);
+            }
+        } catch (e) {
+            showError("Gagal menghasilkan atau menyalin nama.");
+            console.error("Error in generateAndCopyName:", e);
         }
     }
 
