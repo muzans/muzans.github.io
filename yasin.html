@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Galeri Gambar Scroll Responsif</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            overflow-x: hidden; /* Mencegah scroll horizontal */
+        }
+        .gallery {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto; /* Memusatkan galeri */
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden; /* Mencegah scroll horizontal pada galeri */
+            background-color: white;
+            border-radius: 0;
+            box-shadow: none;
+            box-sizing: border-box;
+        }
+        .gallery a {
+            display: block;
+            text-decoration: none;
+            overflow: hidden; /* Mencegah konten meluber saat zoom */
+        }
+        .gallery img {
+            width: 100%;
+            height: auto;
+            border-radius: 0;
+            display: block; /* Menghilangkan ruang ekstra di bawah gambar */
+            transition: transform 0.2s ease; /* Transisi untuk efek zoom */
+        }
+        .gallery img:hover {
+            transform: scale(1.05); /* Efek zoom saat hover */
+        }
+        .gallery img.clicked {
+            transform: scale(1.05); /* Efek zoom saat diklik */
+        }
+        /* Media query untuk layar kecil (misalnya ponsel) */
+        @media screen and (max-width: 600px) {
+            .gallery {
+                width: 100%;
+                height: 100vh;
+            }
+        }
+        /* Media query untuk layar sedang (misalnya tablet) */
+        @media screen and (min-width: 601px) and (max-width: 900px) {
+            .gallery {
+                width: 100%;
+                height: 100vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="gallery">
+        <a href="https://i.postimg.cc/V6gtbw0t/1.png"><img src="https://i.postimg.cc/V6gtbw0t/1.png" alt="Gambar 1"></a>
+        <a href="https://i.postimg.cc/1XYNJKH5/2.png"><img src="https://i.postimg.cc/1XYNJKH5/2.png" alt="Gambar 2"></a>
+        <a href="https://i.postimg.cc/wT7N3Sqt/3.png"><img src="https://i.postimg.cc/wT7N3Sqt/3.png" alt="Gambar 3"></a>
+        <a href="https://i.postimg.cc/tRrPqXjQ/4.png"><img src="https://i.postimg.cc/tRrPqXjQ/4.png" alt="Gambar 4"></a>
+        <a href="https://i.postimg.cc/HsRyMBn6/5.png"><img src="https://i.postimg.cc/HsRyMBn6/5.png" alt="Gambar 5"></a>
+        <a href="https://i.postimg.cc/HkM79X7d/6.png"><img src="https://i.postimg.cc/HkM79X7d/6.png" alt="Gambar 6"></a>
+    </div>
+    <script>
+        // Mencegah aksi default pada tautan
+        document.querySelectorAll('.gallery a').forEach(link => {
+            link.addEventListener('click', event => {
+                event.preventDefault(); // Mencegah tautan membuka URL
+                const img = link.querySelector('img');
+                // Toggle kelas 'clicked' untuk efek zoom
+                img.classList.toggle('clicked');
+                // Hapus kelas 'clicked' dari gambar lain
+                document.querySelectorAll('.gallery img').forEach(otherImg => {
+                    if (otherImg !== img) {
+                        otherImg.classList.remove('clicked');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
