@@ -64,14 +64,14 @@
             transition: transform 0.2s;
             text-decoration: none;
             min-width: 160px;
-            color: #fff; /* All font colors white */
+            color: #fff; /* All font colors white for regular buttons */
         }
 
         .menu-item:hover {
             transform: scale(1.08);
         }
 
-        /* Background gradients for buttons */
+        /* Background gradients for regular buttons */
         .menu-item:nth-child(1) { background: linear-gradient(45deg, #ff6b6b, #f06595); }
         .menu-item:nth-child(2) { background: linear-gradient(45deg, #42a5f5, #478ed1); }
         .menu-item:nth-child(3) { background: linear-gradient(45deg, #66bb6a, #43a047); }
@@ -80,8 +80,30 @@
         .menu-item:nth-child(6) { background: linear-gradient(45deg, #ef5350, #e53935); }
         .menu-item:nth-child(7) { background: linear-gradient(45deg, #26c6da, #00acc1); }
         .menu-item:nth-child(8) { background: linear-gradient(45deg, #78909c, #546e7a); opacity: 0.5; } /* Coming Soon with increased transparency */
-        .menu-item:nth-child(9) { background: linear-gradient(45deg, #ff7043, #f4511e); }
-        .menu-item:nth-child(10) { background: linear-gradient(45deg, #26a69a, #00897b); }
+
+        /* Styling for Privacy Policy and About buttons */
+        .menu-item.special {
+            background: #4a4a4a; /* Neutral dark color for distinction */
+            color: #fff;
+        }
+
+        /* Styling for New badge */
+        .menu-item.new {
+            position: relative;
+        }
+
+        .menu-item.new::after {
+            content: "New";
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #ff4444;
+            color: #fff;
+            font-size: 0.7em;
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
 
         /* Footer styling */
         footer {
@@ -114,14 +136,14 @@
             <a href="https://muzans.github.io/Project%20Suite.html" class="menu-item">Project Suite</a>
             <a href="https://muzans.github.io/name.html" class="menu-item">Generator Nama</a>
             <a href="https://muzans.github.io/count.html" class="menu-item">Count Email</a>
-            <a href="https://muzans.github.io/newcount.html" class="menu-item">New Count Email</a>
+            <a href="https://muzans.github.io/newcount.html" class="menu-item new">New Count Email</a>
             <a href="http://muzans.github.io/suite.html" class="menu-item">Suite Tools</a>
             <a href="http://muzans.github.io/gmdot.html" class="menu-item">Email Dot</a>
-            <a href="http://muzans.github.io/gmaildotcopy.html" class="menu-item">Gmail Dot Count</a>
-            <a href="http://muzans.github.io/uidcopy.html" class="menu-item">UID Count</a>
+            <a href="http://muzans.github.io/gmaildotcopy.html" class="menu-item new">Gmail Dot Count</a>
+            <a href="http://muzans.github.io/uidcopy.html" class="menu-item new">UID Count</a>
             <a href="http://muzans.github.io/new_menu.html" class="menu-item">Coming Soon</a>
-            <a href="http://muzans.github.io/privacy_policy.html" class="menu-item">Privacy Policy</a>
-            <a href="http://muzans.github.io" class="menu-item">About</a>
+            <a href="http://muzans.github.io/privacy_policy.html" class="menu-item special">Privacy Policy</a>
+            <a href="http://muzans.github.io" class="menu-item special">About</a>
         </div>
     </div>
     <footer>Last Updated: July 28, 2025, 15:01 WIB</footer>
