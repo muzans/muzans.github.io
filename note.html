@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Dashboard</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --dark-color: #2c3e50;
+            --bg-color: #e8f0fd;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            color: var(--dark-color);
+        }
+
+        header {
+            background-color: var(--white);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: flex-end; /* Posisi di kanan */
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        /* LOGIN SEJAJAR */
+        .auth-bar { 
+            display: flex; 
+            flex-direction: row; /* Paksa sejajar */
+            gap: 8px; 
+            align-items: center; 
+        }
+        
+        .auth-bar input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            outline: none;
+            font-size: 13px;
+            width: 150px; /* Ukuran input proporsional */
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        
+        .btn-login { background: var(--primary-color); color: white; }
+        .btn-login:hover { background: #357abd; }
+        .btn-add { background: var(--dark-color); color: white; width: 100%; margin-top: 10px; font-size: 14px; }
+        .btn-delete { background: #ff4757; color: white; font-size: 11px; margin-top: 10px; }
+
+        .container { 
+            max-width: 1000px; 
+            margin: 30px auto; 
+            padding: 0 20px; 
+            flex: 1; /* Agar footer tetap di bawah */
+        }
+
+        .admin-box {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        
+        .admin-box input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        .notes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 18px;
+            border-radius: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            border: 1px solid #d1d9e6;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-title {
+            font-weight: 800;
+            font-size: 15px;
+            margin-bottom: 8px;
+            color: var(--dark-color);
+            border: none;
+            background: transparent;
+            width: 100%;
+            outline: none;
+        }
+
+        textarea {
+            width: 100%;
+            border: 1px solid #f0f4f8;
+            background: #f9fbff;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #444;
+            resize: none;
+            font-family: inherit;
+            padding: 10px;
+            border-radius: 8px;
+            box-sizing: border-box;
+            cursor: pointer;
+        }
+        
+        textarea:focus { outline: none; border-color: var(--primary-color); background: #fff; }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: #888;
+            background: transparent;
+        }
+
+        .hidden { display: none; }
+
+        /* Responsif Mobile */
+        @media (max-width: 600px) {
+            header { justify-content: center; }
+            .auth-bar { flex-wrap: wrap; justify-content: center; }
+            .auth-bar input { width: 120px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div id="auth-section">
+        <div id="login-controls" class="auth-bar">
+            <input type="email" id="email" placeholder="Admin Email">
+            <input type="password" id="password" placeholder="Password">
+            <button class="btn btn-login" onclick="login()">Login</button>
+        </div>
+        <div id="admin-controls" class="auth-bar hidden">
+            <span style="font-size: 13px; font-weight: 600; color: #666;">Admin Mode</span>
+            <button class="btn" style="background:#f1f1f1" onclick="logout()">Logout</button>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    <div id="admin-panel" class="admin-box hidden">
+        <h3 style="margin-top:0; font-size: 16px;">Tambah Box Baru</h3>
+        <input type="text" id="new-title" placeholder="Judul Catatan">
+        <textarea id="new-note" style="height:80px;" placeholder="Isi link atau teks..."></textarea>
+        <button class="btn btn-add" onclick="addNote()">Simpan</button>
+    </div>
+
+    <div id="notes-container" class="notes-grid">
+        <p style="text-align: center; grid-column: 1/-1; color: #999;">Menghubungkan...</p>
+    </div>
+</div>
+
+<footer>
+    Version 1.0.0
+</footer>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyC-cSIk3mraVl5sa24VcDWnRTpF50pBAoE",
+        authDomain: "muzans-d76c4.firebaseapp.com",
+        databaseURL: "https://muzans-d76c4-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "muzans-d76c4",
+        storageBucket: "muzans-d76c4.firebasestorage.app",
+        messagingSenderId: "1015626935627",
+        appId: "1:1015626935627:web:47a1b5f0ce11838c5f0cce",
+        measurementId: "G-775DH0L65X"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const auth = firebase.auth();
+
+    function login() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        if(!email || !password) return alert("Isi email & password!");
+        auth.signInWithEmailAndPassword(email, password).catch(err => alert("Akses Ditolak"));
+    }
+
+    function logout() { auth.signOut(); }
+
+    auth.onAuthStateChanged(user => {
+        const isAdmin = !!user;
+        document.getElementById('login-controls').classList.toggle('hidden', isAdmin);
+        document.getElementById('admin-controls').classList.toggle('hidden', !isAdmin);
+        document.getElementById('admin-panel').classList.toggle('hidden', !isAdmin);
+        loadNotes(isAdmin);
+    });
+
+    function addNote() {
+        const title = document.getElementById('new-title').value;
+        const text = document.getElementById('new-note').value;
+        if (text.trim()) {
+            db.ref('notes').push({ 
+                title: title || "Untitled", 
+                content: text, 
+                date: Date.now() 
+            });
+            document.getElementById('new-title').value = '';
+            document.getElementById('new-note').value = '';
+        }
+    }
+
+    function loadNotes(isAdmin) {
+        db.ref('notes').on('value', (snapshot) => {
+            const container = document.getElementById('notes-container');
+            container.innerHTML = '';
+            
+            let dataArr = [];
+            snapshot.forEach(c => { dataArr.push({key: c.key, ...c.val()}); });
+            
+            dataArr.reverse().forEach(data => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <input type="text" class="card-title" 
+                        ${!isAdmin ? 'readonly' : ''} 
+                        value="${data.title}" 
+                        onchange="updateTitle('${data.key}', this.value)">
+                    <textarea 
+                        ${!isAdmin ? 'readonly' : ''} 
+                        onclick="this.select()" 
+                        onchange="updateNote('${data.key}', this.value)" 
+                        rows="4">${data.content}</textarea>
+                    ${isAdmin ? `<button class="btn btn-delete" onclick="deleteNote('${data.key}')">Hapus</button>` : ''}
+                `;
+                container.appendChild(card);
+            });
+        });
+    }
+
+    function updateTitle(key, val) { db.ref('notes/' + key).update({ title: val }); }
+    function updateNote(key, val) { db.ref('notes/' + key).update({ content: val }); }
+    function deleteNote(key) { if(confirm('Hapus box ini?')) db.ref('notes/' + key).remove(); }
+</script>
+
+</body>
+</html>
