@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <title>Counter Email</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; margin-top: 60px; }
+        .container { max-width: 320px; margin: auto; }
+        .flex { display: flex; justify-content: space-between; gap: 10px; }
+        .input-field, .small-btn { width: 100%; padding: 8px; font-size: 16px; text-align: center; margin: 5px 0; box-sizing: border-box; }
+        #resultBox, #emailInput, #nama-kombinasi { height: 40px; }
+        #resultBox { margin-bottom: 40px; }
+        #nama-kombinasi { margin-bottom: 10px; }
+        .circle-btn { width: 70px; height: 70px; border-radius: 50%; font-size: 24px; font-weight: bold; border: none; cursor: pointer; transition: 0.2s; }
+        .circle-btn:hover { opacity: 0.8; }
+        .plus { background-color: #28a745; color: white; }
+        .minus { background-color: #dc3545; color: white; }
+        .counter-buttons { display: flex; align-items: center; justify-content: center; gap: 15px; margin-top: 10px; }
+        .switch { position: relative; display: inline-block; width: 50px; height: 24px; }
+        .switch input { display: none; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: 0.4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 3px; background-color: white; transition: 0.4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #28a745; }
+        input:checked + .slider:before { transform: translateX(26px); }
+        .footer { margin-top: 20px; font-size: 14px; color: gray; }
+        .message { font-size: 16px; color: #333; margin-top: 20px; }
+        .spacer { margin-top: 32px; }
+        .error-message { color: #dc3545; font-size: 14px; margin-top: 10px; display: none; }
+        .acak-container { display: flex; justify-content: center; gap: 10px;}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="flex">
+        <button class="small-btn" onclick="reset()">Reset</button>
+        <button class="small-btn" onclick="openMenu()">Menu</button>
+    </div>
+
+    <input type="number" id="startInput" class="input-field" placeholder="Jumlah huruf username" value="8">
+    <input type="text" id="maxInput" class="input-field" placeholder="Domain (ex: gmail.com)" value="gmail.com">
+    <input type="email" id="emailInput" class="input-field" placeholder="Masukkan email" oninput="updateDisplay()">
+    
+    <input type="text" id="resultBox" class="input-field" readonly>
+    
+    <div class="counter-buttons">
+        <button class="circle-btn minus" onclick="decrement()">−</button>
+        <label class="switch">
+            <input type="checkbox" id="toggleSwitch" onchange="toggleFormat()">
+            <span class="slider"></span>
+        </label>
+        <button class="circle-btn plus" onclick="increment()">+</button>
+    </div>
+
+    <div class="spacer"></div>
+    <input type="text" id="nama-kombinasi" class="input-field" placeholder="Nama acak" readonly>
+    <div class="acak-container">
+        <button class="small-btn" onclick="generateAndCopyName()">Acak Nama</button>
+    </div>
+
+    <div class="message">
+        <p>☕</p>
+    </div>
+</div>
+
+<div class="footer">Versi 6.0.4 | Smart Counter & Generator</div>
+
+<script>
+    let count = 0;
+    let format = localStorage.getItem("toggleSwitch") === "true";
+    const jsonUrl = "https://raw.githubusercontent.com/muzans/muzans.github.io/refs/heads/main/base.json";
+    let firstNames = [];
+    let lastNames = [];
+
+    async function fetchData() {
+        try {
+            const response = await fetch(jsonUrl);
+            const data = await response.json();
+            firstNames = data.FirstNames || [];
+            lastNames = data.LastNames || [];
+        } catch (error) { console.error("Error load JSON"); }
+    }
+
+    function generateReadableUsername(length) {
+        const vowels = "aeiou";
+        const consonants = "bcdfghjklmnpqrstvwxyz";
+        let res = "";
+        for (let i = 0; i < length; i++) {
+            if (i % 2 === 0) {
+                res += consonants.charAt(Math.floor(Math.random() * consonants.length));
+            } else {
+                res += vowels.charAt(Math.floor(Math.random() * vowels.length));
+            }
+        }
+        return res;
+    }
+
+    function updateDisplay() {
+        const emailInput = document.getElementById("emailInput").value;
+        
+        if (emailInput.trim() !== "") {
+            // MODE MANUAL: Hanya tambahkan angka counter, JANGAN tambah domain
+            let num = count === 0 ? "" : count;
+            
+            // Pecah email untuk menyelipkan angka sebelum @ jika counter di belakang
+            // Atau letakkan di paling depan jika toggle aktif
+            let res = "";
+            if (format) {
+                res = `${num}${emailInput}`;
+            } else {
+                if (emailInput.includes("@")) {
+                    let parts = emailInput.split("@");
+                    res = `${parts[0]}${num}@${parts[1]}`;
+                } else {
+                    res = `${emailInput}${num}`;
+                }
+            }
+            document.getElementById("resultBox").value = res;
+        }
+        localStorage.setItem("count", count);
+        localStorage.setItem("emailInput", emailInput);
+    }
+
+    function increment() {
+        const emailInput = document.getElementById("emailInput").value;
+        
+        if (emailInput.trim() === "") {
+            // MODE GENERATE: Gunakan jumlah huruf + Domain kolom 2
+            const charLen = parseInt(document.getElementById("startInput").value) || 8;
+            let domain = document.getElementById("maxInput").value || "gmail.com";
+            if (!domain.startsWith("@")) domain = "@" + domain;
+            
+            const readableUser = generateReadableUsername(charLen);
+            const res = readableUser + domain;
+            document.getElementById("resultBox").value = res;
+            autoCopy(res);
+        } else {
+            // MODE COUNTER: Tambah angka ke email yang sudah ada
+            count++;
+            updateDisplay();
+            autoCopy(document.getElementById("resultBox").value);
+        }
+    }
+
+    function decrement() {
+        if (count > 0) {
+            count--;
+            updateDisplay();
+            autoCopy(document.getElementById("resultBox").value);
+        }
+    }
+
+    // LOGIKA ASLI NAMA JSON (TETAP)
+    function generateRandomName() {
+        if (firstNames.length === 0 || lastNames.length === 0) return;
+        const f = firstNames[Math.floor(Math.random() * firstNames.length)];
+        const l = lastNames[Math.floor(Math.random() * lastNames.length)];
+        document.getElementById("nama-kombinasi").value = `${f} ${l}`;
+    }
+
+    function generateAndCopyName() {
+        generateRandomName();
+        const n = document.getElementById("nama-kombinasi").value;
+        if (n) autoCopy(n);
+    }
+
+    function autoCopy(text) {
+        if (!text) return;
+        navigator.clipboard.writeText(text).catch(() => {
+            const temp = document.createElement("textarea");
+            temp.value = text;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand("copy");
+            document.body.removeChild(temp);
+        });
+    }
+
+    function reset() {
+        count = 0;
+        document.getElementById("emailInput").value = "";
+        document.getElementById("resultBox").value = "";
+        document.getElementById("nama-kombinasi").value = "";
+        localStorage.clear();
+        updateDisplay();
+    }
+
+    function toggleFormat() {
+        format = document.getElementById("toggleSwitch").checked;
+        localStorage.setItem("toggleSwitch", format);
+        updateDisplay();
+    }
+
+    function openMenu() { window.location.href = "https://muzans.github.io"; }
+
+    window.onload = function () {
+        count = parseInt(localStorage.getItem("count")) || 0;
+        document.getElementById("emailInput").value = localStorage.getItem("emailInput") || "";
+        document.getElementById("toggleSwitch").checked = format;
+        fetchData();
+        updateDisplay();
+    };
+</script>
+
+</body>
+</html>
