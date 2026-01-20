@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Link Dinamis</title>
+    <title>Dashboard Link Dinamis v20.1.26</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
         
         @keyframes gradientBackground {
             0% { background-position: 0% 50%; }
@@ -20,9 +20,9 @@
 
         body {
             min-height: 100vh;
-            background: linear-gradient(120deg, #ff9a9e, #fad0c4, #fbc2eb, #a18cd1);
-            background-size: 200% 200%;
-            animation: gradientBackground 10s ease infinite;
+            background: linear-gradient(120deg, #ff9a9e, #fad0c4, #fbc2eb, #a18cd1, #84fab0, #8fd3f4);
+            background-size: 300% 300%;
+            animation: gradientBackground 15s ease infinite;
             display: flex; flex-direction: column; align-items: center;
         }
 
@@ -34,71 +34,71 @@
             position: sticky; top: 0; z-index: 1000;
         }
 
-        .nav-links { display: flex; gap: 20px; }
+        .nav-links { display: flex; gap: 10px; }
         .nav-item {
-            text-decoration: none; color: #555; font-size: 1.1em;
-            display: flex; align-items: center; gap: 8px; padding: 8px 12px;
-            border-radius: 8px; transition: 0.3s;
+            text-decoration: none; color: #555; font-size: 0.9em;
+            display: flex; align-items: center; gap: 6px; padding: 8px 12px;
+            border-radius: 20px; transition: 0.3s;
         }
         .nav-item:hover, .nav-item.active { color: #ff6b6b; background: rgba(255, 107, 107, 0.1); }
 
         .auth-container { position: relative; }
         .login-popup {
             display: none; position: absolute; top: 50px; right: 0;
-            background: white; padding: 15px; border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 220px; flex-direction: column; gap: 10px;
+            background: white; padding: 15px; border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 240px; flex-direction: column; gap: 10px;
+            z-index: 1001;
         }
-        .login-popup input { padding: 8px; border: 1px solid #ddd; border-radius: 5px; outline: none; }
-        .btn-action { background: #4a4a4a; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .login-popup input { padding: 10px; border: 1px solid #ddd; border-radius: 8px; outline: none; }
 
         /* --- ADMIN PANEL --- */
         #admin-panel {
             background: white; padding: 25px; border-radius: 15px; margin: 20px 0;
-            width: 90%; max-width: 600px; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            text-align: center;
+            width: 90%; max-width: 600px; display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
-        .admin-input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; }
-        .btn-add { background: #2ecc71; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; }
+        .admin-input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #eee; border-radius: 8px; background: #f9f9f9; }
+        .btn-add { background: #2ecc71; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; transition: 0.3s; }
+        .btn-add:hover { background: #27ae60; transform: translateY(-2px); }
 
         /* --- MENU CONTENT --- */
         .container {
-            width: 95%; max-width: 650px; text-align: center;
-            background: rgba(255, 255, 255, 0.85); border-radius: 20px;
-            padding: 30px; margin-top: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            flex: 1; width: 95%; max-width: 700px; text-align: center;
+            background: rgba(255, 255, 255, 0.9); border-radius: 25px;
+            padding: 30px; margin: 30px 0; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
         }
-        .menu-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-top: 25px; }
-        .menu-wrapper { position: relative; flex: 1 1 calc(50% - 15px); min-width: 160px; }
+        .menu-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 18px; margin-top: 25px; }
+        .menu-wrapper { position: relative; flex: 1 1 calc(50% - 18px); min-width: 160px; transition: 0.3s; }
         
         .menu-item {
-            display: block; padding: 20px; border-radius: 15px; font-weight: bold;
-            text-decoration: none; color: white; transition: 0.2s; font-size: 1.1em;
+            display: block; padding: 22px; border-radius: 18px; font-weight: 600;
+            text-decoration: none; color: white; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-size: 1.1em; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
+        .menu-item:hover { transform: translateY(-8px); box-shadow: 0 12px 20px rgba(0,0,0,0.15); }
+        .menu-item:active { transform: scale(0.95); }
 
-        /* --- EDIT MODE STYLING --- */
         .edit-mode-container {
-            background: #fff; border-radius: 15px; padding: 10px;
-            display: flex; flex-direction: column; gap: 5px; border: 2px solid #ff6b6b;
+            background: #fff; border-radius: 18px; padding: 15px;
+            display: flex; flex-direction: column; gap: 8px; border: 2px solid #ff6b6b;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
-        .edit-mode-container input { padding: 8px; border-radius: 5px; border: 1px solid #ddd; font-size: 0.9em; }
+        .edit-mode-container input { padding: 10px; border-radius: 8px; border: 1px solid #ddd; }
 
-        /* --- BUTTONS --- */
-        .admin-controls {
-            position: absolute; bottom: 8px; right: 8px; display: flex; gap: 5px;
-        }
+        .admin-controls { position: absolute; bottom: 8px; right: 8px; display: flex; gap: 5px; }
         .btn-ctrl {
-            background: rgba(0,0,0,0.4); color: white; border: none;
-            width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
-            font-size: 12px; display: flex; align-items: center; justify-content: center; transition: 0.3s;
+            background: rgba(255,255,255,0.3); color: white; border: none;
+            width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
+            backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; transition: 0.3s;
         }
-        .btn-ctrl:hover { background: #333; transform: scale(1.1); }
-        .btn-delete:hover { background: #e74c3c; }
-        .btn-save { background: #2ecc71; width: 100%; border-radius: 5px; height: 35px; }
-        .btn-cancel { background: #95a5a6; width: 100%; border-radius: 5px; height: 35px; }
+        .btn-ctrl:hover { background: #fff; color: #333; transform: scale(1.1); }
+        
+        footer {
+            width: 100%; padding: 20px; background: rgba(255,255,255,0.8);
+            text-align: center; font-size: 0.9em; color: #666; margin-top: auto;
+        }
 
-        /* --- DECORATIONS --- */
-        .badge-new { position: absolute; top: -5px; left: -5px; background: #e74c3c; color: white; font-size: 10px; padding: 4px 8px; border-radius: 8px; z-index: 2; }
-        .info-i { position: absolute; right: 10px; top: 10px; background: rgba(255,255,255,0.25); width: 22px; height: 22px; border-radius: 50%; font-size: 11px; line-height: 22px; cursor: help; color: white; }
-        .info-i:hover::after { content: attr(data-date); position: absolute; bottom: 25px; right: 0; background: #333; color: white; padding: 5px 10px; border-radius: 5px; font-size: 10px; white-space: nowrap; }
+        .badge-new { position: absolute; top: -8px; left: -8px; background: #ff4757; color: white; font-size: 10px; padding: 4px 10px; border-radius: 20px; font-weight: bold; z-index: 2; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .info-i { position: absolute; right: 12px; top: 12px; background: rgba(255,255,255,0.2); width: 20px; height: 20px; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; cursor: help; color: white; border: 1px solid rgba(255,255,255,0.4); }
 
         @media (max-width: 480px) { .nav-item span { display: none; } .menu-wrapper { flex: 1 1 100%; } }
     </style>
@@ -111,28 +111,32 @@
             <a href="https://muzans.github.io/admintools.html" class="nav-item"><i class="fa-solid fa-gear"></i> <span>Tools</span></a>
             <a href="https://muzans.github.io/privacy_policy.html" class="nav-item"><i class="fa-solid fa-user"></i> <span>About</span></a>
         </div>
-        <div class="auth-container">
-            <button class="btn-action" id="trigger-login" onclick="toggleLoginForm()"><i class="fa-solid fa-right-to-bracket"></i> Login</button>
-            <button class="btn-action" id="btn-logout" style="display:none; background: #e74c3c;" onclick="logout()"><i class="fa-solid fa-power-off"></i> Logout</button>
+        <div class="auth-container" id="auth-wrapper">
+            <button class="btn-action" id="trigger-login" onclick="toggleLoginForm(event)" style="background:none; color:#555; border:1px solid #ddd; padding:8px 12px; border-radius:20px; cursor:pointer"><i class="fa-solid fa-user-lock"></i> Login</button>
+            <button class="btn-action" id="btn-logout" style="display:none; background: #ff4757; color:white; border:none; padding:8px 15px; border-radius:20px;" onclick="logout()"><i class="fa-solid fa-power-off"></i> Logout</button>
             <div class="login-popup" id="login-popup">
                 <input type="email" id="email" placeholder="Email Admin">
                 <input type="password" id="password" placeholder="Password">
-                <button class="btn-action" style="background:#2ecc71" onclick="login()">Masuk</button>
+                <button class="btn-add" onclick="login()">Masuk</button>
             </div>
         </div>
     </nav>
 
     <div id="admin-panel">
-        <h3><i class="fa-solid fa-plus"></i> Tambah Menu Baru</h3>
-        <input type="text" id="title" class="admin-input" placeholder="Judul Menu">
-        <input type="text" id="url" class="admin-input" placeholder="yasin.html">
-        <button class="btn-add" onclick="addMenu()">Terbitkan Sekarang</button>
+        <h3 style="margin-bottom:15px"><i class="fa-solid fa-plus-circle"></i> Tambah Menu</h3>
+        <input type="text" id="title" class="admin-input" placeholder="Nama Menu">
+        <input type="text" id="url" class="admin-input" placeholder="Link">
+        <button class="btn-add" onclick="addMenu()">Simpan Perubahan</button>
     </div>
 
     <div class="container">
-        <h1></h1>
+        <h2 style="color: #444; margin-bottom: 10px;">Dashboard Utama</h2>
         <div id="menu-container" class="menu-list"></div>
     </div>
+
+    <footer>
+        <p>&copy; 2026 Muzans  • <strong>Versi 20.1.26</strong></p>
+    </footer>
 
     <script>
         const firebaseConfig = {
@@ -151,30 +155,48 @@
 
         let isAdmin = false;
         let editingKey = null;
+        let menuDataCache = {};
 
-        function toggleLoginForm() {
+        // --- FUNGSI LOGIN & LOGOUT ---
+        function toggleLoginForm(event) {
+            event.stopPropagation(); // Mencegah bubbling
             const popup = document.getElementById('login-popup');
             popup.style.display = (popup.style.display === 'flex') ? 'none' : 'flex';
         }
+
+        // Klik di mana saja untuk menutup popup login
+        window.addEventListener('click', function(e) {
+            const popup = document.getElementById('login-popup');
+            const authWrapper = document.getElementById('auth-wrapper');
+            if (popup.style.display === 'flex' && !authWrapper.contains(e.target)) {
+                popup.style.display = 'none';
+            }
+        });
 
         function login() {
             const email = document.getElementById('email').value;
             const pass = document.getElementById('password').value;
             auth.signInWithEmailAndPassword(email, pass).then(() => {
                 document.getElementById('login-popup').style.display = 'none';
-            }).catch(err => alert("Gagal Login: " + err.message));
+            }).catch(err => alert("Akses Ditolak"));
         }
 
-        function logout() { auth.signOut(); }
+        function logout() { 
+            editingKey = null; // Reset status edit saat logout
+            auth.signOut(); 
+        }
 
         auth.onAuthStateChanged(user => {
             isAdmin = !!user;
             document.getElementById('admin-panel').style.display = isAdmin ? 'block' : 'none';
             document.getElementById('trigger-login').style.display = isAdmin ? 'none' : 'block';
             document.getElementById('btn-logout').style.display = isAdmin ? 'block' : 'none';
+            renderMenus(); 
         });
 
+        // --- LOGIK MENU ---
         function formatUrl(input) {
+            if (!input) return "https://muzans.github.io/yasin.html";
             if (!input.startsWith('http://') && !input.startsWith('https://')) {
                 let cleanInput = input.startsWith('/') ? input.substring(1) : input;
                 return "https://muzans.github.io/" + cleanInput;
@@ -184,9 +206,9 @@
 
         function addMenu() {
             const title = document.getElementById('title').value;
-            const urlInput = document.getElementById('url').value;
+            let urlInput = document.getElementById('url').value || "yasin.html";
             const today = new Date().toISOString().split('T')[0];
-            if(title && urlInput) {
+            if(title) {
                 const finalUrl = formatUrl(urlInput);
                 db.ref('menus').push({ title, url: finalUrl, createdAt: today }).then(() => {
                     document.getElementById('title').value = "";
@@ -196,77 +218,79 @@
         }
 
         db.ref('menus').on('value', (snapshot) => {
+            menuDataCache = snapshot.val() || {};
+            renderMenus();
+        });
+
+        function renderMenus() {
             const container = document.getElementById('menu-container');
             container.innerHTML = "";
-            const colors = ['#ff6b6b', '#42a5f5', '#66bb6a', '#ffa726', '#ab47bc'];
+            const colors = ['#ff6b6b', '#54a0ff', '#5f27cd', '#ff9f43', '#1dd1a1', '#00d2d3', '#f368e0', '#48dbfb', '#ee5253', '#10ac84'];
+            
             let i = 0;
-
-            snapshot.forEach((child) => {
-                const data = child.val();
-                const key = child.key;
+            for (let key in menuDataCache) {
+                const data = menuDataCache[key];
                 const releaseDate = new Date(data.createdAt);
                 const isNew = Math.ceil(Math.abs(new Date() - releaseDate) / (1000 * 60 * 60 * 24)) <= 90;
 
                 const wrapper = document.createElement('div');
                 wrapper.className = 'menu-wrapper';
 
-                if (editingKey === key) {
-                    // MODE EDIT
+                // Form edit hanya muncul jika isAdmin TRUE dan editingKey cocok
+                if (isAdmin && editingKey === key) {
                     wrapper.innerHTML = `
                         <div class="edit-mode-container">
                             <input type="text" id="edit-title-${key}" value="${data.title}">
                             <input type="text" id="edit-url-${key}" value="${data.url}">
                             <div style="display:flex; gap:5px;">
-                                <button class="btn-action btn-save" onclick="saveEdit('${key}')">Simpan</button>
-                                <button class="btn-action btn-cancel" onclick="cancelEdit()">Batal</button>
+                                <button class="btn-add" style="padding:8px; font-size:12px;" onclick="saveEdit('${key}')">Simpan</button>
+                                <button class="btn-add" style="background:#95a5a6; padding:8px; font-size:12px;" onclick="cancelEdit()">Batal</button>
                             </div>
                         </div>
                     `;
                 } else {
-                    // MODE BIASA
                     wrapper.innerHTML = `
                         ${isNew ? '<div class="badge-new">NEW</div>' : ''}
                         <a href="${data.url}" class="menu-item" style="background:${colors[i % colors.length]}">${data.title}</a>
-                        <div class="info-i" data-date="Rilis: ${data.createdAt}">i</div>
+                        <div class="info-i" title="Rilis: ${data.createdAt}">i</div>
                         ${isAdmin ? `
                         <div class="admin-controls">
-                            <button class="btn-ctrl btn-edit" onclick="startEdit('${key}')"><i class="fa-solid fa-pen"></i></button>
-                            <button class="btn-ctrl btn-delete" onclick="deleteMenu('${key}')"><i class="fa-solid fa-trash"></i></button>
+                            <button class="btn-ctrl" onclick="startEdit('${key}')"><i class="fa-solid fa-pen"></i></button>
+                            <button class="btn-ctrl" style="background:rgba(231, 76, 60, 0.7)" onclick="deleteMenu('${key}')"><i class="fa-solid fa-trash"></i></button>
                         </div>` : ''}
                     `;
                 }
                 container.appendChild(wrapper);
                 i++;
-            });
-        });
+            }
+        }
 
         function startEdit(key) {
             editingKey = key;
+            renderMenus();
         }
 
         function cancelEdit() {
-            if(confirm("Batal mengedit? Perubahan tidak akan disimpan.")) {
-                editingKey = null;
-            }
+            editingKey = null;
+            renderMenus();
         }
 
         function saveEdit(key) {
             const newTitle = document.getElementById(`edit-title-${key}`).value;
             const newUrlInput = document.getElementById(`edit-url-${key}`).value;
-            if(newTitle && newUrlInput) {
+            if(newTitle) {
                 const finalUrl = formatUrl(newUrlInput);
                 db.ref('menus/' + key).update({
                     title: newTitle,
                     url: finalUrl
                 }).then(() => {
                     editingKey = null;
-                    alert("Berhasil diperbarui!");
                 });
             }
         }
 
         function deleteMenu(key) {
-            if(confirm("Hapus menu ini secara permanen?")) {
+            if(confirm("Hapus menu ini?")) {
                 db.ref('menus/' + key).remove();
             }
         }
