@@ -26,7 +26,19 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000;
         }
 
-        .header-left .header-logo { font-weight: 800; font-size: 18px; color: var(--dark-color); text-decoration: none; display: flex; align-items: center; gap: 10px; }
+        /* Perbaikan Tombol Home Logo */
+        .header-left .header-logo { 
+            font-weight: 800; 
+            font-size: 18px; 
+            color: var(--dark-color); 
+            text-decoration: none; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px;
+            transition: 0.2s;
+        }
+        .header-left .header-logo:hover { color: var(--primary-color); }
+
         .header-icons { display: flex; align-items: center; gap: 15px; position: relative; }
         .icon-btn { background: none; border: none; font-size: 24px; color: #777; cursor: pointer; transition: 0.2s; }
         
@@ -73,7 +85,9 @@
 
 <header>
     <div class="header-left">
-        <a href="#" class="header-logo" onclick="location.reload()"><i class="fas fa-home"></i> LINK DASHBOARD</a>
+        <a href="https://muzans.github.io" class="header-logo">
+            <i class="fas fa-home"></i> LINK DASHBOARD
+        </a>
     </div>
     <div class="header-icons">
         <span id="admin-label" class="hidden" style="font-size: 11px; font-weight: bold; color: var(--secondary-color); margin-right: 5px;">ADMIN MODE</span>
@@ -107,6 +121,7 @@
 </div>
 
 <script>
+    // Konfigurasi Firebase (Tetap)
     const firebaseConfig = {
         apiKey: "AIzaSyC-cSIk3mraVl5sa24VcDWnRTpF50pBAoE",
         authDomain: "muzans-d76c4.firebaseapp.com",
@@ -151,18 +166,12 @@
         }).catch(err => alert("Gagal: " + err.message));
     }
 
-    // PERBAIKAN LOGOUT: Sembunyikan elemen sebelum reload
     function logout() {
-        // Langsung sembunyikan popup agar tidak muncul delay saat reload
         document.getElementById('login-popup').classList.add('hidden');
         document.getElementById('logout-form').classList.add('hidden');
         document.getElementById('admin-panel').classList.add('hidden');
-        
         auth.signOut().then(() => {
-            // Beri sedikit jeda agar Firebase benar-benar clear session sebelum refresh
-            setTimeout(() => {
-                location.reload();
-            }, 100);
+            setTimeout(() => { location.reload(); }, 100);
         });
     }
 
