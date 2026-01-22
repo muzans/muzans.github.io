@@ -3,86 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Muzans Cloud Pro - Layout Fixed</title>
+    <title>Muzans Cloud Pro - Ultimate Fix</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        :root { --blue: #0969da; --accent: #2da44e; --border: #d0d7de; --bg: #f6f8fa; --text: #1f2328; }
+        :root { --primary: #24292f; --accent: #2da44e; --blue: #0969da; --bg: #f6f8fa; --border: #d0d7de; --text-main: #1f2328; --text-sec: #57606a; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); }
-        .main-container { max-width: 600px; margin: 0 auto; padding: 15px; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text-main); }
+        .main-container { max-width: 900px; margin: 0 auto; padding: 15px; }
         
-        /* Header & Nav */
-        .header { background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px; }
+        /* Header */
+        .header { background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .top-bar { display: flex; justify-content: space-between; align-items: center; }
-        
-        /* Style baru untuk Link MUZANS */
-        .logo-link { text-decoration: none; color: var(--blue); transition: opacity 0.2s; }
-        .logo-link:hover { opacity: 0.7; }
-        
         .nav-tools { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee; }
         
+        /* View Controls */
         .view-controls { display: flex; gap: 5px; background: #f0f0f0; padding: 4px; border-radius: 8px; }
-        .view-btn { border: none; background: transparent; padding: 8px 12px; cursor: pointer; border-radius: 6px; color: #57606a; }
+        .view-btn { border: none; background: transparent; padding: 8px 12px; cursor: pointer; border-radius: 6px; color: var(--text-sec); }
         .view-btn.active { background: white; color: var(--blue); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .btn-upload { background: var(--accent); color: white; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; border: none; display: flex; align-items: center; gap: 8px; }
+        .btn-upload { background: var(--accent); color: white; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; border: none; }
 
-        /* Container File */
+        /* Progress Bar - High Accuracy */
+        #uploadArea { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 15px; display: none; border-left: 5px solid var(--blue); }
+        .progress-container { background: #eee; height: 12px; border-radius: 6px; margin-top: 10px; overflow: hidden; border: 1px solid #ddd; }
+        #progressBar { background: linear-gradient(90deg, #0969da, #54aeff); height: 100%; width: 0%; transition: width 0.1s linear; }
+
+        /* File Grid System */
         .file-grid { display: grid; gap: 12px; }
+        .mode-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+        .mode-detail { grid-template-columns: 1fr; }
+        .mode-list { grid-template-columns: 1fr; }
 
-        /* --- 1. MODE IKON BESAR (Setengah Ukuran, Menurun) --- */
-        .mode-large { grid-template-columns: 1fr; }
-        .mode-large .preview-box { height: 180px; font-size: 4rem; }
-        .mode-large .file-card { flex-direction: column; }
+        /* Card Style - Posisi Ikon Rata */
+        .file-card { background: white; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; transition: 0.2s; height: 100%; }
+        .mode-detail .file-card { flex-direction: row; align-items: center; padding: 10px; height: auto; }
+        .mode-list .file-card { flex-direction: row; align-items: center; padding: 5px 15px; height: 55px; }
 
-        /* --- 2. MODE KOTAK-KOTAK (Grid 2 Kolom) --- */
-        .mode-grid { grid-template-columns: repeat(2, 1fr); }
-        .mode-grid .preview-box { height: 120px; font-size: 2.5rem; }
-        .mode-grid .file-card { flex-direction: column; }
-
-        /* --- 3. MODE DETAIL (List Baris) --- */
-        .mode-detail { grid-template-columns: 1fr; gap: 6px; }
-        .mode-detail .file-card { flex-direction: row; align-items: center; padding: 8px 12px; height: 60px; }
-        .mode-detail .preview-box { width: 40px; height: 40px; border: none; font-size: 1.2rem; margin-right: 12px; background: transparent; border-bottom: none; }
-        .mode-detail .file-info { text-align: left; padding: 0; }
-        .mode-detail .actions { border: none; margin-left: auto; width: auto; }
-        .mode-detail .btn-action { padding: 8px; }
-
-        /* Dasar Card */
-        .file-card { background: white; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; transition: 0.2s; }
-        .preview-box { background: #fafafa; display: flex; align-items: center; justify-content: center; cursor: pointer; border-bottom: 1px solid #eee; }
+        .preview-box { height: 130px; background: #fafafa; display: flex; align-items: center; justify-content: center; cursor: pointer; border-bottom: 1px solid #eee; overflow: hidden; }
+        .mode-detail .preview-box, .mode-list .preview-box { height: 45px; width: 45px; border: none; margin-right: 15px; border-radius: 8px; flex-shrink: 0; }
+        
         .preview-box img { width: 100%; height: 100%; object-fit: cover; }
-        .preview-box i { color: #ccc; }
+        .preview-box i { font-size: 3rem; color: #adb5bd; } /* Ukuran ikon rata */
+        .mode-list .preview-box i { font-size: 1.5rem; }
 
         .file-info { padding: 10px; flex-grow: 1; min-width: 0; text-align: center; }
-        .file-name { font-size: 0.85rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
-        .file-meta { font-size: 0.7rem; color: #57606a; margin-top: 2px; }
+        .mode-detail .file-info, .mode-list .file-info { text-align: left; padding: 0; }
+        .file-name { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+        .file-meta { font-size: 0.75rem; color: var(--text-sec); display: flex; gap: 10px; margin-top: 4px; justify-content: center; }
+        .mode-detail .file-meta, .mode-list .file-meta { justify-content: flex-start; }
 
         .actions { display: flex; border-top: 1px solid #eee; }
-        .btn-action { flex: 1; padding: 10px; border: none; background: white; cursor: pointer; color: #57606a; border-right: 1px solid #eee; }
+        .mode-detail .actions, .mode-list .actions { border: none; }
+        .btn-action { flex: 1; padding: 10px; border: none; background: white; cursor: pointer; color: var(--text-sec); border-right: 1px solid #eee; transition: 0.2s; }
         .btn-action:last-child { border-right: none; }
         .btn-action:hover { color: var(--blue); background: #f8f9fa; }
 
-        /* Modal */
-        #previewModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; }
-        .modal-content { width: 90%; max-width: 400px; background: white; border-radius: 15px; overflow: hidden; position: relative; }
-        .close-modal { position: absolute; top: 10px; right: 10px; background: var(--blue); color: white; border-radius: 50%; width: 30px; height: 30px; border: none; cursor: pointer; z-index: 20; }
+        /* Modal Preview */
+        #previewModal { display: none; position: fixed; z-index: 1000; inset: 0; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+        .modal-content { width: 95%; height: 90%; background: white; border-radius: 16px; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+        .close-modal { position: absolute; top: 15px; right: 15px; background: var(--blue); color: white; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid white; z-index: 10; }
     </style>
 </head>
 <body>
 
 <div id="previewModal">
     <div class="modal-content">
-        <button class="close-modal" onclick="closePreview()"><i class="fa-solid fa-xmark"></i></button>
-        <div id="modalBody"></div>
+        <span class="close-modal" onclick="closePreview()"><i class="fa-solid fa-xmark"></i></span>
+        <div id="modalBody" style="width:100%; height:100%; background: white;"></div>
     </div>
 </div>
 
 <div class="main-container">
     <header class="header">
         <div class="top-bar">
-            <a href="https://muzans.github.io" class="logo-link">
-                <h1><b style="color:var(--blue)">MUZANS</b></h1>
-            </a>
+            <h1><a href="https://muzans.github.io/" style="text-decoration:none"><b style="color:var(--blue)">MUZANS</b></a></h1>
+            
             <label class="btn-upload">
                 <i class="fa-solid fa-cloud-arrow-up"></i> Upload
                 <input type="file" id="fileInput" hidden onchange="uploadToGithub()">
@@ -90,36 +84,49 @@
         </div>
         <div class="nav-tools">
             <div class="view-controls">
-                <button class="view-btn active" onclick="changeView('large', this)" title="Besar"><i class="fa-solid fa-square"></i></button>
-                <button class="view-btn" onclick="changeView('grid', this)" title="Grid"><i class="fa-solid fa-grip-vertical"></i></button>
-                <button class="view-btn" onclick="changeView('detail', this)" title="Detail"><i class="fa-solid fa-list-ul"></i></button>
+                <button class="view-btn active" onclick="changeView('grid', this)"><i class="fa-solid fa-grip"></i></button>
+                <button class="view-btn" onclick="changeView('detail', this)"><i class="fa-solid fa-circle-info"></i></button>
+                <button class="view-btn" onclick="changeView('list', this)"><i class="fa-solid fa-list"></i></button>
             </div>
-            <div id="fileCount" style="font-size:0.8rem">Memuat...</div>
+            <div id="fileCount" style="font-size:0.8rem; font-weight: 600;">Menghubungkan...</div>
         </div>
     </header>
 
-    <div id="fileGrid" class="file-grid mode-large"></div>
+    <div id="uploadArea">
+        <div style="display:flex; justify-content:space-between; font-size:0.8rem; font-weight: bold;">
+            <span id="uploadStatus">Mengunggah...</span>
+            <span id="uploadPercent">0%</span>
+        </div>
+        <div class="progress-container"><div id="progressBar"></div></div>
+    </div>
+
+    <div id="fileGrid" class="file-grid mode-grid"></div>
 </div>
 
 <script>
-    // Konfigurasi API tetap sama
     const FIREBASE_URL = "https://cloudmuzans-default-rtdb.asia-southeast1.firebasedatabase.app/github_token.json";
     const GITHUB = { token: '', owner: 'muzans', repo: 'muzanscloud.github.io', path: 'uploads' };
 
     async function init() {
         try {
             const res = await fetch(FIREBASE_URL);
-            GITHUB.token = await res.json();
-            loadFiles();
-        } catch (e) { document.getElementById('fileCount').innerText = "Error Token"; }
+            const data = await res.json();
+            if (data) { GITHUB.token = data; loadFiles(); }
+            else { throw new Error(); }
+        } catch (e) { 
+            document.getElementById('fileCount').innerHTML = "<span style='color:red'>Firebase Error: Periksa Rules</span>";
+        }
     }
 
     function getIcon(name) {
         const ext = name.split('.').pop().toLowerCase();
         if (['jpg','jpeg','png','gif','webp'].includes(ext)) return 'img';
-        if (['mp4','webm'].includes(ext)) return 'fa-solid fa-play-circle';
-        if (['zip','rar'].includes(ext)) return 'fa-solid fa-file-zipper';
+        if (['mp4','webm','mkv','mov'].includes(ext)) return 'fa-solid fa-file-video';
+        if (['zip','rar','7z','tar'].includes(ext)) return 'fa-solid fa-file-zipper'; // Ikon ZIP Sesuai
         if (ext === 'apk') return 'fa-brands fa-android';
+        if (ext === 'pdf') return 'fa-solid fa-file-pdf';
+        if (['doc','docx','xls','xlsx','ppt','pptx'].includes(ext)) return 'fa-solid fa-file-word';
+        if (['html','txt','js','css','json'].includes(ext)) return 'fa-solid fa-file-code';
         return 'fa-solid fa-file';
     }
 
@@ -131,28 +138,104 @@
             });
             const files = await res.json();
             grid.innerHTML = '';
-            document.getElementById('fileCount').innerText = `${files.length} File tersimpan`;
+            document.getElementById('fileCount').innerText = `${files.length || 0} File tersimpan`;
             
             files.forEach(file => {
                 const type = getIcon(file.name);
+                const date = new Date().toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric'});
                 const card = document.createElement('div');
                 card.className = 'file-card';
                 card.innerHTML = `
                     <div class="preview-box" onclick="handlePreview('${file.download_url}', '${file.name}')">
-                        ${type === 'img' ? `<img src="${file.download_url}">` : `<i class="${type}"></i>`}
+                        ${type === 'img' ? `<img src="${file.download_url}" loading="lazy">` : `<i class="${type}"></i>`}
                     </div>
                     <div class="file-info">
                         <span class="file-name">${file.name}</span>
-                        <div class="file-meta">${(file.size/1024).toFixed(1)} KB • 23 Jan 2026</div>
+                        <div class="file-meta">
+                            <span>${(file.size/1024).toFixed(1)} KB</span>
+                            <span>${date}</span>
+                        </div>
                     </div>
                     <div class="actions">
-                        <button class="btn-action" onclick="window.open('${file.download_url}')"><i class="fa-solid fa-download"></i></button>
-                        <button class="btn-action" onclick="deleteFile('${file.name}', '${file.sha}')"><i class="fa-solid fa-trash"></i></button>
+                        <button class="btn-action" onclick="forceDownload('${file.download_url}', '${file.name}')" title="Download"><i class="fa-solid fa-circle-down"></i></button>
+                        <button class="btn-action" onclick="deleteFile('${file.name}', '${file.sha}')" title="Hapus"><i class="fa-solid fa-trash-can"></i></button>
                     </div>
                 `;
                 grid.appendChild(card);
             });
-        } catch (err) { grid.innerHTML = 'Gagal memuat file.'; }
+        } catch(e) {}
+    }
+
+    async function forceDownload(url, name) {
+        try {
+            const res = await fetch(url);
+            const blob = await res.blob();
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = name;
+            link.click();
+        } catch(e) { window.open(url, '_blank'); }
+    }
+
+    function handlePreview(url, name) {
+        const ext = name.split('.').pop().toLowerCase();
+        const body = document.getElementById('modalBody');
+        const modal = document.getElementById('previewModal');
+        body.innerHTML = '<div style="display:flex; justify-content:center; align-items:center; height:100%;">Memuat Preview...</div>';
+        modal.style.display = 'flex';
+
+        // Solusi preview menggunakan Google Docs Viewer untuk menghindari "Refused to Connect"
+        const googleViewer = `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
+
+        if (['jpg','jpeg','png','gif','webp'].includes(ext)) {
+            body.innerHTML = `<img src="${url}" style="width:100%; height:100%; object-fit:contain;">`;
+        } else if (['mp4','webm'].includes(ext)) {
+            body.innerHTML = `<video src="${url}" controls autoplay style="width:100%; height:100%;"></video>`;
+        } else if (['html','txt','pdf','doc','docx','xls','xlsx','js','css'].includes(ext)) {
+            // Gunakan iframe dengan Google Viewer untuk dokumen & teks agar pasti terbuka
+            body.innerHTML = `<iframe src="${googleViewer}" style="width:100%; height:100%; border:none;"></iframe>`;
+        } else {
+            modal.style.display = 'none';
+            alert("Preview tidak tersedia untuk tipe file ini. Silakan download.");
+        }
+    }
+
+    function uploadToGithub() {
+        const file = document.getElementById('fileInput').files[0];
+        if (!file) return;
+
+        const area = document.getElementById('uploadArea');
+        const bar = document.getElementById('progressBar');
+        const pct = document.getElementById('uploadPercent');
+        area.style.display = 'block';
+
+        const reader = new FileReader();
+        reader.readAsArrayBuffer(file);
+        reader.onload = function() {
+            const content = btoa(new Uint8Array(reader.result).reduce((data, byte) => data + String.fromCharCode(byte), ''));
+            const xhr = new XMLHttpRequest();
+            xhr.open("PUT", `https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.path}/${encodeURIComponent(file.name)}`, true);
+            xhr.setRequestHeader("Authorization", `token ${GITHUB.token}`);
+
+            xhr.upload.onprogress = (e) => {
+                if (e.lengthComputable) {
+                    const percent = Math.round((e.loaded / e.total) * 100);
+                    bar.style.width = percent + '%';
+                    pct.innerText = percent + '%';
+                }
+            };
+
+            xhr.onload = () => {
+                if (xhr.status === 201 || xhr.status === 200) {
+                    pct.innerText = "Selesai!";
+                    setTimeout(() => { area.style.display = 'none'; loadFiles(); }, 1000);
+                } else {
+                    alert("Gagal mengunggah. Pastikan token benar.");
+                    area.style.display = 'none';
+                }
+            };
+            xhr.send(JSON.stringify({ message: `Upload ${file.name}`, content: content }));
+        };
     }
 
     function changeView(mode, btn) {
@@ -161,30 +244,17 @@
         btn.classList.add('active');
     }
 
-    function handlePreview(url, name) {
-        const modal = document.getElementById('previewModal');
-        const body = document.getElementById('modalBody');
-        const ext = name.split('.').pop().toLowerCase();
-        modal.style.display = 'flex';
-        
-        if (['jpg','jpeg','png','gif','webp'].includes(ext)) {
-            body.innerHTML = `<img src="${url}" style="width:100%; max-height:70vh; object-fit:contain; display:block;">`;
-        } else {
-            body.innerHTML = `<div style="padding:40px; text-align:center;"><i class="${getIcon(name)}" style="font-size:3rem; color:#ccc;"></i><br><br><span style="font-size:0.9rem">${name}</span></div>`;
-        }
-    }
+    function closePreview() { document.getElementById('previewModal').style.display = 'none'; document.getElementById('modalBody').innerHTML = ''; }
 
-    function closePreview() { document.getElementById('previewModal').style.display = 'none'; }
-
-    async function deleteFile(name, sha) {
-        if (!confirm('Hapus file ini?')) return;
+    window.deleteFile = async (name, sha) => {
+        if (!confirm('Hapus file permanen?')) return;
         await fetch(`https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.path}/${name}`, {
             method: 'DELETE',
             headers: { 'Authorization': `token ${GITHUB.token}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: 'Delete file', sha: sha })
+            body: JSON.stringify({ message: 'Delete', sha: sha })
         });
         loadFiles();
-    }
+    };
 
     init();
 </script>
