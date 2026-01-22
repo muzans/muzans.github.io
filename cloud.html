@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muzans Cloud</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #24292f; --accent: #2da44e; --blue: #0969da;
+            --bg: #f6f8fa; --border: #d0d7de; --text-main: #1f2328; --text-sec: #57606a;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--text-main); }
+
+        .main-container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        
+        .header { background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px; }
+        .nav-tools { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px; }
+        
+        .view-controls { display: flex; gap: 5px; background: #eee; padding: 4px; border-radius: 8px; }
+        .view-btn { border: none; background: transparent; padding: 6px 12px; cursor: pointer; border-radius: 6px; color: var(--text-sec); transition: 0.2s; }
+        .view-btn.active { background: white; color: var(--blue); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+
+        .btn-upload { background: var(--accent); color: white; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; border: none; }
+
+        #uploadArea { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 15px; margin-bottom: 20px; display: none; border-left: 4px solid var(--blue); }
+        .progress-container { background: #e1e4e8; height: 10px; border-radius: 10px; margin-top: 8px; overflow: hidden; }
+        #progressBar { background: var(--blue); height: 100%; width: 0%; transition: 0.1s; }
+
+        .file-grid { display: grid; gap: 20px; transition: 0.3s; }
+        .mode-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+        .mode-list { grid-template-columns: 1fr; }
+        .mode-small { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+
+        .file-card { background: white; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; position: relative; display: flex; flex-direction: column; }
+        .mode-list .file-card { flex-direction: row; align-items: center; padding: 10px; }
+        .mode-list .preview-box { height: 50px; width: 50px; border: none; background: transparent; }
+        .mode-list .preview-box i { font-size: 1.5rem; }
+
+        .preview-box { height: 130px; background: #f0f2f5; display: flex; align-items: center; justify-content: center; overflow: hidden; border-bottom: 1px solid #eee; }
+        .preview-box img { width: 100%; height: 100%; object-fit: cover; }
+        .preview-box i { font-size: 3rem; color: #a3b3c1; }
+        .fa-android { color: #3DDC84 !important; }
+
+        .file-info { padding: 12px; flex-grow: 1; }
+        .file-name { font-size: 0.85rem; font-weight: 600; word-break: break-all; display: block; }
+        .file-meta { font-size: 0.7rem; color: var(--text-sec); margin-top: 4px; display: block; }
+        
+        .actions { display: flex; border-top: 1px solid #f0f0f0; background: #fafbfc; }
+        .btn-action { flex: 1; padding: 10px; border: none; background: transparent; cursor: pointer; color: var(--text-sec); text-decoration: none; text-align: center; border-right: 1px solid #f0f0f0; }
+        .btn-action:last-child { border-right: none; }
+        .btn-action:hover { background: #f0f2f5; color: var(--blue); }
+
+        .edit-input { width: 100%; padding: 8px; font-size: 0.8rem; margin-bottom: 8px; border: 2px solid var(--blue); border-radius: 6px; outline: none; }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <header class="header">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h1><b style="color: var(--blue); letter-spacing: 1px;">MUZANS</b></h1>
+                <p style="font-size: 0.8rem; color: var(--text-sec);">Cloud Storage System</p>
+            </div>
+            <label class="btn-upload">
+                <i class="fa-solid fa-plus"></i> Upload
+                <input type="file" id="fileInput" hidden onchange="uploadToGithub()">
+            </label>
+        </div>
+
+        <div class="nav-tools">
+            <div class="view-controls">
+                <button class="view-btn active" onclick="changeView('grid', this)" title="Grid View"><i class="fa-solid fa-grip"></i></button>
+                <button class="view-btn" onclick="changeView('list', this)" title="List View"><i class="fa-solid fa-list"></i></button>
+                <button class="view-btn" onclick="changeView('small', this)" title="Small Icons"><i class="fa-solid fa-table-cells-large"></i></button>
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-sec);" id="fileCount">Memuat...</div>
+        </div>
+    </header>
+
+    <div id="uploadArea">
+        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: bold;">
+            <span id="uploadFileName">Mengunggah...</span>
+            <span id="uploadPercent">0%</span>
+        </div>
+        <div class="progress-container"><div id="progressBar"></div></div>
+    </div>
+
+    <div id="fileGrid" class="file-grid mode-grid"></div>
+</div>
+
+<script>
+    const CONFIG = {
+        token: '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',
+        owner: 'muzans', 
+        repo: 'muzanscloud.github.io', 
+        folder: 'uploads'
+    };
+
+    let cachedFiles = [];
+
+    function changeView(mode, btn) {
+        document.getElementById('fileGrid').className = `file-grid mode-${mode}`;
+        document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+
+    function getIcon(name) {
+        const ext = name.split('.').pop().toLowerCase();
+        if (ext === 'apk') return 'fa-brands fa-android';
+        if (['zip', 'rar', '7z'].includes(ext)) return 'fa-solid fa-file-zipper';
+        return 'fa-solid fa-file-lines';
+    }
+
+    async function fetchFiles() {
+        try {
+            const res = await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${CONFIG.folder}?t=${Date.now()}`, {
+                headers: { 'Authorization': `token ${CONFIG.token}` },
+                cache: 'no-store'
+            });
+            const files = await res.json();
+            
+            const grid = document.getElementById('fileGrid');
+            if (!Array.isArray(files) || files.length === 0) {
+                cachedFiles = [];
+                document.getElementById('fileCount').innerText = "0 File tersimpan";
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 50px; color: #888;">Folder Kosong</div>';
+                return;
+            }
+
+            cachedFiles = files;
+            document.getElementById('fileCount').innerText = `${files.length} File tersimpan`;
+            renderGrid(files);
+        } catch (e) { console.error("Refresh Error"); }
+    }
+
+    function renderGrid(files) {
+        const grid = document.getElementById('fileGrid');
+        grid.innerHTML = '';
+        files.forEach(file => {
+            const isImg = /\.(jpg|jpeg|png|gif|webp)$/i.test(file.name);
+            const dateStr = new Date().toLocaleDateString('id-ID'); 
+            const card = document.createElement('div');
+            card.className = 'file-card';
+            card.innerHTML = `
+                <div class="preview-box">
+                    ${isImg ? `<img src="${file.download_url}">` : `<i class="${getIcon(file.name)}"></i>`}
+                </div>
+                <div class="file-info" id="info-${file.sha}">
+                    <span class="file-name" style="${file.size === 0 ? 'color:red' : ''}">${file.name}</span>
+                    <span class="file-meta">${(file.size / 1024).toFixed(1)} KB • ${dateStr}</span>
+                </div>
+                <div class="actions">
+                    <a href="${file.download_url}" download="${file.name}" class="btn-action"><i class="fa-solid fa-download"></i></a>
+                    <button class="btn-action" onclick="showEdit('${file.name.replace(/'/g, "\\'")}', '${file.sha}')"><i class="fa-solid fa-pen"></i></button>
+                    <button class="btn-action" onclick="deleteFile('${file.name.replace(/'/g, "\\'")}', '${file.sha}')"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    window.showEdit = (name, sha) => {
+        const info = document.getElementById(`info-${sha}`);
+        info.innerHTML = `
+            <input type="text" id="in-${sha}" class="edit-input" value="${name}">
+            <div style="display:flex; gap:5px;">
+                <button onclick="processRename('${name.replace(/'/g, "\\'")}', '${sha}')" style="background:var(--blue); color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:0.75rem;">Simpan</button>
+                <button onclick="closeEdit('${sha}')" style="background:#6e7781; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:0.75rem;">Batal</button>
+            </div>
+        `;
+    };
+
+    window.closeEdit = (sha) => {
+        renderGrid(cachedFiles);
+    };
+
+    async function processRename(oldN, sha) {
+        const newN = document.getElementById(`in-${sha}`).value;
+        if (!newN || newN === oldN) return closeEdit(sha);
+
+        // OPTIMISTIC UI: Ubah tampilan secara instan
+        const fileIndex = cachedFiles.findIndex(f => f.sha === sha);
+        if (fileIndex !== -1) {
+            cachedFiles[fileIndex].name = newN;
+            renderGrid(cachedFiles);
+        }
+
+        try {
+            // 1. Ambil konten
+            const res = await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${CONFIG.folder}/${oldN}`, {
+                headers: { 'Authorization': `token ${CONFIG.token}` }
+            });
+            const data = await res.json();
+
+            // Antisipasi file 0KB (GitHub tidak kirim property .content jika kosong)
+            let cleanContent = "";
+            if (data.content) {
+                cleanContent = data.content.replace(/\s/g, ''); // Bersihkan newline Base64
+            }
+
+            // 2. Buat file baru
+            const putRes = await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${CONFIG.folder}/${newN}`, {
+                method: 'PUT',
+                headers: { 'Authorization': `token ${CONFIG.token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: `Rename to ${newN}`, content: cleanContent })
+            });
+
+            if (putRes.ok) {
+                // 3. Hapus file lama hanya jika file baru OK
+                await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${CONFIG.folder}/${oldN}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `token ${CONFIG.token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: "Cleanup old file", sha: sha })
+                });
+                setTimeout(fetchFiles, 2000);
+            } else {
+                throw new Error("Gagal membuat file baru di server.");
+            }
+        } catch (e) { 
+            alert("Error: " + e.message); 
+            fetchFiles(); 
+        }
+    }
+
+    async function deleteFile(name, sha) {
+        if (!confirm(`Hapus ${name}?`)) return;
+        try {
+            const res = await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${CONFIG.folder}/${name}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `token ${CONFIG.token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: "Delete file", sha: sha })
+            });
+            if (res.ok) {
+                setTimeout(fetchFiles, 500);
+            }
+        } catch (e) { console.error("Hapus Gagal"); }
+    }
+
+    function uploadToGithub() {
+        const file = document.getElementById('fileInput').files[0];
+        if (!file) return;
+
+        const area = document.getElementById('uploadArea');
+        const bar = document.getElementById('progressBar');
+        const pctText = document.getElementById('uploadPercent');
+        
+        area.style.display = 'block';
+        document.getElementById('uploadFileName').innerText = file.name;
+
+        const reader = new FileReader();
+        reader.readAsArrayBuffer(file);
+        reader.onload = function() {
+            const content = btoa(new Uint8Array(reader.result).reduce((data, byte) => data + String.fromCharCode(byte), ''));
+            const xhr = new XMLHttpRequest();
+            xhr.open("PUT", `https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${CONFIG.folder}/${file.name}`, true);
+            xhr.setRequestHeader("Authorization", `token ${CONFIG.token}`);
+            xhr.setRequestHeader("Content-Type", "application/json");
+
+            xhr.upload.onprogress = (e) => {
+                if (e.lengthComputable) {
+                    const percent = Math.round((e.loaded / e.total) * 100);
+                    bar.style.width = percent + '%';
+                    pctText.innerText = percent + '%';
+                }
+            };
+
+            xhr.onload = () => {
+                if (xhr.status === 201 || xhr.status === 200) {
+                    setTimeout(() => { area.style.display = 'none'; fetchFiles(); }, 1000);
+                } else { alert("Upload Gagal"); }
+            };
+            xhr.send(JSON.stringify({ message: `Upload ${file.name}`, content: content }));
+        };
+    }
+
+    fetchFiles();
+</script>
+
+</body>
+</html>
