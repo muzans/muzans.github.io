@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Muzans Cloud</title>
+    <title>Muzans Cloud Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         :root {
@@ -93,7 +93,7 @@
 
 <script>
     const CONFIG = {
-        token: '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',
+        token: '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',
         owner: 'muzans', 
         repo: 'muzanscloud.github.io', 
         folder: 'uploads'
@@ -173,35 +173,23 @@
         `;
     };
 
-    window.closeEdit = (sha) => {
-        renderGrid(cachedFiles);
-    };
+    window.closeEdit = (sha) => { renderGrid(cachedFiles); };
 
     async function processRename(oldN, sha) {
         const newN = document.getElementById(`in-${sha}`).value;
         if (!newN || newN === oldN) return closeEdit(sha);
 
-        // OPTIMISTIC UI: Ubah tampilan secara instan
-        const fileIndex = cachedFiles.findIndex(f => f.sha === sha);
-        if (fileIndex !== -1) {
-            cachedFiles[fileIndex].name = newN;
-            renderGrid(cachedFiles);
-        }
-
         try {
-            // 1. Ambil konten
             const res = await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${CONFIG.folder}/${oldN}`, {
                 headers: { 'Authorization': `token ${CONFIG.token}` }
             });
             const data = await res.json();
 
-            // Antisipasi file 0KB (GitHub tidak kirim property .content jika kosong)
             let cleanContent = "";
             if (data.content) {
-                cleanContent = data.content.replace(/\s/g, ''); // Bersihkan newline Base64
+                cleanContent = data.content.replace(/\s/g, ''); // Fix 0 KB issue
             }
 
-            // 2. Buat file baru
             const putRes = await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${CONFIG.folder}/${newN}`, {
                 method: 'PUT',
                 headers: { 'Authorization': `token ${CONFIG.token}`, 'Content-Type': 'application/json' },
@@ -209,20 +197,16 @@
             });
 
             if (putRes.ok) {
-                // 3. Hapus file lama hanya jika file baru OK
                 await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${CONFIG.folder}/${oldN}`, {
                     method: 'DELETE',
                     headers: { 'Authorization': `token ${CONFIG.token}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: "Cleanup old file", sha: sha })
+                    body: JSON.stringify({ message: "Cleanup", sha: sha })
                 });
-                setTimeout(fetchFiles, 2000);
+                setTimeout(fetchFiles, 1500);
             } else {
-                throw new Error("Gagal membuat file baru di server.");
+                alert("Gagal membuat file baru. Cek Token/Permission.");
             }
-        } catch (e) { 
-            alert("Error: " + e.message); 
-            fetchFiles(); 
-        }
+        } catch (e) { alert("Error: " + e.message); fetchFiles(); }
     }
 
     async function deleteFile(name, sha) {
@@ -233,14 +217,13 @@
                 headers: { 'Authorization': `token ${CONFIG.token}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: "Delete file", sha: sha })
             });
-            if (res.ok) {
-                setTimeout(fetchFiles, 500);
-            }
+            if (res.ok) setTimeout(fetchFiles, 500);
         } catch (e) { console.error("Hapus Gagal"); }
     }
 
     function uploadToGithub() {
-        const file = document.getElementById('fileInput').files[0];
+        const fileInput = document.getElementById('fileInput');
+        const file = fileInput.files[0];
         if (!file) return;
 
         const area = document.getElementById('uploadArea');
@@ -248,12 +231,25 @@
         const pctText = document.getElementById('uploadPercent');
         
         area.style.display = 'block';
+        bar.style.width = '0%';
+        pctText.innerText = '0%';
         document.getElementById('uploadFileName').innerText = file.name;
 
         const reader = new FileReader();
         reader.readAsArrayBuffer(file);
-        reader.onload = function() {
+        reader.onload = async function() {
             const content = btoa(new Uint8Array(reader.result).reduce((data, byte) => data + String.fromCharCode(byte), ''));
+            
+            // Cek apakah file sudah ada untuk mendapatkan SHA (opsional agar tidak bentrok)
+            let existingSha = null;
+            const check = await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${CONFIG.folder}/${file.name}`, {
+                headers: { 'Authorization': `token ${CONFIG.token}` }
+            });
+            if (check.ok) {
+                const checkData = await check.json();
+                existingSha = checkData.sha;
+            }
+
             const xhr = new XMLHttpRequest();
             xhr.open("PUT", `https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${CONFIG.folder}/${file.name}`, true);
             xhr.setRequestHeader("Authorization", `token ${CONFIG.token}`);
@@ -268,11 +264,25 @@
             };
 
             xhr.onload = () => {
+                area.style.display = 'none'; // Pastikan hilang apa pun hasilnya
                 if (xhr.status === 201 || xhr.status === 200) {
-                    setTimeout(() => { area.style.display = 'none'; fetchFiles(); }, 1000);
-                } else { alert("Upload Gagal"); }
+                    fileInput.value = ""; // Reset input
+                    setTimeout(fetchFiles, 1000);
+                } else {
+                    const err = JSON.parse(xhr.responseText);
+                    alert("Upload Gagal: " + err.message);
+                }
             };
-            xhr.send(JSON.stringify({ message: `Upload ${file.name}`, content: content }));
+
+            xhr.onerror = () => {
+                area.style.display = 'none';
+                alert("Koneksi gagal.");
+            };
+
+            const payload = { message: `Upload ${file.name}`, content: content };
+            if (existingSha) payload.sha = existingSha;
+
+            xhr.send(JSON.stringify(payload));
         };
     }
 
