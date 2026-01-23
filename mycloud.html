@@ -10,229 +10,326 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 
     <style>
-        :root { --mz-blue: #0969da; --mz-bg: #f6f8fa; --mz-border: #d0d7de; --mz-text: #1f2328; }
-        body { font-family: -apple-system, sans-serif; background: var(--mz-bg); margin: 0; padding: 0; color: var(--mz-text); }
+        :root { --primary: #24292f; --accent: #2da44e; --blue: #0969da; --bg: #f6f8fa; --border: #d0d7de; --text-main: #1f2328; --text-sec: #57606a; --red: #cf222e; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         
-        /* Login Overlay */
-        #mzLoginOverlay { position: fixed; inset: 0; background: var(--mz-bg); display: flex; align-items: center; justify-content: center; z-index: 9999; }
-        .mz-card-login { background: white; padding: 30px; border-radius: 12px; border: 1px solid var(--mz-border); width: 90%; max-width: 380px; text-align: center; box-shadow: 0 8px 20px rgba(0,0,0,0.05); }
-        .mz-input { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid var(--mz-border); border-radius: 8px; box-sizing: border-box; font-size: 14px; }
-        .mz-btn-login { width: 100%; background: var(--mz-blue); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .mz-btn-login:hover { opacity: 0.9; }
-        
-        /* Main UI */
-        .mz-container { max-width: 900px; margin: 0 auto; padding: 15px; display: none; }
-        .mz-header { background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--mz-border); margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
-        
-        /* Progress Bar */
-        #mzUploadArea { background: white; border: 1px solid var(--mz-border); padding: 15px; margin-bottom: 15px; display: none; border-left: 5px solid var(--mz-blue); border-radius: 8px; }
-        .mz-progress-bg { background: #eee; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 10px; }
-        #mzProgressBar { background: var(--mz-blue); height: 100%; width: 0%; transition: width 0.1s; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text-main); opacity: 0; transition: opacity 0.2s; }
+        body.auth-ready { opacity: 1; }
 
-        /* File Grid */
-        .mz-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
-        .mz-file-card { background: white; border: 1px solid var(--mz-border); border-radius: 12px; overflow: hidden; transition: 0.2s; position: relative; }
-        .mz-preview { height: 120px; background: #fafafa; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #eee; cursor: pointer; }
-        .mz-preview img { width: 100%; height: 100%; object-fit: cover; }
-        .mz-info { padding: 10px; font-size: 12px; font-weight: 600; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .mz-actions { display: flex; border-top: 1px solid #eee; }
-        .mz-btn-act { flex: 1; padding: 10px; border: none; background: white; cursor: pointer; color: #555; font-size: 14px; }
-        .mz-btn-act:hover { color: var(--mz-blue); background: #f9f9f9; }
+        .main-container { max-width: 900px; margin: 0 auto; padding: 15px; display: none; }
+        
+        /* Login UI - Improved Remember Me */
+        #loginOverlay { position: fixed; inset: 0; background: var(--bg); display: none; align-items: center; justify-content: center; z-index: 2000; }
+        .login-card { background: white; padding: 30px; border-radius: 12px; border: 1px solid var(--border); width: 90%; max-width: 380px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); text-align: center; }
+        .login-card h2 { color: var(--blue); margin-bottom: 25px; font-size: 1.5rem; }
+        .login-card input[type="email"], .login-card input[type="password"] { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 8px; outline: none; }
+        
+        /* Gaya Rapi Remember Me */
+        .remember-container { display: flex; align-items: center; justify-content: flex-start; gap: 8px; margin-bottom: 20px; cursor: pointer; user-select: none; padding: 0 5px; }
+        .remember-container input { width: 16px; height: 16px; cursor: pointer; }
+        .remember-container span { font-size: 0.85rem; color: var(--text-sec); }
+
+        .btn-login { width: 100%; background: var(--blue); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+
+        /* Header & Logout */
+        .header { background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; }
+        .header-actions { display: flex; gap: 8px; align-items: center; }
+        .btn-logout { background: transparent; color: var(--text-sec); border: 1px solid var(--border); padding: 10px; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+        .btn-logout:hover { color: var(--red); border-color: var(--red); background: #fffbfa; }
+        
+        .nav-tools { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee; }
+        .view-controls { display: flex; gap: 5px; background: #f0f0f0; padding: 4px; border-radius: 8px; }
+        .view-btn { border: none; background: transparent; padding: 8px 12px; cursor: pointer; border-radius: 6px; color: var(--text-sec); }
+        .view-btn.active { background: white; color: var(--blue); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .btn-upload { background: var(--accent); color: white; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; border: none; }
+
+        #uploadArea { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 15px; display: none; border-left: 5px solid var(--blue); }
+        .progress-container { background: #eee; height: 12px; border-radius: 6px; margin-top: 10px; overflow: hidden; border: 1px solid #ddd; }
+        #progressBar { background: linear-gradient(90deg, #0969da, #54aeff); height: 100%; width: 0%; transition: width 0.1s linear; }
+
+        /* File Grid System */
+        .file-grid { display: grid; gap: 12px; }
+        .mode-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+        .mode-detail { grid-template-columns: 1fr; }
+        .mode-list { grid-template-columns: 1fr; }
+
+        .file-card { background: white; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; transition: 0.2s; height: 100%; }
+        .mode-detail .file-card { flex-direction: row; align-items: center; padding: 10px; height: auto; }
+        .mode-list .file-card { flex-direction: row; align-items: center; padding: 5px 15px; height: 55px; }
+
+        .preview-box { height: 130px; background: #fafafa; display: flex; align-items: center; justify-content: center; cursor: pointer; border-bottom: 1px solid #eee; overflow: hidden; }
+        .mode-detail .preview-box, .mode-list .preview-box { height: 45px; width: 45px; border: none; margin-right: 15px; border-radius: 8px; flex-shrink: 0; }
+        .preview-box img { width: 100%; height: 100%; object-fit: cover; }
+        .preview-box i { font-size: 3rem; color: #adb5bd; }
+        .mode-list .preview-box i { font-size: 1.5rem; }
+
+        .file-info { padding: 10px; flex-grow: 1; min-width: 0; text-align: center; }
+        .mode-detail .file-info, .mode-list .file-info { text-align: left; padding: 0; }
+        .file-name { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+        .file-meta { font-size: 0.75rem; color: var(--text-sec); display: flex; gap: 10px; margin-top: 4px; justify-content: center; }
+        .mode-detail .file-meta, .mode-list .file-meta { justify-content: flex-start; }
+
+        .actions { display: flex; border-top: 1px solid #eee; }
+        .mode-detail .actions, .mode-list .actions { border: none; }
+        .btn-action { flex: 1; padding: 10px; border: none; background: white; cursor: pointer; color: var(--text-sec); border-right: 1px solid #eee; transition: 0.2s; }
+        .btn-action:last-child { border-right: none; }
+        .btn-action:hover { color: var(--blue); background: #f8f9fa; }
+
+        #previewModal { display: none; position: fixed; z-index: 1000; inset: 0; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+        .modal-content { width: 95%; height: 90%; background: white; border-radius: 16px; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+        .close-modal { position: absolute; top: 15px; right: 15px; background: var(--blue); color: white; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid white; z-index: 10; }
     </style>
 </head>
 <body>
 
-<div id="mzLoginOverlay">
-    <div class="mz-card-login">
-        <h2 style="color:var(--mz-blue); margin-bottom: 20px;"><i class="fa-solid fa-cloud"></i> MUZANS CLOUD</h2>
-        <input type="email" id="mzEmail" class="mz-input" placeholder="Email Firebase">
-        <input type="password" id="mzPass" class="mz-input" placeholder="Password">
-        <label style="display:flex; align-items:center; gap:8px; font-size:13px; margin-bottom:15px; cursor:pointer;">
-            <input type="checkbox" id="mzRemember"> Remember Me
+<div id="loginOverlay">
+    <div class="login-card">
+        <h2>MUZANS ADMIN</h2>
+        <input type="email" id="logEmail" placeholder="Email">
+        <input type="password" id="logPass" placeholder="Password">
+        
+        <label class="remember-container" for="logRemember">
+            <input type="checkbox" id="logRemember">
+            <span>Remember Me</span>
         </label>
-        <button class="mz-btn-login" onclick="mzCloud.login()">Masuk</button>
-        <p id="mzError" style="color:red; font-size:12px; margin-top:10px; display:none;"></p>
+
+        <button class="btn-login" onclick="mzHandler.login()">Masuk</button>
+        <p id="logError" style="color:red; font-size:0.75rem; margin-top:10px; display:none;"></p>
     </div>
 </div>
 
-<div class="mz-container" id="mzApp">
-    <header class="mz-header">
-        <h1 style="margin:0; font-size:20px; color:var(--mz-blue); cursor:pointer;" onclick="mzCloud.logout()">MUZANS</h1>
-        <label style="background:var(--mz-blue); color:white; padding: 8px 16px; border-radius: 8px; cursor:pointer; font-weight:600; font-size:14px;">
-            <i class="fa-solid fa-upload"></i> Upload
-            <input type="file" id="mzFileInput" hidden onchange="mzCloud.upload()">
-        </label>
+<div id="previewModal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closePreview()"><i class="fa-solid fa-xmark"></i></span>
+        <div id="modalBody" style="width:100%; height:100%; background: white;"></div>
+    </div>
+</div>
+
+<div class="main-container" id="mainApp">
+    <header class="header">
+        <div class="top-bar">
+            <h1><a href="#" style="text-decoration:none"><b style="color:var(--blue)">MUZANS</b></a></h1>
+            
+            <div class="header-actions">
+                <button class="btn-logout" onclick="mzHandler.logout()" title="Log Out">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+                <label class="btn-upload">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Upload
+                    <input type="file" id="fileInput" hidden onchange="uploadToGithub()">
+                </label>
+            </div>
+        </div>
+        <div class="nav-tools">
+            <div class="view-controls">
+                <button class="view-btn active" onclick="changeView('grid', this)"><i class="fa-solid fa-grip"></i></button>
+                <button class="view-btn" onclick="changeView('detail', this)"><i class="fa-solid fa-circle-info"></i></button>
+                <button class="view-btn" onclick="changeView('list', this)"><i class="fa-solid fa-list"></i></button>
+            </div>
+            <div id="fileCount" style="font-size:0.8rem; font-weight: 600;">Menghubungkan...</div>
+        </div>
     </header>
 
-    <div id="mzUploadArea">
-        <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:bold;">
-            <span>Mengunggah file...</span>
-            <span id="mzPercent">0%</span>
+    <div id="uploadArea">
+        <div style="display:flex; justify-content:space-between; font-size:0.8rem; font-weight: bold;">
+            <span id="uploadStatus">Mengunggah...</span>
+            <span id="uploadPercent">0%</span>
         </div>
-        <div class="mz-progress-bg"><div id="mzProgressBar"></div></div>
+        <div class="progress-container"><div id="progressBar"></div></div>
     </div>
 
-    <div id="mzFileGrid" class="mz-grid"></div>
+    <div id="fileGrid" class="file-grid mode-grid"></div>
 </div>
 
 <script>
-    /**
-     * MUZANS CLOUD LOGIC - ISOLATED INSTANCE
-     */
-    const mzCloud = {
-        config: {
-            firebase: {
-                apiKey: "AIzaSyBx6hu5EhKDpOBkytNrK7X_4d81dXD0AQc",
-                authDomain: "cloudmuzans.firebaseapp.com",
-                databaseURL: "https://cloudmuzans-default-rtdb.asia-southeast1.firebasedatabase.app",
-                projectId: "cloudmuzans",
-                storageBucket: "cloudmuzans.firebasestorage.app",
-                messagingSenderId: "325756139553",
-                appId: "1:325756139553:web:e7799816c6bd10983ecb60"
-            },
-            github: {
-                owner: 'muzans',
-                repo: 'muzanscloud.github.io',
-                path: 'myfolder' // Ganti folder disini jika perlu
-            }
-        },
+    const firebaseConfig = {
+        apiKey: "AIzaSyBx6hu5EhKDpOBkytNrK7X_4d81dXD0AQc",
+        authDomain: "cloudmuzans.firebaseapp.com",
+        databaseURL: "https://cloudmuzans-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "cloudmuzans",
+        storageBucket: "cloudmuzans.firebasestorage.app",
+        messagingSenderId: "325756139553",
+        appId: "1:325756139553:web:e7799816c6bd10983ecb60"
+    };
 
-        init: function() {
-            // Menggunakan Nama App unik agar tidak bentrok dengan project lain
-            if (!firebase.apps.length) {
-                this.app = firebase.initializeApp(this.config.firebase, "MUZANS_PRO");
-            } else {
-                this.app = firebase.app("MUZANS_PRO") || firebase.initializeApp(this.config.firebase, "MUZANS_PRO");
-            }
-            this.auth = firebase.auth(this.app);
-            this.db = this.config.firebase.databaseURL;
-            this.listenAuth();
-        },
+    const mzApp = firebase.initializeApp(firebaseConfig, "MUZANS_PRO");
+    const mzAuth = firebase.auth(mzApp);
 
-        listenAuth: function() {
-            this.auth.onAuthStateChanged(user => {
-                if (user) {
-                    document.getElementById('mzLoginOverlay').style.display = 'none';
-                    document.getElementById('mzApp').style.display = 'block';
-                    this.getTokenAndLoad();
-                } else {
-                    document.getElementById('mzLoginOverlay').style.display = 'flex';
-                    document.getElementById('mzApp').style.display = 'none';
-                }
-            });
-        },
+    // Folder diubah menjadi 'mycloud'
+    const GITHUB = { token: '', owner: 'muzans', repo: 'muzanscloud.github.io', path: 'myfolder' };
 
+    const mzHandler = {
         login: async function() {
-            const e = document.getElementById('mzEmail').value;
-            const p = document.getElementById('mzPass').value;
-            const r = document.getElementById('mzRemember').checked;
-            const errEl = document.getElementById('mzError');
+            const email = document.getElementById('logEmail').value;
+            const pass = document.getElementById('logPass').value;
+            const remember = document.getElementById('logRemember').checked;
+            const err = document.getElementById('logError');
             
             try {
-                const persist = r ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
-                await this.auth.setPersistence(persist);
-                await this.auth.signInWithEmailAndPassword(e, p);
-                errEl.style.display = 'none';
-            } catch (err) {
-                errEl.innerText = "Gagal: " + err.message;
-                errEl.style.display = 'block';
+                const persistence = remember ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
+                await mzAuth.setPersistence(persistence);
+                await mzAuth.signInWithEmailAndPassword(email, pass);
+            } catch (e) {
+                err.innerText = "Email atau Password salah!";
+                err.style.display = 'block';
             }
         },
-
         logout: function() {
-            if(confirm("Keluar dari aplikasi?")) this.auth.signOut();
-        },
+            if(confirm("Apakah Anda ingin keluar?")) mzAuth.signOut();
+        }
+    };
 
-        getTokenAndLoad: async function() {
-            try {
-                const res = await fetch(`${this.db}/github_token.json`);
-                this.ghToken = await res.json();
-                this.loadFiles();
-            } catch (e) { console.error("Token Error"); }
-        },
+    mzAuth.onAuthStateChanged(user => {
+        const loginUI = document.getElementById('loginOverlay');
+        const mainUI = document.getElementById('mainApp');
+        
+        if (user) {
+            loginUI.style.display = 'none';
+            mainUI.style.display = 'block';
+            initGithub();
+        } else {
+            loginUI.style.display = 'flex';
+            mainUI.style.display = 'none';
+        }
+        document.body.classList.add('auth-ready');
+    });
 
-        loadFiles: async function() {
-            const grid = document.getElementById('mzFileGrid');
-            const res = await fetch(`https://api.github.com/repos/${this.config.github.owner}/${this.config.github.repo}/contents/${this.config.github.path}?t=${Date.now()}`, {
-                headers: { 'Authorization': `token ${this.ghToken}` }
+    async function initGithub() {
+        try {
+            const res = await fetch(firebaseConfig.databaseURL + "/github_token.json");
+            const data = await res.json();
+            if (data) { GITHUB.token = data; loadFiles(); }
+        } catch (e) { 
+            document.getElementById('fileCount').innerHTML = "<span style='color:red'>Token Error</span>";
+        }
+    }
+
+    function getIcon(name) {
+        const ext = name.split('.').pop().toLowerCase();
+        if (['jpg','jpeg','png','gif','webp'].includes(ext)) return 'img';
+        if (['mp4','webm','mkv','mov'].includes(ext)) return 'fa-solid fa-file-video';
+        if (['zip','rar','7z','tar'].includes(ext)) return 'fa-solid fa-file-zipper';
+        if (ext === 'apk') return 'fa-brands fa-android';
+        if (ext === 'pdf') return 'fa-solid fa-file-pdf';
+        if (['doc','docx','xls','xlsx','ppt','pptx'].includes(ext)) return 'fa-solid fa-file-word';
+        if (['html','txt','js','css','json'].includes(ext)) return 'fa-solid fa-file-code';
+        return 'fa-solid fa-file';
+    }
+
+    async function loadFiles() {
+        const grid = document.getElementById('fileGrid');
+        try {
+            const res = await fetch(`https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.path}?t=${Date.now()}`, {
+                headers: { 'Authorization': `token ${GITHUB.token}` }
             });
             const files = await res.json();
             grid.innerHTML = '';
+            document.getElementById('fileCount').innerText = `${files.length || 0} File tersimpan`;
             
             if(Array.isArray(files)) {
-                files.forEach(f => {
-                    const isImg = /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name);
+                files.forEach(file => {
+                    const type = getIcon(file.name);
+                    const date = new Date().toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric'});
                     const card = document.createElement('div');
-                    card.className = 'mz-file-card';
+                    card.className = 'file-card';
                     card.innerHTML = `
-                        <div class="mz-preview" onclick="window.open('${f.download_url}')">
-                            ${isImg ? `<img src="${f.download_url}">` : `<i class="fa-solid fa-file-lines fa-3x" style="color:#ddd"></i>`}
+                        <div class="preview-box" onclick="handlePreview('${file.download_url}', '${file.name}')">
+                            ${type === 'img' ? `<img src="${file.download_url}" loading="lazy">` : `<i class="${type}"></i>`}
                         </div>
-                        <div class="mz-info">${f.name}</div>
-                        <div class="mz-actions">
-                            <button class="mz-btn-act" onclick="mzCloud.download('${f.download_url}', '${f.name}')"><i class="fa-solid fa-download"></i></button>
-                            <button class="mz-btn-act" onclick="mzCloud.delete('${f.name}', '${f.sha}')"><i class="fa-solid fa-trash"></i></button>
+                        <div class="file-info">
+                            <span class="file-name">${file.name}</span>
+                            <div class="file-meta">
+                                <span>${(file.size/1024).toFixed(1)} KB</span>
+                                <span>${date}</span>
+                            </div>
                         </div>
-                    `;
+                        <div class="actions">
+                            <button class="btn-action" onclick="forceDownload('${file.download_url}', '${file.name}')" title="Download"><i class="fa-solid fa-circle-down"></i></button>
+                            <button class="btn-action" onclick="deleteFile('${file.name}', '${file.sha}')" title="Hapus"><i class="fa-solid fa-trash-can"></i></button>
+                        </div>`;
                     grid.appendChild(card);
                 });
             }
-        },
+        } catch(e) {}
+    }
 
-        upload: function() {
-            const file = document.getElementById('mzFileInput').files[0];
-            if(!file) return;
-
-            const area = document.getElementById('mzUploadArea');
-            const bar = document.getElementById('mzProgressBar');
-            const pct = document.getElementById('mzPercent');
-            area.style.display = 'block';
-
-            const reader = new FileReader();
-            reader.readAsArrayBuffer(file);
-            reader.onload = () => {
-                const content = btoa(new Uint8Array(reader.result).reduce((data, byte) => data + String.fromCharCode(byte), ''));
-                const xhr = new XMLHttpRequest();
-                xhr.open("PUT", `https://api.github.com/repos/${this.config.github.owner}/${this.config.github.repo}/contents/${this.config.github.path}/${encodeURIComponent(file.name)}`);
-                xhr.setRequestHeader("Authorization", `token ${this.ghToken}`);
-                
-                xhr.upload.onprogress = (e) => {
-                    const p = Math.round((e.loaded / e.total) * 100);
-                    bar.style.width = p + '%';
-                    pct.innerText = p + '%';
-                };
-
-                xhr.onload = () => {
-                    area.style.display = 'none';
-                    this.loadFiles();
-                    alert("Berhasil diunggah!");
-                };
-                xhr.send(JSON.stringify({ message: `Upload ${file.name}`, content: content }));
-            };
-        },
-
-        download: async function(url, name) {
+    async function forceDownload(url, name) {
+        try {
             const res = await fetch(url);
             const blob = await res.blob();
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
             link.download = name;
             link.click();
-        },
+        } catch(e) { window.open(url, '_blank'); }
+    }
 
-        delete: async function(name, sha) {
-            if(!confirm("Hapus file ini permanen?")) return;
-            await fetch(`https://api.github.com/repos/${this.config.github.owner}/${this.config.github.repo}/contents/${this.config.github.path}/${name}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `token ${this.ghToken}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: 'Delete', sha: sha })
-            });
-            this.loadFiles();
+    function handlePreview(url, name) {
+        const ext = name.split('.').pop().toLowerCase();
+        const body = document.getElementById('modalBody');
+        const modal = document.getElementById('previewModal');
+        body.innerHTML = '<div style="display:flex; justify-content:center; align-items:center; height:100%;">Memuat Preview...</div>';
+        modal.style.display = 'flex';
+        const googleViewer = `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
+
+        if (['jpg','jpeg','png','gif','webp'].includes(ext)) {
+            body.innerHTML = `<img src="${url}" style="width:100%; height:100%; object-fit:contain;">`;
+        } else if (['mp4','webm'].includes(ext)) {
+            body.innerHTML = `<video src="${url}" controls autoplay style="width:100%; height:100%;"></video>`;
+        } else {
+            body.innerHTML = `<iframe src="${googleViewer}" style="width:100%; height:100%; border:none;"></iframe>`;
         }
+    }
+
+    function uploadToGithub() {
+        const file = document.getElementById('fileInput').files[0];
+        if (!file) return;
+        const area = document.getElementById('uploadArea');
+        const bar = document.getElementById('progressBar');
+        const pct = document.getElementById('uploadPercent');
+        area.style.display = 'block';
+
+        const reader = new FileReader();
+        reader.readAsArrayBuffer(file);
+        reader.onload = function() {
+            const content = btoa(new Uint8Array(reader.result).reduce((data, byte) => data + String.fromCharCode(byte), ''));
+            const xhr = new XMLHttpRequest();
+            xhr.open("PUT", `https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.path}/${encodeURIComponent(file.name)}`, true);
+            xhr.setRequestHeader("Authorization", `token ${GITHUB.token}`);
+            xhr.upload.onprogress = (e) => {
+                if (e.lengthComputable) {
+                    const percent = Math.round((e.loaded / e.total) * 100);
+                    bar.style.width = percent + '%';
+                    pct.innerText = percent + '%';
+                }
+            };
+            xhr.onload = () => {
+                if (xhr.status === 201 || xhr.status === 200) {
+                    setTimeout(() => { area.style.display = 'none'; loadFiles(); }, 1000);
+                }
+            };
+            xhr.send(JSON.stringify({ message: `Upload ${file.name}`, content: content }));
+        };
+    }
+
+    function changeView(mode, btn) {
+        document.getElementById('fileGrid').className = `file-grid mode-${mode}`;
+        document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+
+    function closePreview() { document.getElementById('previewModal').style.display = 'none'; }
+
+    window.deleteFile = async (name, sha) => {
+        if (!confirm('Hapus file permanen?')) return;
+        await fetch(`https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.path}/${name}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `token ${GITHUB.token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: 'Delete', sha: sha })
+        });
+        loadFiles();
     };
-
-    mzCloud.init();
 </script>
-
 </body>
 </html>
