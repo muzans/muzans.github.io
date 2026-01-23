@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muzans Cloud Pro - Ultimate Fix</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
+    <style>
+        :root { --mz-blue: #0969da; --mz-bg: #f6f8fa; --mz-border: #d0d7de; --mz-text: #1f2328; }
+        body { font-family: -apple-system, sans-serif; background: var(--mz-bg); margin: 0; padding: 0; color: var(--mz-text); }
+        
+        /* Login Overlay */
+        #mzLoginOverlay { position: fixed; inset: 0; background: var(--mz-bg); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+        .mz-card-login { background: white; padding: 30px; border-radius: 12px; border: 1px solid var(--mz-border); width: 90%; max-width: 380px; text-align: center; box-shadow: 0 8px 20px rgba(0,0,0,0.05); }
+        .mz-input { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid var(--mz-border); border-radius: 8px; box-sizing: border-box; font-size: 14px; }
+        .mz-btn-login { width: 100%; background: var(--mz-blue); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .mz-btn-login:hover { opacity: 0.9; }
+        
+        /* Main UI */
+        .mz-container { max-width: 900px; margin: 0 auto; padding: 15px; display: none; }
+        .mz-header { background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--mz-border); margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* Progress Bar */
+        #mzUploadArea { background: white; border: 1px solid var(--mz-border); padding: 15px; margin-bottom: 15px; display: none; border-left: 5px solid var(--mz-blue); border-radius: 8px; }
+        .mz-progress-bg { background: #eee; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 10px; }
+        #mzProgressBar { background: var(--mz-blue); height: 100%; width: 0%; transition: width 0.1s; }
+
+        /* File Grid */
+        .mz-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+        .mz-file-card { background: white; border: 1px solid var(--mz-border); border-radius: 12px; overflow: hidden; transition: 0.2s; position: relative; }
+        .mz-preview { height: 120px; background: #fafafa; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #eee; cursor: pointer; }
+        .mz-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .mz-info { padding: 10px; font-size: 12px; font-weight: 600; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .mz-actions { display: flex; border-top: 1px solid #eee; }
+        .mz-btn-act { flex: 1; padding: 10px; border: none; background: white; cursor: pointer; color: #555; font-size: 14px; }
+        .mz-btn-act:hover { color: var(--mz-blue); background: #f9f9f9; }
+    </style>
+</head>
+<body>
+
+<div id="mzLoginOverlay">
+    <div class="mz-card-login">
+        <h2 style="color:var(--mz-blue); margin-bottom: 20px;"><i class="fa-solid fa-cloud"></i> MUZANS CLOUD</h2>
+        <input type="email" id="mzEmail" class="mz-input" placeholder="Email Firebase">
+        <input type="password" id="mzPass" class="mz-input" placeholder="Password">
+        <label style="display:flex; align-items:center; gap:8px; font-size:13px; margin-bottom:15px; cursor:pointer;">
+            <input type="checkbox" id="mzRemember"> Remember Me
+        </label>
+        <button class="mz-btn-login" onclick="mzCloud.login()">Masuk</button>
+        <p id="mzError" style="color:red; font-size:12px; margin-top:10px; display:none;"></p>
+    </div>
+</div>
+
+<div class="mz-container" id="mzApp">
+    <header class="mz-header">
+        <h1 style="margin:0; font-size:20px; color:var(--mz-blue); cursor:pointer;" onclick="mzCloud.logout()">MUZANS</h1>
+        <label style="background:var(--mz-blue); color:white; padding: 8px 16px; border-radius: 8px; cursor:pointer; font-weight:600; font-size:14px;">
+            <i class="fa-solid fa-upload"></i> Upload
+            <input type="file" id="mzFileInput" hidden onchange="mzCloud.upload()">
+        </label>
+    </header>
+
+    <div id="mzUploadArea">
+        <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:bold;">
+            <span>Mengunggah file...</span>
+            <span id="mzPercent">0%</span>
+        </div>
+        <div class="mz-progress-bg"><div id="mzProgressBar"></div></div>
+    </div>
+
+    <div id="mzFileGrid" class="mz-grid"></div>
+</div>
+
+<script>
+    /**
+     * MUZANS CLOUD LOGIC - ISOLATED INSTANCE
+     */
+    const mzCloud = {
+        config: {
+            firebase: {
+                apiKey: "AIzaSyBx6hu5EhKDpOBkytNrK7X_4d81dXD0AQc",
+                authDomain: "cloudmuzans.firebaseapp.com",
+                databaseURL: "https://cloudmuzans-default-rtdb.asia-southeast1.firebasedatabase.app",
+                projectId: "cloudmuzans",
+                storageBucket: "cloudmuzans.firebasestorage.app",
+                messagingSenderId: "325756139553",
+                appId: "1:325756139553:web:e7799816c6bd10983ecb60"
+            },
+            github: {
+                owner: 'muzans',
+                repo: 'muzanscloud.github.io',
+                path: 'myfolder' // Ganti folder disini jika perlu
+            }
+        },
+
+        init: function() {
+            // Menggunakan Nama App unik agar tidak bentrok dengan project lain
+            if (!firebase.apps.length) {
+                this.app = firebase.initializeApp(this.config.firebase, "MUZANS_PRO");
+            } else {
+                this.app = firebase.app("MUZANS_PRO") || firebase.initializeApp(this.config.firebase, "MUZANS_PRO");
+            }
+            this.auth = firebase.auth(this.app);
+            this.db = this.config.firebase.databaseURL;
+            this.listenAuth();
+        },
+
+        listenAuth: function() {
+            this.auth.onAuthStateChanged(user => {
+                if (user) {
+                    document.getElementById('mzLoginOverlay').style.display = 'none';
+                    document.getElementById('mzApp').style.display = 'block';
+                    this.getTokenAndLoad();
+                } else {
+                    document.getElementById('mzLoginOverlay').style.display = 'flex';
+                    document.getElementById('mzApp').style.display = 'none';
+                }
+            });
+        },
+
+        login: async function() {
+            const e = document.getElementById('mzEmail').value;
+            const p = document.getElementById('mzPass').value;
+            const r = document.getElementById('mzRemember').checked;
+            const errEl = document.getElementById('mzError');
+            
+            try {
+                const persist = r ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
+                await this.auth.setPersistence(persist);
+                await this.auth.signInWithEmailAndPassword(e, p);
+                errEl.style.display = 'none';
+            } catch (err) {
+                errEl.innerText = "Gagal: " + err.message;
+                errEl.style.display = 'block';
+            }
+        },
+
+        logout: function() {
+            if(confirm("Keluar dari aplikasi?")) this.auth.signOut();
+        },
+
+        getTokenAndLoad: async function() {
+            try {
+                const res = await fetch(`${this.db}/github_token.json`);
+                this.ghToken = await res.json();
+                this.loadFiles();
+            } catch (e) { console.error("Token Error"); }
+        },
+
+        loadFiles: async function() {
+            const grid = document.getElementById('mzFileGrid');
+            const res = await fetch(`https://api.github.com/repos/${this.config.github.owner}/${this.config.github.repo}/contents/${this.config.github.path}?t=${Date.now()}`, {
+                headers: { 'Authorization': `token ${this.ghToken}` }
+            });
+            const files = await res.json();
+            grid.innerHTML = '';
+            
+            if(Array.isArray(files)) {
+                files.forEach(f => {
+                    const isImg = /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name);
+                    const card = document.createElement('div');
+                    card.className = 'mz-file-card';
+                    card.innerHTML = `
+                        <div class="mz-preview" onclick="window.open('${f.download_url}')">
+                            ${isImg ? `<img src="${f.download_url}">` : `<i class="fa-solid fa-file-lines fa-3x" style="color:#ddd"></i>`}
+                        </div>
+                        <div class="mz-info">${f.name}</div>
+                        <div class="mz-actions">
+                            <button class="mz-btn-act" onclick="mzCloud.download('${f.download_url}', '${f.name}')"><i class="fa-solid fa-download"></i></button>
+                            <button class="mz-btn-act" onclick="mzCloud.delete('${f.name}', '${f.sha}')"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            }
+        },
+
+        upload: function() {
+            const file = document.getElementById('mzFileInput').files[0];
+            if(!file) return;
+
+            const area = document.getElementById('mzUploadArea');
+            const bar = document.getElementById('mzProgressBar');
+            const pct = document.getElementById('mzPercent');
+            area.style.display = 'block';
+
+            const reader = new FileReader();
+            reader.readAsArrayBuffer(file);
+            reader.onload = () => {
+                const content = btoa(new Uint8Array(reader.result).reduce((data, byte) => data + String.fromCharCode(byte), ''));
+                const xhr = new XMLHttpRequest();
+                xhr.open("PUT", `https://api.github.com/repos/${this.config.github.owner}/${this.config.github.repo}/contents/${this.config.github.path}/${encodeURIComponent(file.name)}`);
+                xhr.setRequestHeader("Authorization", `token ${this.ghToken}`);
+                
+                xhr.upload.onprogress = (e) => {
+                    const p = Math.round((e.loaded / e.total) * 100);
+                    bar.style.width = p + '%';
+                    pct.innerText = p + '%';
+                };
+
+                xhr.onload = () => {
+                    area.style.display = 'none';
+                    this.loadFiles();
+                    alert("Berhasil diunggah!");
+                };
+                xhr.send(JSON.stringify({ message: `Upload ${file.name}`, content: content }));
+            };
+        },
+
+        download: async function(url, name) {
+            const res = await fetch(url);
+            const blob = await res.blob();
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = name;
+            link.click();
+        },
+
+        delete: async function(name, sha) {
+            if(!confirm("Hapus file ini permanen?")) return;
+            await fetch(`https://api.github.com/repos/${this.config.github.owner}/${this.config.github.repo}/contents/${this.config.github.path}/${name}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `token ${this.ghToken}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: 'Delete', sha: sha })
+            });
+            this.loadFiles();
+        }
+    };
+
+    mzCloud.init();
+</script>
+
+</body>
+</html>
