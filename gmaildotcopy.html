@@ -10,7 +10,7 @@
       background: #e8f0fd;
       padding: 20px;
       margin: 0;
-      overflow: hidden; /* Mencegah scroll halaman */
+      overflow-x: hidden;
     }
 
     h2 {
@@ -53,20 +53,29 @@
       cursor: pointer;
     }
 
-    .generate-btn {
-      background-color: #28a745; /* Warna hijau untuk tombol Generate */
-      color: white;
-    }
+    .generate-btn { background-color: #28a745; color: white; }
+    .copy-btn { background-color: #007bff; color: white; }
+    .reset-btn { background-color: #dc3545; color: white; }
 
-    .button-row button.copy-btn {
-      background-color: #007bff; /* Warna biru untuk tombol Copy */
+    /* Action buttons style */
+    .action-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .action-row button {
+      flex: 1;
+      font-size: 14px;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
       color: white;
     }
-
-    .button-row button.reset-btn {
-      background-color: #dc3545; /* Warna merah untuk tombol Reset */
-      color: white;
-    }
+    .btn-copy-all { background-color: #6c757d; }
+    .btn-export { background-color: #17a2b8; }
+    .btn-clear { background-color: #f39c12; }
 
     .info-row {
       display: flex;
@@ -95,24 +104,24 @@
       white-space: pre-wrap;
       background: #ffffff;
       padding: 15px;
-      height: 150px; /* Tinggi tetap */
-      overflow-y: auto; /* Scroll hanya di dalam textbox */
+      height: 150px;
+      overflow-y: auto;
       border: 1px solid #ddd;
       border-radius: 8px;
       font-size: 15px;
-      resize: none; /* Mencegah perubahan ukuran */
+      resize: none;
       display: flex;
-      flex-direction: column-reverse; /* Menampilkan terbaru di atas */
-      justify-content: flex-end; /* Memastikan konten terbaru di bagian atas */
+      flex-direction: column-reverse;
+      justify-content: flex-end;
     }
 
     footer {
       text-align: center;
       font-size: 14px;
       color: white;
-      background-color: #007bff; /* Warna biru sesuai gambar */
+      background-color: #007bff;
       padding: 10px 0;
-      margin-top: 5em; /* Jarak setara 5 baris kosong */
+      margin-top: 5em;
       width: 100%;
     }
   </style>
@@ -122,7 +131,7 @@
   <h2>Gmail Dot Count</h2>
 
   <label for="email">Email</label>
-  <input type="email" id="email" placeholder="Masukkan email Gmail" inputmode="email" />
+  <input type="email" id="email" placeholder="Masukkan email (contoh: user@gmail.com)" inputmode="email" />
 
   <div class="button-row">
     <button onclick="generateDots()" class="generate-btn">Generate</button>
@@ -144,8 +153,14 @@
   <h3>Hasil:</h3>
   <div id="result"></div>
 
+  <div class="action-row">
+    <button onclick="copyAllResult()" class="btn-copy-all">Salin Hasil</button>
+    <button onclick="exportToTxt()" class="btn-export">Export (.txt)</button>
+    <button onclick="clearCurrentResult()" class="btn-clear">Hapus Hasil</button>
+  </div>
+
   <footer>
-    Dibuat pada: 05:46 PM WIB, Kamis, 10 Juli 2025
+Versi 2.0.1 - Update: 11 Februari 2026
   </footer>
 
   <script>
@@ -165,25 +180,28 @@
       if (savedJumlah) document.getElementById("jumlahKombinasi").textContent = savedJumlah;
       if (savedSalin) document.getElementById("jumlahSalin").textContent = savedSalin;
 
-      if (savedEmail) {
-        const username = savedEmail.split('@')[0].replace(/\./g, ''); // Menghapus titik dari username
-        dotVariants = generateGmailDots(username)
+      if (savedEmail && savedEmail.includes('@')) {
+        const parts = savedEmail.split('@');
+        const username = parts[0].replace(/\./g, '');
+        const domain = '@' + parts[1];
+        dotVariants = generateDotsLogic(username)
           .filter(e => e !== username)
-          .map(u => u + "@gmail.com");
+          .map(u => u + domain);
       }
     };
 
     function generateDots() {
       const email = document.getElementById("email").value.trim().toLowerCase();
-      if (!email.includes('@') || !email.endsWith('@gmail.com')) {
-        alert("Masukkan email valid dengan domain @gmail.com");
+      if (!email.includes('@')) {
+        alert("Masukkan email valid.");
         return;
       }
 
-      const username = email.split('@')[0].replace(/\./g, ''); // Menghapus titik dari username
-      const domain = '@gmail.com';
+      const parts = email.split('@');
+      const username = parts[0].replace(/\./g, ''); 
+      const domain = '@' + parts[1];
 
-      dotVariants = generateGmailDots(username)
+      dotVariants = generateDotsLogic(username)
         .filter(e => e !== username)
         .map(u => u + domain);
       currentIndex = 0;
@@ -199,7 +217,7 @@
       document.getElementById("jumlahSalin").textContent = "0";
     }
 
-    function generateGmailDots(username) {
+    function generateDotsLogic(username) {
       const results = new Set();
       const n = username.length;
       const total = Math.pow(2, n - 1);
@@ -214,7 +232,6 @@
         }
         results.add(withDots);
       }
-
       return Array.from(results);
     }
 
@@ -247,18 +264,60 @@
       localStorage.setItem("emailIndex", currentIndex.toString());
       localStorage.setItem("jumlahSalin", jumlahSalin.toString());
 
-      // Memastikan posisi scroll diatur ke atas
       resultDiv.scrollTop = 0;
     }
 
     function resetAll() {
-      document.getElementById("email").value = "";
+      if(confirm("Reset semua data dan hitungan?")) {
+        document.getElementById("email").value = "";
+        document.getElementById("result").textContent = "";
+        document.getElementById("jumlahKombinasi").textContent = "0";
+        document.getElementById("jumlahSalin").textContent = "0";
+        dotVariants = [];
+        currentIndex = 0;
+        localStorage.clear();
+      }
+    }
+
+    function copyAllResult() {
+      const resultText = document.getElementById("result").textContent;
+      if (!resultText) {
+        alert("Hasil kosong.");
+        return;
+      }
+      navigator.clipboard.writeText(resultText).then(() => {
+        alert("Semua hasil di kolom disalin!");
+      });
+    }
+
+    function exportToTxt() {
+      const resultText = document.getElementById("result").textContent;
+      const emailInput = document.getElementById("email").value.trim();
+      
+      if (!resultText) {
+        alert("Tidak ada hasil untuk di-export.");
+        return;
+      }
+
+      const emailName = emailInput.split('@')[0] || "emails";
+      const today = new Date();
+      const dateStr = String(today.getDate()).padStart(2, '0') + '-' + 
+                      String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+                      today.getFullYear();
+
+      const fileName = `${emailName}_${dateStr}.txt`;
+
+      const blob = new Blob([resultText], { type: "text/plain" });
+      const anchor = document.createElement("a");
+      anchor.download = fileName;
+      anchor.href = window.URL.createObjectURL(blob);
+      anchor.click();
+    }
+
+    function clearCurrentResult() {
       document.getElementById("result").textContent = "";
-      document.getElementById("jumlahKombinasi").textContent = "0";
-      document.getElementById("jumlahSalin").textContent = "0";
-      dotVariants = [];
-      currentIndex = 0;
-      localStorage.clear();
+      localStorage.setItem("emailResults", "");
+      console.log("Tampilan dibersihkan, progres salin tetap berlanjut.");
     }
   </script>
 
