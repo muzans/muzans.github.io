@@ -172,7 +172,7 @@
     </footer>
 
     <script>
-        // Konfigurasi Firebase Shopee milikmu
+        // Konfigurasi Firebase Shopee
         const firebaseConfig = {
             apiKey: "AIzaSyDX5o3n7iQjqcS0ZJsbir_35JOpG7jqkPA",
             authDomain: "link-shopee-bc394.firebaseapp.com",
@@ -244,19 +244,25 @@
             renderMenus(); 
         });
 
+        // FUNGSI TAMBAH MENU (Terbaru menggunakan Server Timestamp)
         function addMenu() {
             const title = document.getElementById('title').value;
-            if(title) {
+            const url = document.getElementById('url').value;
+            const downloadUrl = document.getElementById('downloadUrl').value;
+
+            if(title && url) {
                 db.ref('linkshopee').push({
-                    title, 
-                    url: document.getElementById('url').value,
-                    downloadUrl: document.getElementById('downloadUrl').value,
-                    createdAt: new Date().toISOString().split('T')[0]
+                    title: title, 
+                    url: url,
+                    downloadUrl: downloadUrl,
+                    createdAt: firebase.database.ServerValue.TIMESTAMP // Menggunakan waktu server
                 }).then(() => {
                     document.getElementById('title').value = "";
                     document.getElementById('url').value = "";
                     document.getElementById('downloadUrl').value = "";
                 });
+            } else {
+                alert("Minimal Nama dan URL harus diisi!");
             }
         }
 
@@ -265,15 +271,24 @@
             renderMenus();
         });
 
+        // FUNGSI RENDER (Membalikkan urutan agar yang baru di atas)
         function renderMenus() {
             const container = document.getElementById('menu-container');
             container.innerHTML = "";
             const colors = ['#ff6b6b', '#54a0ff', '#5f27cd', '#ff9f43', '#1dd1a1', '#00d2d3', '#f368e0', '#48dbfb', '#ee5253', '#10ac84'];
             
-            let i = 0;
-            for (let key in menuDataCache) {
+            // Mengambil semua kunci (ID) dari data
+            const keys = Object.keys(menuDataCache);
+            // MEMBALIKKAN URUTAN KUNCI
+            const reversedKeys = keys.reverse();
+
+            reversedKeys.forEach((key, index) => {
                 const data = menuDataCache[key];
-                const isNew = Math.ceil(Math.abs(new Date() - new Date(data.createdAt)) / (1000 * 60 * 60 * 24)) <= 7;
+                
+                // Cek apakah item baru (dalam 7 hari terakhir)
+                const itemDate = data.createdAt ? new Date(data.createdAt) : new Date();
+                const isNew = Math.ceil(Math.abs(new Date() - itemDate) / (1000 * 60 * 60 * 24)) <= 7;
+                
                 const wrapper = document.createElement('div');
                 wrapper.className = 'menu-wrapper';
 
@@ -291,7 +306,7 @@
                 } else {
                     wrapper.innerHTML = `
                         ${isNew ? '<div class="badge-new">NEW</div>' : ''}
-                        <a href="${data.url}" target="_blank" class="menu-item" style="background:${colors[i % colors.length]}">
+                        <a href="${data.url}" target="_blank" class="menu-item" style="background:${colors[index % colors.length]}">
                             <span>${data.title}</span>
                         </a>
                         ${data.downloadUrl ? `<a href="${data.downloadUrl}" target="_blank" class="download-zone"><i class="fa-solid fa-circle-arrow-down"></i></a>` : ''}
@@ -302,8 +317,7 @@
                         </div>` : ''}`;
                 }
                 container.appendChild(wrapper);
-                i++;
-            }
+            });
         }
 
         function startEdit(key) { editingKey = key; renderMenus(); }
