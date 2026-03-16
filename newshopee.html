@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Muzans Shop - Manual Link Grid</title>
+    <title>Muzans Afiliasi - Pro Grid</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -11,115 +11,132 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
-        body { background: #f4f4f4; display: flex; flex-direction: column; align-items: center; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #f7f7f7; color: #333; }
 
         /* --- TOOLBAR --- */
         .toolbar {
-            width: 100%; background: #fff; padding: 10px 15px;
+            width: 100%; background: #fff; padding: 12px 15px;
             display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000;
         }
-
-        .login-popup {
-            display: none; position: absolute; top: 55px; right: 15px;
-            background: white; padding: 15px; border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 250px; 
-            flex-direction: column; gap: 8px; z-index: 1001;
-        }
-        .login-popup input { padding: 10px; border: 1px solid #ddd; border-radius: 8px; }
-        .rem-box { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #666; cursor: pointer; }
 
         /* --- ADMIN PANEL --- */
         #admin-panel {
-            background: white; padding: 15px; border-radius: 12px; margin: 15px 0;
-            width: 95%; max-width: 500px; display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            background: white; padding: 20px; border-radius: 15px; margin: 15px auto;
+            width: 90%; max-width: 500px; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         }
-        .admin-input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #eee; border-radius: 8px; background: #f9f9f9; font-size: 14px; }
-        .btn-add { background: #ee4d2d; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; }
+        .admin-input { width: 100%; padding: 12px; margin: 6px 0; border: 1px solid #eee; border-radius: 10px; background: #fafafa; outline: none; transition: 0.3s; }
+        .admin-input:focus { border-color: #ee4d2d; }
+        .btn-add { background: #ee4d2d; color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; }
 
-        /* --- 3 COLUMN GRID --- */
-        .container { width: 100%; max-width: 1000px; padding: 8px; }
+        /* --- GRID 3 COLUMN --- */
+        .container { width: 100%; max-width: 1000px; padding: 10px; margin: auto; }
         .menu-list { 
             display: grid; 
             grid-template-columns: repeat(3, 1fr); 
-            gap: 6px; 
+            gap: 8px; 
         }
 
         .product-card {
-            background: white; border-radius: 8px; overflow: hidden;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.1); display: flex;
-            flex-direction: column; position: relative; border: 1px solid #efefef;
+            background: white; border-radius: 12px; overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04); display: flex;
+            flex-direction: column; position: relative; border: 1px solid #f0f0f0;
         }
 
-        .img-container { width: 100%; aspect-ratio: 1 / 1; background: #fff; position: relative; }
-        .img-container img { width: 100%; height: 100%; object-fit: cover; }
+        /* Container gambar tanpa kedipan */
+        .img-container { 
+            width: 100%; aspect-ratio: 1 / 1; 
+            background: #f0f0f0; /* Placeholder warna abu-abu solid */
+            position: relative; overflow: hidden; 
+        }
+        .img-container img { 
+            width: 100%; height: 100%; object-fit: cover; 
+            display: block; /* Menghilangkan gap bawah */
+        }
 
-        .product-info { padding: 6px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .product-info { padding: 8px; display: flex; flex-direction: column; flex-grow: 1; }
         .product-name { 
-            font-size: 0.65rem; font-weight: 500; color: #333; line-height: 1.2;
+            font-size: 0.75rem; font-weight: 500; color: #444; line-height: 1.3;
             display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-            overflow: hidden; margin-bottom: 3px; min-height: 2.4em;
+            overflow: hidden; margin-bottom: 4px; min-height: 2.6em;
         }
-        .product-price { color: #ee4d2d; font-size: 0.75rem; font-weight: 700; margin-bottom: 5px; }
+        .product-price { color: #ee4d2d; font-size: 0.85rem; font-weight: 700; margin-bottom: 8px; }
         
         .btn-buy {
             background: #ee4d2d; color: white; text-decoration: none;
-            text-align: center; padding: 4px; border-radius: 4px;
-            font-size: 0.6rem; font-weight: bold;
+            text-align: center; padding: 6px; border-radius: 6px;
+            font-size: 0.7rem; font-weight: bold;
         }
+
+        /* --- POPUP EDIT (MODAL) --- */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 400px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2); position: relative;
+        }
+        .modal-content h3 { margin-bottom: 15px; font-size: 18px; color: #ee4d2d; }
+
+        /* Admin Controls */
+        .admin-controls { display: flex; justify-content: space-around; background: #fafafa; padding: 6px; border-top: 1px solid #eee; }
+        .btn-ctrl { background: none; border: none; font-size: 12px; cursor: pointer; color: #777; transition: 0.2s; }
+        .btn-ctrl:hover { color: #ee4d2d; }
 
         .copy-icon {
-            position: absolute; top: 4px; right: 4px; background: rgba(255,255,255,0.8);
-            width: 20px; height: 20px; border-radius: 50%; display: flex;
-            align-items: center; justify-content: center; font-size: 8px; cursor: pointer; z-index: 5;
+            position: absolute; top: 6px; right: 6px; background: rgba(255,255,255,0.9);
+            width: 24px; height: 24px; border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; font-size: 10px; z-index: 10; cursor: pointer;
         }
 
-        .admin-controls-mini {
-            display: flex; background: #f8f8f8; border-top: 1px solid #eee; padding: 4px; justify-content: space-around;
-        }
-        .btn-mini-ctrl { background: none; border: none; font-size: 10px; cursor: pointer; color: #666; }
-
-        /* Edit Form inside Card */
-        .edit-card-form { padding: 5px; display: flex; flex-direction: column; gap: 3px; }
-        .edit-card-form input { font-size: 9px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; }
-
-        @media (max-width: 480px) {
-            .menu-list { grid-template-columns: repeat(3, 1fr); }
-        }
-
-        footer { padding: 20px; color: #999; font-size: 11px; text-align: center; }
+        @media (max-width: 480px) { .menu-list { grid-template-columns: repeat(3, 1fr); } }
     </style>
 </head>
 <body>
 
     <nav class="toolbar">
-        <h2 style="font-size: 14px; color: #ee4d2d;">MUZANS AFILIASI</h2>
-        <div class="auth-container" id="auth-wrapper">
-            <button onclick="toggleLoginForm(event)" id="btn-login-ui" style="background:none; border:1px solid #ddd; padding:5px 10px; border-radius:15px; cursor:pointer; font-size:11px">Login</button>
-            <div class="login-popup" id="login-popup">
-                <input type="email" id="email" placeholder="Email">
-                <input type="password" id="password" placeholder="Password">
-                <label class="rem-box"><input type="checkbox" id="rememberMe"> Ingat Saya</label>
-                <button class="btn-add" onclick="login()">Masuk</button>
-            </div>
-            <button id="btn-logout" style="display:none; color:white; background:#ff4757; border:none; padding:6px 12px; border-radius:15px; cursor:pointer; font-size:11px" onclick="logout()">Logout</button>
+        <h2 style="font-size: 16px; color: #ee4d2d;">MUZANS AFILIASI</h2>
+        <div id="auth-wrapper">
+            <button id="btn-login-ui" onclick="toggleLogin()" style="background:none; border:1px solid #ddd; padding:6px 15px; border-radius:20px; font-size:12px; cursor:pointer;">Admin</button>
+            <button id="btn-logout" style="display:none; color:white; background:#ff4757; border:none; padding:8px 15px; border-radius:20px; cursor:pointer; font-size:12px" onclick="logout()">Logout</button>
         </div>
     </nav>
+
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <h3>Login Admin</h3>
+            <input type="email" id="email" class="admin-input" placeholder="Email">
+            <input type="password" id="password" class="admin-input" placeholder="Password">
+            <button class="btn-add" onclick="login()">Masuk</button>
+            <button class="btn-add" style="background:#ccc; margin-top:5px" onclick="toggleLogin()">Batal</button>
+        </div>
+    </div>
 
     <div id="admin-panel">
         <input type="text" id="url" class="admin-input" placeholder="Link Shopee">
         <input type="text" id="title" class="admin-input" placeholder="Nama Produk">
         <input type="text" id="price" class="admin-input" placeholder="Harga (Contoh: Rp10.000)">
         <input type="text" id="imgLink" class="admin-input" placeholder="Link Gambar Manual">
-        <button class="btn-add" id="publish-btn" onclick="addMenu()">Terbitkan</button>
+        <button class="btn-add" onclick="addMenu()">Terbitkan</button>
     </div>
 
     <div class="container">
         <div id="menu-container" class="menu-list"></div>
     </div>
 
-    <footer>&copy; 2026 Muzans Dev</footer>
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <h3>Edit Produk</h3>
+            <input type="text" id="edit-url" class="admin-input" placeholder="Link Shopee">
+            <input type="text" id="edit-title" class="admin-input" placeholder="Nama Produk">
+            <input type="text" id="edit-price" class="admin-input" placeholder="Harga">
+            <input type="text" id="edit-img" class="admin-input" placeholder="Link Gambar">
+            <button class="btn-add" onclick="saveEdit()">Simpan Perubahan</button>
+            <button class="btn-add" style="background:#999; margin-top:5px" onclick="closeEditModal()">Batal</button>
+        </div>
+    </div>
 
     <script>
         const firebaseConfig = {
@@ -138,38 +155,18 @@
         const auth = firebase.auth();
 
         let isAdmin = false;
-        let menuDataCache = {};
         let editingKey = null;
 
-        // Auto-fill Remember Me
-        window.addEventListener('DOMContentLoaded', () => {
-            if(localStorage.getItem('muzans_rem') === 'true') {
-                document.getElementById('email').value = localStorage.getItem('muzans_email') || '';
-                document.getElementById('password').value = localStorage.getItem('muzans_pass') || '';
-                document.getElementById('rememberMe').checked = true;
-            }
-        });
-
-        function toggleLoginForm(event) {
-            event.stopPropagation();
-            const popup = document.getElementById('login-popup');
-            popup.style.display = (popup.style.display === 'flex') ? 'none' : 'flex';
+        function toggleLogin() {
+            const m = document.getElementById('login-modal');
+            m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
         }
 
         function login() {
             const email = document.getElementById('email').value;
             const pass = document.getElementById('password').value;
-            const rem = document.getElementById('rememberMe').checked;
-
             auth.signInWithEmailAndPassword(email, pass).then(() => {
-                if(rem) {
-                    localStorage.setItem('muzans_email', email);
-                    localStorage.setItem('muzans_pass', pass);
-                    localStorage.setItem('muzans_rem', 'true');
-                } else {
-                    localStorage.clear();
-                }
-                document.getElementById('login-popup').style.display = 'none';
+                toggleLogin();
             }).catch(() => alert("Gagal Login"));
         }
 
@@ -189,13 +186,10 @@
             const price = document.getElementById('price').value;
             const imgLink = document.getElementById('imgLink').value;
 
-            if(!url || !title || !price || !imgLink) return alert("Semua kolom harus diisi!");
+            if(!url || !title || !price || !imgLink) return alert("Isi semua data!");
 
             db.ref('linkshopee').push({
-                title: title, 
-                url: url,
-                downloadUrl: imgLink,
-                price: price,
+                title, url, downloadUrl: imgLink, price,
                 createdAt: firebase.database.ServerValue.TIMESTAMP
             }).then(() => {
                 document.getElementById('url').value = "";
@@ -205,64 +199,70 @@
             });
         }
 
-        db.ref('linkshopee').on('value', (snap) => {
-            menuDataCache = snap.val() || {};
-            renderMenus();
+        db.ref('linkshopee').on('value', snap => {
+            const data = snap.val() || {};
+            renderMenus(data);
         });
 
-        function renderMenus() {
+        function renderMenus(dataCache) {
+            const data = dataCache || {};
             const container = document.getElementById('menu-container');
             container.innerHTML = "";
-            const keys = Object.keys(menuDataCache).reverse();
+            const keys = Object.keys(data).reverse();
 
-            keys.forEach((key) => {
-                const data = menuDataCache[key];
+            keys.forEach(key => {
+                const item = data[key];
                 const card = document.createElement('div');
                 card.className = 'product-card';
-
-                if(isAdmin && editingKey === key) {
-                    card.innerHTML = `
-                        <div class="edit-card-form">
-                            <input type="text" id="ed-t-${key}" value="${data.title}">
-                            <input type="text" id="ed-p-${key}" value="${data.price}">
-                            <input type="text" id="ed-i-${key}" value="${data.downloadUrl}">
-                            <button onclick="saveEdit('${key}')" style="background:green; color:white; border:none; font-size:9px; padding:3px;">Simpan</button>
-                            <button onclick="setEdit(null)" style="background:gray; color:white; border:none; font-size:9px; padding:3px;">Batal</button>
-                        </div>`;
-                } else {
-                    card.innerHTML = `
-                        <div class="copy-icon" onclick="copyToClipboard('${data.url}')"><i class="fa-regular fa-copy"></i></div>
-                        <div class="img-container">
-                            <img src="${data.downloadUrl}" onerror="this.src='https://via.placeholder.com/200?text=Error+Img'">
-                        </div>
-                        <div class="product-info">
-                            <div class="product-name">${data.title}</div>
-                            <div class="product-price">${data.price}</div>
-                            <a href="${data.url}" target="_blank" class="btn-buy">BELI</a>
-                        </div>
-                        ${isAdmin ? `
-                        <div class="admin-controls-mini">
-                            <button class="btn-mini-ctrl" onclick="setEdit('${key}')"><i class="fa-solid fa-pen"></i> Edit</button>
-                            <button class="btn-mini-ctrl" style="color:#e74c3c" onclick="deleteMenu('${key}')"><i class="fa-solid fa-trash"></i></button>
-                        </div>` : ''}
-                    `;
-                }
+                card.innerHTML = `
+                    <div class="copy-icon" onclick="copyToClipboard('${item.url}')"><i class="fa-regular fa-copy"></i></div>
+                    <div class="img-container">
+                        <img src="${item.downloadUrl}" loading="lazy" onerror="this.src='https://via.placeholder.com/200?text=Error'">
+                    </div>
+                    <div class="product-info">
+                        <div class="product-name">${item.title}</div>
+                        <div class="product-price">${item.price || 'Rp -'}</div>
+                        <a href="${item.url}" target="_blank" class="btn-buy">BELI</a>
+                    </div>
+                    ${isAdmin ? `
+                    <div class="admin-controls">
+                        <button class="btn-ctrl" onclick="openEditModal('${key}')"><i class="fa-solid fa-pen"></i> Edit</button>
+                        <button class="btn-ctrl" style="color:#ff4757" onclick="deleteMenu('${key}')"><i class="fa-solid fa-trash"></i></button>
+                    </div>` : ''}
+                `;
                 container.appendChild(card);
             });
         }
 
-        function setEdit(key) { editingKey = key; renderMenus(); }
+        // FUNGSI MODAL EDIT
+        function openEditModal(key) {
+            editingKey = key;
+            db.ref('linkshopee/' + key).once('value', snap => {
+                const val = snap.val();
+                document.getElementById('edit-title').value = val.title;
+                document.getElementById('edit-price').value = val.price;
+                document.getElementById('edit-url').value = val.url;
+                document.getElementById('edit-img').value = val.downloadUrl;
+                document.getElementById('edit-modal').style.display = 'flex';
+            });
+        }
 
-        function saveEdit(key) {
-            const newTitle = document.getElementById(`ed-t-${key}`).value;
-            const newPrice = document.getElementById(`ed-p-${key}`).value;
-            const newImg = document.getElementById(`ed-i-${key}`).value;
-            db.ref('linkshopee/' + key).update({ 
-                title: newTitle, 
-                price: newPrice, 
-                downloadUrl: newImg 
-            })
-            .then(() => { editingKey = null; renderMenus(); });
+        function closeEditModal() {
+            document.getElementById('edit-modal').style.display = 'none';
+            editingKey = null;
+        }
+
+        function saveEdit() {
+            if(!editingKey) return;
+            const updates = {
+                title: document.getElementById('edit-title').value,
+                price: document.getElementById('edit-price').value,
+                url: document.getElementById('edit-url').value,
+                downloadUrl: document.getElementById('edit-img').value
+            };
+            db.ref('linkshopee/' + editingKey).update(updates).then(() => {
+                closeEditModal();
+            });
         }
 
         function copyToClipboard(text) {
