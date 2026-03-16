@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Muzans Shop - Text Only Edition</title>
+    <title>Muzans Shop - Pro Edition</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -14,66 +14,48 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
         body { background: #f4f4f4; display: flex; flex-direction: column; align-items: center; }
 
-        /* --- TOOLBAR --- */
         .toolbar {
             width: 100%; background: #fff; padding: 12px 15px;
             display: flex; justify-content: space-between; align-items: center;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000;
         }
 
-        /* --- ADMIN PANEL --- */
         #admin-panel {
             background: white; padding: 15px; border-radius: 12px; margin: 15px 0;
             width: 95%; max-width: 500px; display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
         .admin-input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #eee; border-radius: 8px; background: #f9f9f9; font-size: 14px; outline: none; }
+        
+        .check-group { display: flex; gap: 15px; margin: 8px 0; font-size: 14px; color: #555; }
+        .check-group label { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+
         .btn-add { background: #ee4d2d; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; }
 
-        /* --- 3 COLUMN GRID --- */
         .container { width: 100%; max-width: 1000px; padding: 8px; }
-        .menu-list { 
-            display: grid; 
-            grid-template-columns: repeat(3, 1fr); 
-            gap: 6px; 
-        }
+        .menu-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 
         .product-card {
-            background: white; border-radius: 8px; overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex;
-            flex-direction: column; position: relative; border: 1px solid #efefef;
-            padding: 10px 6px;
+            background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+            display: flex; flex-direction: column; position: relative; border: 1px solid #efefef;
+            padding: 10px 6px; text-align: center;
         }
 
-        .product-info { display: flex; flex-direction: column; flex-grow: 1; text-align: center; }
-        
         .product-name { 
-            font-size: 0.7rem; font-weight: 500; color: #333; line-height: 1.2;
+            font-size: 0.75rem; font-weight: bold; color: #000; line-height: 1.2;
             display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
-            overflow: hidden; margin-bottom: 6px; min-height: 3.6em;
+            overflow: hidden; margin-bottom: 4px; min-height: 2.8em;
         }
+
+        .badge-container { height: 16px; margin-bottom: 4px; font-weight: bold; font-style: italic; color: #ee4d2d; font-size: 0.8rem; }
 
         .product-price { color: #ee4d2d; font-size: 0.8rem; font-weight: 700; margin-bottom: 8px; }
-        
-        .btn-buy {
-            background: #ee4d2d; color: white; text-decoration: none;
-            text-align: center; padding: 6px; border-radius: 4px;
-            font-size: 0.65rem; font-weight: bold;
-        }
+        .btn-buy { background: #ee4d2d; color: white; text-decoration: none; text-align: center; padding: 6px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; }
 
-        /* Modals */
-        .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center;
-        }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
         .modal-content { background: white; padding: 20px; border-radius: 15px; width: 90%; max-width: 350px; }
 
         .admin-controls { display: flex; justify-content: space-around; margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; }
         .btn-ctrl { background: none; border: none; font-size: 11px; cursor: pointer; color: #777; }
-
-        .copy-icon {
-            position: absolute; top: 4px; right: 4px; color: #ccc;
-            font-size: 10px; cursor: pointer; z-index: 5;
-        }
 
         @media (max-width: 480px) { .menu-list { grid-template-columns: repeat(3, 1fr); } }
     </style>
@@ -84,7 +66,7 @@
         <h2 style="font-size: 15px; color: #ee4d2d;">MUZANS SHOP</h2>
         <div id="auth-wrapper">
             <button id="btn-login-ui" onclick="toggleLogin()" style="background:none; border:1px solid #ddd; padding:5px 12px; border-radius:15px; font-size:11px; cursor:pointer;">Admin</button>
-            <button id="btn-logout" style="display:none; color:white; background:#ff4757; border:none; padding:6px 15px; border-radius:15px; cursor:pointer; font-size:11px" onclick="logout()">Logout</button>
+            <button id="btn-logout" style="display:none; color:white; background:#ff4757; border:none; padding:6px 12px; border-radius:15px; cursor:pointer; font-size:11px" onclick="logout()">Logout</button>
         </div>
     </nav>
 
@@ -93,6 +75,9 @@
             <h3 style="margin-bottom:10px">Admin Login</h3>
             <input type="email" id="email" class="admin-input" placeholder="Email">
             <input type="password" id="password" class="admin-input" placeholder="Password">
+            <label style="font-size: 12px; color: #666; display: flex; align-items: center; gap: 5px; margin: 5px 0;">
+                <input type="checkbox" id="rememberMe"> Ingat Saya
+            </label>
             <button class="btn-add" onclick="login()">Masuk</button>
             <button class="btn-add" style="background:#ccc; margin-top:5px" onclick="toggleLogin()">Batal</button>
         </div>
@@ -102,6 +87,10 @@
         <input type="text" id="url" class="admin-input" placeholder="Link Shopee">
         <input type="text" id="title" class="admin-input" placeholder="Nama Produk">
         <input type="text" id="price" class="admin-input" placeholder="Harga (Angka saja)">
+        <div class="check-group">
+            <label><input type="checkbox" id="isStar"> Star</label>
+            <label><input type="checkbox" id="isMall"> Mall</label>
+        </div>
         <button class="btn-add" onclick="addMenu()">Terbitkan</button>
     </div>
 
@@ -115,6 +104,10 @@
             <input type="text" id="edit-url" class="admin-input" placeholder="Link Shopee">
             <input type="text" id="edit-title" class="admin-input" placeholder="Nama Produk">
             <input type="text" id="edit-price" class="admin-input" placeholder="Harga">
+            <div class="check-group">
+                <label><input type="checkbox" id="edit-isStar"> Star</label>
+                <label><input type="checkbox" id="edit-isMall"> Mall</label>
+            </div>
             <button class="btn-add" onclick="saveEdit()">Simpan</button>
             <button class="btn-add" style="background:#999; margin-top:5px" onclick="closeEditModal()">Batal</button>
         </div>
@@ -139,8 +132,17 @@
         let isAdmin = false;
         let editingKey = null;
 
+        // Auto-fill Remember Me
+        window.onload = () => {
+            if (localStorage.getItem("rem_muzans") === "true") {
+                document.getElementById("email").value = localStorage.getItem("email_muzans") || "";
+                document.getElementById("password").value = localStorage.getItem("pass_muzans") || "";
+                document.getElementById("rememberMe").checked = true;
+            }
+        };
+
         function formatHarga(val) {
-            let clean = val.replace(/Rp\s?/g, "");
+            let clean = val.toString().replace(/Rp\s?/g, "");
             return "Rp " + clean;
         }
 
@@ -152,7 +154,18 @@
         function login() {
             const email = document.getElementById('email').value;
             const pass = document.getElementById('password').value;
-            auth.signInWithEmailAndPassword(email, pass).then(() => toggleLogin()).catch(() => alert("Gagal"));
+            const rem = document.getElementById('rememberMe').checked;
+
+            auth.signInWithEmailAndPassword(email, pass).then(() => {
+                if(rem) {
+                    localStorage.setItem("email_muzans", email);
+                    localStorage.setItem("pass_muzans", pass);
+                    localStorage.setItem("rem_muzans", "true");
+                } else {
+                    localStorage.clear();
+                }
+                toggleLogin();
+            }).catch(() => alert("Gagal"));
         }
 
         function logout() { auth.signOut(); }
@@ -162,42 +175,47 @@
             document.getElementById('admin-panel').style.display = isAdmin ? 'block' : 'none';
             document.getElementById('btn-logout').style.display = isAdmin ? 'block' : 'none';
             document.getElementById('btn-login-ui').style.display = isAdmin ? 'none' : 'block';
-            db.ref('linkshopee').once('value', snap => renderMenus(snap.val()));
+            db.ref('linkshopee').on('value', snap => renderMenus(snap.val()));
         });
 
         function addMenu() {
             const url = document.getElementById('url').value;
             const title = document.getElementById('title').value;
             const price = document.getElementById('price').value;
+            const isStar = document.getElementById('isStar').checked;
+            const isMall = document.getElementById('isMall').checked;
 
-            if(!url || !title || !price) return alert("Isi semua data!");
+            if(!url || !title || !price) return alert("Isi data!");
 
             db.ref('linkshopee').push({
-                title, url, price: formatHarga(price),
+                title, url, price: formatHarga(price), isStar, isMall,
                 createdAt: firebase.database.ServerValue.TIMESTAMP
             }).then(() => {
                 document.getElementById('url').value = "";
                 document.getElementById('title').value = "";
                 document.getElementById('price').value = "";
+                document.getElementById('isStar').checked = false;
+                document.getElementById('isMall').checked = false;
             });
         }
-
-        db.ref('linkshopee').on('value', snap => renderMenus(snap.val()));
 
         function renderMenus(data) {
             const container = document.getElementById('menu-container');
             container.innerHTML = "";
             if(!data) return;
-            const keys = Object.keys(data).reverse();
-
-            keys.forEach(key => {
+            Object.keys(data).reverse().forEach(key => {
                 const item = data[key];
                 const card = document.createElement('div');
                 card.className = 'product-card';
+                
+                let badge = "";
+                if(item.isStar) badge = "S";
+                else if(item.isMall) badge = "M";
+
                 card.innerHTML = `
-                    <div class="copy-icon" onclick="copyToClipboard('${item.url}')"><i class="fa-regular fa-copy"></i></div>
                     <div class="product-info">
                         <div class="product-name">${item.title}</div>
+                        <div class="badge-container">${badge}</div>
                         <div class="product-price">${item.price}</div>
                         <a href="${item.url}" target="_blank" class="btn-buy">BELI</a>
                     </div>
@@ -218,31 +236,25 @@
                 document.getElementById('edit-title').value = val.title;
                 document.getElementById('edit-price').value = val.price;
                 document.getElementById('edit-url').value = val.url;
+                document.getElementById('edit-isStar').checked = val.isStar || false;
+                document.getElementById('edit-isMall').checked = val.isMall || false;
                 document.getElementById('edit-modal').style.display = 'flex';
             });
         }
 
-        function closeEditModal() {
-            document.getElementById('edit-modal').style.display = 'none';
-            editingKey = null;
-        }
+        function closeEditModal() { document.getElementById('edit-modal').style.display = 'none'; }
 
         function saveEdit() {
-            const updates = {
+            db.ref('linkshopee/' + editingKey).update({
                 title: document.getElementById('edit-title').value,
                 price: formatHarga(document.getElementById('edit-price').value),
-                url: document.getElementById('edit-url').value
-            };
-            db.ref('linkshopee/' + editingKey).update(updates).then(() => closeEditModal());
+                url: document.getElementById('edit-url').value,
+                isStar: document.getElementById('edit-isStar').checked,
+                isMall: document.getElementById('edit-isMall').checked
+            }).then(() => closeEditModal());
         }
 
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => alert("Link disalin!"));
-        }
-
-        function deleteMenu(key) {
-            if(confirm("Hapus?")) db.ref('linkshopee/' + key).remove();
-        }
+        function deleteMenu(key) { if(confirm("Hapus?")) db.ref('linkshopee/' + key).remove(); }
     </script>
 </body>
 </html>
