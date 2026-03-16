@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Muzans Shop - Pro Edition</title>
+    <title>Muzans Shop - Clean Grid</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -12,7 +12,7 @@
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
-        body { background: #f4f4f4; display: flex; flex-direction: column; align-items: center; }
+        body { background: #f8f9fa; display: flex; flex-direction: column; align-items: center; }
 
         .toolbar {
             width: 100%; background: #fff; padding: 12px 15px;
@@ -32,38 +32,58 @@
         .btn-add { background: #ee4d2d; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; }
 
         .container { width: 100%; max-width: 1000px; padding: 8px; }
-        .menu-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .menu-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 
+        /* --- PRODUCT CARD STYLING --- */
         .product-card {
-            background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
-            display: flex; flex-direction: column; position: relative; border: 1px solid #efefef;
-            padding: 10px 6px; text-align: center;
+            background: white; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+            display: flex; flex-direction: column; position: relative; border: 1px solid #eaeaea;
+            overflow: hidden; transition: 0.2s;
         }
+
+        .product-info { padding: 10px 8px 0 8px; flex-grow: 1; display: flex; flex-direction: column; align-items: center; text-align: center; }
 
         .product-name { 
-            font-size: 0.75rem; font-weight: bold; color: #000; line-height: 1.2;
+            font-size: 0.72rem; font-weight: 800; color: #222; line-height: 1.3;
             display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
-            overflow: hidden; margin-bottom: 4px; min-height: 2.8em;
+            overflow: hidden; margin-bottom: 6px; min-height: 2.8em;
+            word-break: break-word;
         }
 
-        .badge-container { height: 16px; margin-bottom: 4px; font-weight: bold; font-style: italic; color: #ee4d2d; font-size: 0.8rem; }
+        /* Badge Star/Mall */
+        .badge-area { height: 18px; margin-bottom: 8px; display: flex; justify-content: center; }
+        .badge-tag { 
+            font-size: 9px; font-weight: bold; padding: 1px 6px; border-radius: 3px; 
+            font-style: italic; color: white; background: #ee4d2d; text-transform: uppercase;
+        }
 
-        .product-price { color: #ee4d2d; font-size: 0.8rem; font-weight: 700; margin-bottom: 8px; }
-        .btn-buy { background: #ee4d2d; color: white; text-decoration: none; text-align: center; padding: 6px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; }
+        /* Smooth Separator & Price */
+        .price-area { 
+            width: 100%; border-top: 1px solid #f2f2f2; /* Pemisah Smooth */
+            padding: 8px 0; margin-top: auto; 
+        }
+        .product-price { color: #ee4d2d; font-size: 0.85rem; font-weight: 700; }
 
+        /* Full Width Buy Button */
+        .btn-buy { 
+            background: #ee4d2d; color: white; text-decoration: none; 
+            text-align: center; padding: 8px 0; font-size: 0.7rem; 
+            font-weight: bold; width: 100%; display: block;
+        }
+
+        /* Modals & Controls */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
         .modal-content { background: white; padding: 20px; border-radius: 15px; width: 90%; max-width: 350px; }
+        .admin-controls { display: flex; justify-content: space-around; padding: 6px; background: #fafafa; border-top: 1px solid #eee; }
+        .btn-ctrl { background: none; border: none; font-size: 11px; cursor: pointer; color: #999; }
 
-        .admin-controls { display: flex; justify-content: space-around; margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; }
-        .btn-ctrl { background: none; border: none; font-size: 11px; cursor: pointer; color: #777; }
-
-        @media (max-width: 480px) { .menu-list { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 480px) { .menu-list { grid-template-columns: repeat(3, 1fr); gap: 5px; } }
     </style>
 </head>
 <body>
 
     <nav class="toolbar">
-        <h2 style="font-size: 15px; color: #ee4d2d;">MUZANS SHOP</h2>
+        <h2 style="font-size: 15px; color: #ee4d2d; font-weight: 900;">MUZANS SHOP</h2>
         <div id="auth-wrapper">
             <button id="btn-login-ui" onclick="toggleLogin()" style="background:none; border:1px solid #ddd; padding:5px 12px; border-radius:15px; font-size:11px; cursor:pointer;">Admin</button>
             <button id="btn-logout" style="display:none; color:white; background:#ff4757; border:none; padding:6px 12px; border-radius:15px; cursor:pointer; font-size:11px" onclick="logout()">Logout</button>
@@ -91,7 +111,7 @@
             <label><input type="checkbox" id="isStar"> Star</label>
             <label><input type="checkbox" id="isMall"> Mall</label>
         </div>
-        <button class="btn-add" onclick="addMenu()">Terbitkan</button>
+        <button class="btn-add" onclick="addMenu()">Terbitkan Produk</button>
     </div>
 
     <div class="container">
@@ -108,7 +128,7 @@
                 <label><input type="checkbox" id="edit-isStar"> Star</label>
                 <label><input type="checkbox" id="edit-isMall"> Mall</label>
             </div>
-            <button class="btn-add" onclick="saveEdit()">Simpan</button>
+            <button class="btn-add" onclick="saveEdit()">Simpan Perubahan</button>
             <button class="btn-add" style="background:#999; margin-top:5px" onclick="closeEditModal()">Batal</button>
         </div>
     </div>
@@ -132,7 +152,6 @@
         let isAdmin = false;
         let editingKey = null;
 
-        // Auto-fill Remember Me
         window.onload = () => {
             if (localStorage.getItem("rem_muzans") === "true") {
                 document.getElementById("email").value = localStorage.getItem("email_muzans") || "";
@@ -165,7 +184,7 @@
                     localStorage.clear();
                 }
                 toggleLogin();
-            }).catch(() => alert("Gagal"));
+            }).catch(() => alert("Gagal Login"));
         }
 
         function logout() { auth.signOut(); }
@@ -185,7 +204,7 @@
             const isStar = document.getElementById('isStar').checked;
             const isMall = document.getElementById('isMall').checked;
 
-            if(!url || !title || !price) return alert("Isi data!");
+            if(!url || !title || !price) return alert("Lengkapi data!");
 
             db.ref('linkshopee').push({
                 title, url, price: formatHarga(price), isStar, isMall,
@@ -208,20 +227,22 @@
                 const card = document.createElement('div');
                 card.className = 'product-card';
                 
-                let badge = "";
-                if(item.isStar) badge = "S";
-                else if(item.isMall) badge = "M";
+                let badgeHTML = "";
+                if(item.isStar) badgeHTML = `<span class="badge-tag">Star</span>`;
+                else if(item.isMall) badgeHTML = `<span class="badge-tag" style="background:#d0011b">Mall</span>`;
 
                 card.innerHTML = `
                     <div class="product-info">
                         <div class="product-name">${item.title}</div>
-                        <div class="badge-container">${badge}</div>
-                        <div class="product-price">${item.price}</div>
-                        <a href="${item.url}" target="_blank" class="btn-buy">BELI</a>
+                        <div class="badge-area">${badgeHTML}</div>
+                        <div class="price-area">
+                            <div class="product-price">${item.price}</div>
+                        </div>
                     </div>
+                    <a href="${item.url}" target="_blank" class="btn-buy">BELI SEKARANG</a>
                     ${isAdmin ? `
                     <div class="admin-controls">
-                        <button class="btn-ctrl" onclick="openEditModal('${key}')"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn-ctrl" onclick="openEditModal('${key}')"><i class="fa-solid fa-pen"></i> Edit</button>
                         <button class="btn-ctrl" style="color:#ff4757" onclick="deleteMenu('${key}')"><i class="fa-solid fa-trash"></i></button>
                     </div>` : ''}
                 `;
@@ -254,7 +275,7 @@
             }).then(() => closeEditModal());
         }
 
-        function deleteMenu(key) { if(confirm("Hapus?")) db.ref('linkshopee/' + key).remove(); }
+        function deleteMenu(key) { if(confirm("Hapus produk ini?")) db.ref('linkshopee/' + key).remove(); }
     </script>
 </body>
 </html>
