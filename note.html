@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Muzans Notes Pro - Xurel Edition</title>
+    <title>Muzans Notes Pro</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -41,17 +41,18 @@
             background: white; padding: 15px; border-radius: 12px; 
             box-shadow: 0 2px 5px rgba(0,0,0,0.05); cursor: pointer;
             transition: 0.2s; height: 110px; display: flex; flex-direction: column; 
-            position: relative; overflow: hidden;
+            position: relative;
         }
         .card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         
-        .card-title { font-weight: 700; font-size: 14px; color: var(--dark-color); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 4px; padding-right: 25px; }
-        .card-preview { font-size: 11px; color: #666; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; line-height: 1.4; }
+        .card-title { font-weight: 700; font-size: 14px; color: var(--dark-color); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 4px; }
+        .card-preview { font-size: 11px; color: #666; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
 
         .note-index { 
-            position: absolute; bottom: 8px; right: 8px;
-            font-size: 9px; background: #f0f2f5; padding: 2px 6px; 
-            border-radius: 4px; color: #999; font-weight: 800; border: 1px solid #e0e0e0;
+            position: absolute; bottom: 10px; right: 10px;
+            font-size: 10px; background: #f0f0f0; padding: 2px 8px; 
+            border-radius: 6px; color: #888; font-weight: bold;
+            border: 1px solid #e0e0e0;
         }
 
         .modal-overlay {
@@ -79,10 +80,17 @@
         }
         .form-control:focus { border-color: var(--primary-color); }
         
-        textarea.form-control { font-family: 'Courier New', monospace; resize: vertical; min-height: 200px; line-height: 1.5; }
-        .view-area { background: #f8f9fa; border-color: transparent; white-space: pre-wrap; word-wrap: break-word; }
+        textarea.form-control { font-family: monospace; resize: vertical; min-height: 200px; line-height: 1.5; }
+        
+        /* Modifikasi untuk view-area agar menjadi div scrollable dan link berwarna biru */
+        .view-area { 
+            background: #f8f9fa; border-color: transparent; min-height: 200px; 
+            max-height: 50vh; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word; 
+        }
+        .text-link { color: #3498db; text-decoration: none; font-weight: 500; }
+        .text-link:hover { text-decoration: underline; color: #2980b9; }
 
-        .btn { padding: 12px 18px; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; font-size: 14px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn { padding: 12px 18px; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; font-size: 14px; transition: 0.2s; }
         .btn-save { background: var(--secondary-color); color: white; width: 100%; }
         .btn-cancel { background: #edeff1; color: #57606f; flex: 1; }
         .btn-edit { background: var(--primary-color); color: white; flex: 1; }
@@ -90,7 +98,6 @@
         .btn-delete { background: var(--danger-color); color: white; }
 
         .hidden { display: none !important; }
-        a.note-link { color: var(--primary-color); text-decoration: underline; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -107,6 +114,12 @@
             <div id="login-fields">
                 <input type="email" id="login-email" class="form-control" placeholder="Email Admin" style="margin-bottom:10px">
                 <input type="password" id="login-pass" class="form-control" placeholder="Password" style="margin-bottom:10px">
+                
+                <div style="display:flex; align-items:center; margin-bottom:15px; font-size:12px; color:var(--dark-color);">
+                    <input type="checkbox" id="login-remember" checked style="margin-right:5px; cursor:pointer;">
+                    <label for="login-remember" style="cursor:pointer;">Ingat saya</label>
+                </div>
+
                 <button class="btn btn-save" onclick="login()">Login</button>
             </div>
             <div id="logout-field" class="hidden">
@@ -124,7 +137,7 @@
     <div class="modal-content" onclick="event.stopPropagation()">
         <h3 id="form-modal-title" style="margin-top:0; margin-bottom:20px;">Catatan Baru</h3>
         <input type="text" id="node-title" class="form-control" placeholder="Masukkan Judul..." style="margin-bottom:15px; font-weight:600;">
-        <textarea id="node-content" class="form-control" placeholder="Tempel teks, script, atau link di sini..."></textarea>
+        <textarea id="node-content" class="form-control" placeholder="Tempel teks atau script di sini..."></textarea>
         <div style="display: flex; gap: 12px; margin-top: 5px;">
             <button type="button" class="btn btn-cancel" onclick="closeModal('form-modal')">Batal</button>
             <button type="button" class="btn btn-save" style="flex:2" onclick="handleSave()">Simpan</button>
@@ -140,9 +153,8 @@
         </div>
         <input type="text" id="view-title" class="form-control" readonly style="border:none; padding:0; font-size:20px; font-weight:800; margin-bottom:15px; background:transparent">
         
-        <textarea id="view-content" class="form-control view-area" readonly></textarea>
-        <div id="view-content-link" class="form-control view-area hidden" style="min-height: 200px; overflow-y: auto;"></div>
-
+        <div id="view-content" class="form-control view-area"></div>
+        
         <div style="display: flex; gap: 10px; margin-top: 20px;">
             <button class="btn btn-edit" onclick="editFromDetail()"><i class="fas fa-edit"></i> Edit</button>
             <button class="btn btn-copy" onclick="copyNote()"><i class="fas fa-copy"></i> Salin</button>
@@ -170,6 +182,7 @@
     let currentUser = null;
     let selectedNoteKey = null;
     let isEditing = false;
+    let currentRawContent = ""; // Menyimpan teks asli tanpa tag HTML
 
     auth.onAuthStateChanged(user => {
         currentUser = user;
@@ -180,10 +193,50 @@
         initSync();
     });
 
+    function toggleLoginPopup() { document.getElementById('login-popup').classList.toggle('hidden'); }
+
+    document.addEventListener('click', function(event) {
+        const popup = document.getElementById('login-popup');
+        const btn = document.getElementById('user-menu-btn');
+        if (!popup.classList.contains('hidden') && !popup.contains(event.target) && !btn.contains(event.target)) {
+            popup.classList.add('hidden');
+        }
+    });
+
+    function login() {
+        const e = document.getElementById('login-email').value;
+        const p = document.getElementById('login-pass').value;
+        const remember = document.getElementById('login-remember').checked;
+        const persistence = remember ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
+
+        auth.setPersistence(persistence)
+            .then(() => auth.signInWithEmailAndPassword(e, p))
+            .then(() => {
+                document.getElementById('login-popup').classList.add('hidden');
+            }).catch(() => alert("Gagal Login!"));
+    }
+
+    function logout() { auth.signOut().then(() => window.location.reload()); }
+
+    function switchTab(t) {
+        currentTab = t;
+        document.getElementById('tab-pub').classList.toggle('active', t === 'public');
+        document.getElementById('tab-priv').classList.toggle('active', t === 'private');
+        initSync();
+    }
+
     function getDbPath() {
         return (currentTab === 'private' && currentUser) 
             ? `notes/users/${currentUser.uid}` 
             : 'notes/public';
+    }
+
+    // Fungsi mengubah teks url menjadi tag <a>
+    function autoLinkText(text) {
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        return text.replace(urlRegex, function(url) {
+            return `<a href="${url}" target="_blank" class="text-link" onclick="event.stopPropagation()">${url}</a>`;
+        });
     }
 
     function initSync() {
@@ -199,10 +252,13 @@
                 const noteNumber = items.length - index; 
                 const card = document.createElement('div');
                 card.className = 'card';
+                
+                // Kartu tetap membuka popup ketika di klik
                 card.onclick = () => openDetailModal(d.key, d, noteNumber);
+
                 card.innerHTML = `
                     <div class="card-title">${escapeHTML(d.title) || 'Untitled'}</div>
-                    <div class="card-preview">${escapeHTML(d.content)}</div>
+                    <div class="card-preview">${autoLinkText(escapeHTML(d.content))}</div>
                     <div class="note-index">${noteNumber}</div>
                 `;
                 grid.appendChild(card);
@@ -210,59 +266,33 @@
         });
     }
 
-    function linkify(text) {
-        const urlPattern = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
-        return text.replace(urlPattern, url => `<a href="${url}" target="_blank" class="note-link">${url}</a>`);
-    }
-
-    function openDetailModal(key, data, number) {
-        selectedNoteKey = key;
-        document.getElementById('view-tag').innerText = (currentTab === 'private' ? "🔒 PRIVATE #" : "🌐 PUBLIC #") + number;
-        document.getElementById('view-title').value = data.title;
-        
-        const contentArea = document.getElementById('view-content');
-        const linkArea = document.getElementById('view-content-link');
-        
-        if (data.content.includes("http")) {
-            contentArea.classList.add('hidden');
-            linkArea.classList.remove('hidden');
-            linkArea.innerHTML = linkify(escapeHTML(data.content));
-        } else {
-            contentArea.classList.remove('hidden');
-            linkArea.classList.add('hidden');
-            contentArea.value = data.content;
-        }
-        document.getElementById('detail-modal').style.display = 'flex';
-    }
-
     function handleSave() {
         const t = document.getElementById('node-title').value;
         const c = document.getElementById('node-content').value;
-        if(!c || c.trim() === "") return alert("Konten tidak boleh kosong!");
+        if(!c || c.trim() === "") return alert("Konten kosong!");
         const path = getDbPath();
         const data = { title: t || "Untitled", content: c, timestamp: Date.now() };
         const promise = (isEditing && selectedNoteKey) 
             ? db.ref(`${path}/${selectedNoteKey}`).update(data)
             : db.ref(path).push(data);
-        promise.then(() => closeModal('form-modal')).catch(() => alert("Gagal Simpan!"));
+        promise.then(() => closeModal('form-modal')).catch(() => alert("Gagal!"));
     }
 
     function copyNote() {
-        const content = document.getElementById('view-content').value || document.getElementById('view-content-link').innerText;
-        navigator.clipboard.writeText(content).then(() => alert("Berhasil disalin ke clipboard!"));
+        navigator.clipboard.writeText(currentRawContent).then(() => alert("Berhasil disalin!"));
     }
 
-    function login() {
-        const e = document.getElementById('login-email').value;
-        const p = document.getElementById('login-pass').value;
-        auth.signInWithEmailAndPassword(e, p).then(() => {
-            document.getElementById('login-popup').classList.add('hidden');
-        }).catch(() => alert("Email/Password salah!"));
+    function confirmDelete() {
+        if(confirm("Hapus?")) {
+            db.ref(`${getDbPath()}/${selectedNoteKey}`).remove().then(() => closeModal('detail-modal'));
+        }
     }
 
-    function logout() { if(confirm("Logout?")) auth.signOut().then(() => window.location.reload()); }
-    function toggleLoginPopup() { document.getElementById('login-popup').classList.toggle('hidden'); }
-    function switchTab(t) { currentTab = t; initSync(); }
+    function escapeHTML(str) {
+        if(!str) return "";
+        return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
+    }
+
     function closeModal(id) { document.getElementById(id).style.display = 'none'; isEditing = false; }
     function openAddModal() {
         isEditing = false;
@@ -270,23 +300,27 @@
         document.getElementById('node-content').value = "";
         document.getElementById('form-modal').style.display = 'flex';
     }
+    
+    function openDetailModal(key, data, number) {
+        selectedNoteKey = key;
+        currentRawContent = data.content; // Simpan teks asli
+        document.getElementById('view-tag').innerText = (currentTab === 'private' ? "🔒 PRIVATE #" : "🌐 PUBLIC #") + number;
+        document.getElementById('view-title').value = data.title;
+        
+        // Memasukkan teks yang sudah terformat linknya ke dalam div
+        document.getElementById('view-content').innerHTML = autoLinkText(escapeHTML(data.content));
+        
+        document.getElementById('detail-modal').style.display = 'flex';
+    }
+    
     function editFromDetail() {
         const t = document.getElementById('view-title').value;
-        const c = document.getElementById('view-content').value || document.getElementById('view-content-link').innerText;
+        const c = currentRawContent; // Mengambil teks asli dari variabel, bukan innerHTML
         closeModal('detail-modal');
         isEditing = true;
         document.getElementById('node-title').value = t;
         document.getElementById('node-content').value = c;
         document.getElementById('form-modal').style.display = 'flex';
-    }
-    function confirmDelete() {
-        if(confirm("Hapus catatan ini?")) {
-            db.ref(`${getDbPath()}/${selectedNoteKey}`).remove().then(() => closeModal('detail-modal'));
-        }
-    }
-    function escapeHTML(str) {
-        if(!str) return "";
-        return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
     }
 </script>
 </body>
