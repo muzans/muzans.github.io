@@ -8,7 +8,8 @@
     
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/faker/5.5.3/faker.min.js"></script>
+    
+    <script src="https://xurel.github.io/js/faker.min.js"></script>
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
@@ -157,11 +158,10 @@
         // LOGIKA ACAK PROFIL & AUTO-CLEANUP (WIB)
         // ==========================================
         let firebaseUsedNames = [];
-        
         const wibDate = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Jakarta"}));
         const todayWIB = `${wibDate.getFullYear()}-${String(wibDate.getMonth() + 1).padStart(2, '0')}-${String(wibDate.getDate()).padStart(2, '0')}`;
 
-        // FITUR PEMBERSIH OTOMATIS
+        // FITUR PEMBERSIH OTOMATIS TANGGAL KEMARIN
         db.ref('used_names').once('value', (snap) => {
             if (snap.exists()) {
                 snap.forEach((childSnap) => {
@@ -172,13 +172,14 @@
             }
         });
 
-        // PANTAU DATA HARI INI
+        // PANTAU DATA HARI INI SAJA
         db.ref('used_names/' + todayWIB).on('value', (snap) => {
             firebaseUsedNames = snap.val() ? Object.values(snap.val()) : [];
         });
 
         async function generateAndCopyData() {
             try {
+                // Pengecekan Faker
                 if(!window.faker) {
                     alert("Sistem pengacak sedang dimuat, harap tunggu beberapa detik.");
                     return;
@@ -230,6 +231,7 @@
                 outputEl.value = hasilLengkap;
                 await copyToClipboard(hasilLengkap);
 
+                // Animasi Sukses
                 const btn = document.getElementById('btn-generate');
                 const originalHTML = '<i class="fa-solid fa-shuffle"></i> Acak Data';
                 btn.innerHTML = '<i class="fa-solid fa-check"></i> Tersalin!';
