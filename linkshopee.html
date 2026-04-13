@@ -81,7 +81,7 @@
         .menu-content {
             width: 80%; padding: 15px;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            text-decoration: none; color: white; text-align: center; gap: 6px;
+            text-decoration: none; color: white; text-align: center; gap: 6px; cursor: pointer;
         }
 
         .menu-title { font-weight: 600; font-size: 0.9em; text-transform: uppercase; }
@@ -161,7 +161,6 @@
         const wibDate = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Jakarta"}));
         const todayWIB = `${wibDate.getFullYear()}-${String(wibDate.getMonth() + 1).padStart(2, '0')}-${String(wibDate.getDate()).padStart(2, '0')}`;
 
-        // FITUR PEMBERSIH OTOMATIS TANGGAL KEMARIN
         db.ref('used_names').once('value', (snap) => {
             if (snap.exists()) {
                 snap.forEach((childSnap) => {
@@ -172,14 +171,12 @@
             }
         });
 
-        // PANTAU DATA HARI INI SAJA
         db.ref('used_names/' + todayWIB).on('value', (snap) => {
             firebaseUsedNames = snap.val() ? Object.values(snap.val()) : [];
         });
 
         async function generateAndCopyData() {
             try {
-                // Pengecekan Faker
                 if(!window.faker) {
                     alert("Sistem pengacak sedang dimuat, harap tunggu beberapa detik.");
                     return;
@@ -231,7 +228,6 @@
                 outputEl.value = hasilLengkap;
                 await copyToClipboard(hasilLengkap);
 
-                // Animasi Sukses
                 const btn = document.getElementById('btn-generate');
                 const originalHTML = '<i class="fa-solid fa-shuffle"></i> Acak Data';
                 btn.innerHTML = '<i class="fa-solid fa-check"></i> Tersalin!';
@@ -247,11 +243,48 @@
         // ==========================================
         // RENDER KARTU MENU DARI FIREBASE
         // ==========================================
+        let globalRandomUrls = ""; // Menyimpan data url acak untuk diproses
+
         async function copyCardUrl(url, element) {
             await copyToClipboard(url);
             const icon = element.querySelector('i');
             icon.className = 'fa-solid fa-check';
             setTimeout(() => { icon.className = 'fa-regular fa-copy'; }, 1000);
+        }
+
+        // Fungsi khusus eksekusi Kartu Acak (Terkunci)
+        function actionRandomLink(event, action, element) {
+            event.preventDefault(); event.stopPropagation();
+            
+            if (!globalRandomUrls) return;
+
+            // Pisahkan URL berdasarkan Enter (baris baru)
+            let links = globalRandomUrls.split('\n').map(l => l.trim()).filter(l => l.startsWith('http'));
+
+            if (links.length === 0) {
+                alert("Belum ada link valid yang disetting oleh Admin.");
+                return;
+            }
+
+            let randomLink = links[Math.floor(Math.random() * links.length)];
+
+            if (action === 'copy' && element) {
+                copyToClipboard(randomLink).then(() => {
+                    const icon = element.querySelector('i');
+                    const originalClass = icon.className;
+                    const originalColor = icon.style.color;
+                    
+                    icon.className = 'fa-solid fa-check';
+                    icon.style.color = '#2ecc71';
+                    
+                    setTimeout(() => { 
+                        icon.className = originalClass; 
+                        icon.style.color = originalColor;
+                    }, 1500);
+                });
+            } else if (action === 'open') {
+                window.open(randomLink, '_blank');
+            }
         }
 
         db.ref('linkshopee').on('value', (snap) => {
@@ -260,7 +293,33 @@
             container.innerHTML = "";
             
             const colors = ['#ff6b6b', '#54a0ff', '#5f27cd', '#ff9f43', '#2ecc71', '#00d2d3'];
-            const keys = Object.keys(menuDataCache).reverse();
+
+            // --- 1. RENDER KARTU ACAK (TERKUNCI) ---
+            let randomCardData = menuDataCache['ID_RANDOM_LOCKED'];
+            if (randomCardData) {
+                globalRandomUrls = randomCardData.url; // Simpan ke memori
+
+                const wrapRandom = document.createElement('div');
+                wrapRandom.className = 'menu-wrapper';
+                
+                wrapRandom.innerHTML = `
+                    <div class="menu-item" style="background: linear-gradient(135deg, #1e272e, #2f3640); border: 1px solid #f1c40f;">
+                        <div class="menu-copy" onclick="actionRandomLink(event, 'copy', this)" title="Salin 1 Link Acak">
+                            <i class="fa-solid fa-copy" style="color: #f1c40f;"></i>
+                        </div>
+                        <div class="menu-content" onclick="actionRandomLink(event, 'open', this)" title="Buka 1 Link Acak">
+                            <span class="menu-title" style="color: #f1c40f;">
+                                <i class="fa-solid fa-lock" style="margin-right:8px;"></i> ${randomCardData.title}
+                            </span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(wrapRandom);
+            }
+
+            // --- 2. RENDER KARTU REGULER ---
+            // Saring agar ID_RANDOM_LOCKED tidak dimunculkan lagi di list bawah
+            const keys = Object.keys(menuDataCache).filter(k => k !== 'ID_RANDOM_LOCKED').reverse();
 
             keys.forEach((key, index) => {
                 const data = menuDataCache[key];
