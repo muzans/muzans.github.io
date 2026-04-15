@@ -12,88 +12,144 @@
     <script src="https://xurel.github.io/js/faker.min.js"></script>
 
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+        :root {
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --success: #10b981;
+        }
+
+        * { 
+            margin: 0; padding: 0; box-sizing: border-box; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+        }
 
         body {
             min-height: 100vh;
-            background: #f0f2f5; 
+            background: var(--bg-color); 
             display: flex; flex-direction: column; align-items: center;
+            color: var(--text-main);
+            padding: 20px 10px;
         }
 
         /* --- MAIN CONTAINER --- */
         .main-container {
-            width: 95%; max-width: 500px;
-            background: #ffffff;
-            border-radius: 20px;
-            padding: 30px 20px;
-            margin: 25px 0; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            width: 100%; max-width: 480px;
+            background: transparent;
             display: flex; flex-direction: column;
         }
 
+        .header-section {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+
         .section-title {
-            text-align: center; color: #444; 
-            font-size: 1.4em; font-weight: 700; 
-            margin-bottom: 25px;
+            text-align: center; color: var(--text-main); 
+            font-size: 1.25em; font-weight: 700; letter-spacing: 0.5px;
+            margin-bottom: 20px;
         }
 
         /* --- GENERATOR SECTION --- */
         .input-generator {
-            width: 100%; padding: 16px;
-            border: 1px solid #ddd; border-radius: 12px;
-            text-align: center; outline: none; font-size: 0.95em;
-            color: #333; font-weight: 500; background: #fdfdfd;
-            margin-bottom: 12px;
+            width: 100%; padding: 14px 16px;
+            border: 1px solid var(--border-color); border-radius: 10px;
+            text-align: center; outline: none; font-size: 0.9em;
+            color: var(--text-main); font-weight: 500; background: #f9fafb;
+            margin-bottom: 12px; transition: border-color 0.2s ease;
         }
+        .input-generator:focus { border-color: var(--primary); }
 
         .btn-acak {
-            width: 100%; background: #54a0ff; color: white; 
-            border: none; padding: 16px; border-radius: 12px; 
-            font-size: 1.05em; font-weight: bold; cursor: pointer;
+            width: 100%; background: var(--primary); color: white; 
+            border: none; padding: 14px; border-radius: 10px; 
+            font-size: 1em; font-weight: 600; cursor: pointer;
             display: flex; align-items: center; justify-content: center; gap: 8px;
-            margin-bottom: 30px; transition: 0.3s;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2);
         }
-        .btn-acak:hover { background: #2e86de; }
+        .btn-acak:hover { background: var(--primary-hover); transform: translateY(-1px); }
+        .btn-acak:active { transform: translateY(1px); }
 
         /* --- MENU CARDS --- */
-        .menu-list { display: flex; flex-direction: column; gap: 12px; }
+        .menu-list { 
+            display: flex; flex-direction: column; gap: 12px; 
+        }
         
         .menu-wrapper { position: relative; width: 100%; }
 
         .menu-item {
-            display: flex; width: 100%; min-height: 75px;
+            display: flex; width: 100%; min-height: 72px;
+            background: var(--card-bg);
             border-radius: 12px; overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
-            transition: transform 0.2s;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: all 0.2s ease;
         }
-        .menu-item:active { transform: scale(0.98); }
+        .menu-item:hover { 
+            box-shadow: 0 6px 12px rgba(0,0,0,0.05); 
+            border-color: #d1d5db;
+        }
 
-        /* Tombol Salin Kiri (1/5 atau 20%) */
+        /* Tombol Salin Kiri */
         .menu-copy {
-            width: 20%; 
-            background: rgba(0, 0, 0, 0.15);
+            width: 65px; flex-shrink: 0;
+            background: #f9fafb;
+            border-right: 1px solid var(--border-color);
             display: flex; align-items: center; justify-content: center;
-            color: white; font-size: 1.3em; cursor: pointer;
+            color: var(--text-muted); font-size: 1.2em; cursor: pointer;
+            transition: all 0.2s ease;
         }
-        .menu-copy:hover { background: rgba(0, 0, 0, 0.25); }
+        .menu-copy:hover { background: #f3f4f6; color: var(--primary); }
+        .menu-copy:active { background: #e5e7eb; }
 
-        /* Area Konten Kanan (80%) */
+        /* Area Konten Kanan */
         .menu-content {
-            width: 80%; padding: 15px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            text-decoration: none; color: white; text-align: center; gap: 6px; cursor: pointer;
+            flex-grow: 1; padding: 12px 16px;
+            display: flex; flex-direction: column; justify-content: center;
+            text-decoration: none; color: var(--text-main); cursor: pointer; gap: 4px;
         }
 
-        .menu-title { font-weight: 600; font-size: 0.9em; text-transform: uppercase; }
+        .menu-title { font-weight: 600; font-size: 0.95em; line-height: 1.3; }
         
-        .badge-container { display: flex; gap: 6px; align-items: center; justify-content: center; }
+        .badge-container { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 2px;}
         
         .badge {
-            font-size: 0.75em; font-weight: 600; background: rgba(0, 0, 0, 0.2);
-            padding: 3px 10px; border-radius: 12px;
+            font-size: 0.7em; font-weight: 600; background: #f3f4f6; color: var(--text-muted);
+            padding: 4px 8px; border-radius: 6px; letter-spacing: 0.3px;
         }
         
-        .badge-new { position: absolute; top: -5px; right: -5px; background: #ff4757; color: white; font-size: 9px; padding: 3px 8px; border-radius: 10px; font-weight: bold; border: 2px solid white; z-index: 2; }
+        .badge-new { 
+            position: absolute; top: -6px; right: -6px; 
+            background: #ef4444; color: white; font-size: 0.65em; 
+            padding: 3px 8px; border-radius: 10px; font-weight: 700; 
+            border: 2px solid var(--bg-color); z-index: 2; letter-spacing: 0.5px;
+        }
+
+        /* Style Khusus Kartu Random (Locked) */
+        .locked-item {
+            background: #111827;
+            border-color: #1f2937;
+        }
+        .locked-item .menu-copy {
+            background: #1f2937; border-right-color: #374151; color: #fbbf24;
+        }
+        .locked-item .menu-copy:hover { background: #374151; }
+        .locked-item .menu-content { color: white; }
+        .locked-item .menu-title i { opacity: 0.7; font-size: 0.9em; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .menu-wrapper { animation: fadeIn 0.3s ease forwards; }
 
     </style>
 </head>
@@ -101,13 +157,13 @@
 
     <div class="main-container">
         
-        <div class="section-title">LINK SHOPEE</div>
-
-        <input type="text" id="generatedDataOutput" class="input-generator" placeholder="-----" readonly>
-        
-        <button id="btn-generate" class="btn-acak" onclick="generateAndCopyData()">
-            <i class="fa-solid fa-shuffle"></i> Acak Data
-        </button>
+        <div class="header-section">
+            <div class="section-title">LINK SHOPEE</div>
+            <input type="text" id="generatedDataOutput" class="input-generator" placeholder="Data akan muncul di sini..." readonly>
+            <button id="btn-generate" class="btn-acak" onclick="generateAndCopyData()">
+                <i class="fa-solid fa-shuffle"></i> Acak Data
+            </button>
+        </div>
 
         <div id="menu-container" class="menu-list"></div>
 
@@ -139,17 +195,17 @@
         }
 
         // ==========================================
-        // KONFIGURASI FIREBASE
+        // KONFIGURASI FIREBASE BARU (sms-xurel)
         // ==========================================
         const firebaseConfig = {
-            apiKey: "AIzaSyDX5o3n7iQjqcS0ZJsbir_35JOpG7jqkPA",
-            authDomain: "link-shopee-bc394.firebaseapp.com",
-            projectId: "link-shopee-bc394",
-            storageBucket: "link-shopee-bc394.firebasestorage.app",
-            messagingSenderId: "111837568012",
-            appId: "1:111837568012:web:b34dc5675becd8ef896229",
-            measurementId: "G-2BLSC5YMS6",
-            databaseURL: "https://link-shopee-bc394-default-rtdb.asia-southeast1.firebasedatabase.app"
+            apiKey: "AIzaSyCSjZ7ay8kUYXJ_3Jqnke3uvTRtwpgCws0",
+            authDomain: "sms-xurel.firebaseapp.com",
+            databaseURL: "https://sms-xurel-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "sms-xurel",
+            storageBucket: "sms-xurel.firebasestorage.app",
+            messagingSenderId: "486134590584",
+            appId: "1:486134590584:web:cac02f4429e0432c05518d",
+            measurementId: "G-RV5ZSH1EG6"
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
@@ -231,10 +287,13 @@
                 const btn = document.getElementById('btn-generate');
                 const originalHTML = '<i class="fa-solid fa-shuffle"></i> Acak Data';
                 btn.innerHTML = '<i class="fa-solid fa-check"></i> Tersalin!';
-                btn.style.background = '#2ecc71';
+                btn.style.background = 'var(--success)';
+                btn.style.boxShadow = '0 4px 6px rgba(16, 185, 129, 0.2)';
+                
                 setTimeout(() => { 
                     btn.innerHTML = originalHTML; 
-                    btn.style.background = '#54a0ff';
+                    btn.style.background = '';
+                    btn.style.boxShadow = '';
                 }, 1500);
 
             } catch (err) { console.error(err); }
@@ -243,22 +302,24 @@
         // ==========================================
         // RENDER KARTU MENU DARI FIREBASE
         // ==========================================
-        let globalRandomUrls = ""; // Menyimpan data url acak untuk diproses
+        let globalRandomUrls = ""; 
 
         async function copyCardUrl(url, element) {
             await copyToClipboard(url);
             const icon = element.querySelector('i');
             icon.className = 'fa-solid fa-check';
-            setTimeout(() => { icon.className = 'fa-regular fa-copy'; }, 1000);
+            icon.style.color = 'var(--success)';
+            setTimeout(() => { 
+                icon.className = 'fa-regular fa-copy'; 
+                icon.style.color = '';
+            }, 1000);
         }
 
-        // Fungsi khusus eksekusi Kartu Acak (Terkunci)
         function actionRandomLink(event, action, element) {
             event.preventDefault(); event.stopPropagation();
             
             if (!globalRandomUrls) return;
 
-            // Pisahkan URL berdasarkan Enter (baris baru)
             let links = globalRandomUrls.split('\n').map(l => l.trim()).filter(l => l.startsWith('http'));
 
             if (links.length === 0) {
@@ -292,24 +353,25 @@
             const container = document.getElementById('menu-container');
             container.innerHTML = "";
             
+            // Warna ini sekarang dipakai sebagai aksen garis pinggir yang minimalis
             const colors = ['#ff6b6b', '#54a0ff', '#5f27cd', '#ff9f43', '#2ecc71', '#00d2d3'];
 
             // --- 1. RENDER KARTU ACAK (TERKUNCI) ---
             let randomCardData = menuDataCache['ID_RANDOM_LOCKED'];
             if (randomCardData) {
-                globalRandomUrls = randomCardData.url; // Simpan ke memori
+                globalRandomUrls = randomCardData.url;
 
                 const wrapRandom = document.createElement('div');
                 wrapRandom.className = 'menu-wrapper';
                 
                 wrapRandom.innerHTML = `
-                    <div class="menu-item" style="background: linear-gradient(135deg, #1e272e, #2f3640); border: 1px solid #f1c40f;">
+                    <div class="menu-item locked-item">
                         <div class="menu-copy" onclick="actionRandomLink(event, 'copy', this)" title="Salin 1 Link Acak">
-                            <i class="fa-solid fa-copy" style="color: #f1c40f;"></i>
+                            <i class="fa-solid fa-copy"></i>
                         </div>
                         <div class="menu-content" onclick="actionRandomLink(event, 'open', this)" title="Buka 1 Link Acak">
-                            <span class="menu-title" style="color: #f1c40f;">
-                                <i class="fa-solid fa-lock" style="margin-right:8px;"></i> ${randomCardData.title}
+                            <span class="menu-title" style="color: #fbbf24;">
+                                <i class="fa-solid fa-lock" style="margin-right:6px;"></i> ${randomCardData.title}
                             </span>
                         </div>
                     </div>
@@ -318,7 +380,6 @@
             }
 
             // --- 2. RENDER KARTU REGULER ---
-            // Saring agar ID_RANDOM_LOCKED tidak dimunculkan lagi di list bawah
             const keys = Object.keys(menuDataCache).filter(k => k !== 'ID_RANDOM_LOCKED').reverse();
 
             keys.forEach((key, index) => {
@@ -327,12 +388,17 @@
                 const isNew = Math.ceil(Math.abs(new Date() - itemDate) / (1000 * 60 * 60 * 24)) <= 7;
                 
                 let statusLabel = data.status ? String(data.status).toUpperCase() : "";
+                const accentColor = colors[index % colors.length];
                 
                 const wrapper = document.createElement('div');
                 wrapper.className = 'menu-wrapper';
+                // Animasi delay untuk efek muncul berurutan (cascade)
+                wrapper.style.animationDelay = `${index * 0.05}s`;
+                wrapper.style.opacity = "0"; // disembunyikan sampai animasi berjalan
+                
                 wrapper.innerHTML = `
                     ${isNew ? '<div class="badge-new">NEW</div>' : ''}
-                    <div class="menu-item" style="background:${colors[index % colors.length]}">
+                    <div class="menu-item" style="border-left: 4px solid ${accentColor};">
                         
                         <div class="menu-copy" onclick="copyCardUrl('${data.url}', this)">
                             <i class="fa-regular fa-copy"></i>
@@ -342,7 +408,7 @@
                             <span class="menu-title">${data.title}</span>
                             ${(statusLabel || data.price) ? `
                             <div class="badge-container">
-                                ${statusLabel ? `<span class="badge">${statusLabel}</span>` : ''}
+                                ${statusLabel ? `<span class="badge" style="color:${accentColor}; background-color:${accentColor}1A;">${statusLabel}</span>` : ''}
                                 ${data.price ? `<span class="badge">${data.price}</span>` : ''}
                             </div>` : ''}
                         </a>
