@@ -3,98 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Muzans Cloud Pro - Ultimate Fix</title>
+    <title>Cloud Storage Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        :root { --primary: #24292f; --accent: #2da44e; --blue: #0969da; --bg: #f6f8fa; --border: #d0d7de; --text-main: #1f2328; --text-sec: #57606a; }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text-main); }
-        .main-container { max-width: 900px; margin: 0 auto; padding: 15px; }
+        :root { 
+            --bg: #f4f7f6; 
+            --surface: #ffffff; 
+            --border: #e2e8f0; 
+            --text-main: #0f172a; 
+            --text-sec: #64748b; 
+            --primary: #3b82f6; 
+            --primary-hover: #2563eb;
+            --danger: #ef4444;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius-md: 12px;
+            --radius-lg: 16px;
+        }
         
-        /* Header */
-        .header { background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .top-bar { display: flex; justify-content: space-between; align-items: center; }
-        .nav-tools { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: var(--text-main); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+        .main-container { max-width: 1000px; margin: 0 auto; padding: 20px; }
         
-        /* View Controls */
-        .view-controls { display: flex; gap: 5px; background: #f0f0f0; padding: 4px; border-radius: 8px; }
-        .view-btn { border: none; background: transparent; padding: 8px 12px; cursor: pointer; border-radius: 6px; color: var(--text-sec); }
-        .view-btn.active { background: white; color: var(--blue); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .btn-upload { background: var(--accent); color: white; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; border: none; }
+        /* Header & Nav */
+        .header { background: var(--surface); padding: 20px 24px; border-radius: var(--radius-lg); border: 1px solid var(--border); margin-bottom: 20px; box-shadow: var(--shadow-sm); }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        
+        /* Ikon Logo Profesional */
+        .brand-logo { display: flex; align-items: center; justify-content: center; width: 45px; height: 45px; background: linear-gradient(135deg, #3b82f6, #60a5fa); border-radius: 12px; color: white; font-size: 1.4rem; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3); }
 
-        /* Progress Bar - High Accuracy */
-        #uploadArea { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 15px; display: none; border-left: 5px solid var(--blue); }
-        .progress-container { background: #eee; height: 12px; border-radius: 6px; margin-top: 10px; overflow: hidden; border: 1px solid #ddd; }
-        #progressBar { background: linear-gradient(90deg, #0969da, #54aeff); height: 100%; width: 0%; transition: width 0.1s linear; }
+        .btn-upload { background: var(--primary); color: white; padding: 10px 20px; border-radius: var(--radius-md); cursor: pointer; font-weight: 600; font-size: 0.9rem; border: none; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2); }
+        .btn-upload:hover { background: var(--primary-hover); transform: translateY(-1px); }
+
+        .nav-tools { display: flex; flex-direction: column; gap: 16px; }
+        
+        /* Search & Filter Modern */
+        .search-box { display: flex; gap: 12px; width: 100%; }
+        .search-wrapper { position: relative; flex: 1; }
+        .search-wrapper i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-sec); }
+        .search-wrapper input { width: 100%; padding: 12px 16px 12px 45px; border-radius: var(--radius-md); border: 1px solid var(--border); outline: none; transition: 0.2s; font-size: 0.9rem; background: var(--bg); }
+        .search-wrapper input:focus { border-color: var(--primary); background: var(--surface); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        
+        .btn-icon { background: var(--bg); border: 1px solid var(--border); color: var(--text-sec); width: 45px; height: 45px; border-radius: var(--radius-md); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .btn-icon:hover { background: var(--surface); color: var(--primary); border-color: var(--primary); }
+
+        .filter-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+        .filter-group { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+        .filter-group::-webkit-scrollbar { display: none; }
+        
+        .filter-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text-sec); padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: 0.2s; white-space: nowrap; }
+        .filter-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .filter-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
+
+        /* Progress Bar */
+        #uploadArea { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; margin-bottom: 20px; display: none; border-left: 4px solid var(--primary); box-shadow: var(--shadow-sm); }
+        .progress-container { background: var(--bg); height: 8px; border-radius: 4px; margin-top: 10px; overflow: hidden; }
+        #progressBar { background: var(--primary); height: 100%; width: 0%; transition: width 0.2s ease; border-radius: 4px; }
 
         /* File Grid System */
-        .file-grid { display: grid; gap: 12px; }
-        .mode-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
-        .mode-detail { grid-template-columns: 1fr; }
+        .file-grid { display: grid; gap: 16px; }
+        .mode-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
         .mode-list { grid-template-columns: 1fr; }
 
-        /* Card Style - Posisi Ikon Rata */
-        .file-card { background: white; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; transition: 0.2s; height: 100%; }
-        .mode-detail .file-card { flex-direction: row; align-items: center; padding: 10px; height: auto; }
-        .mode-list .file-card { flex-direction: row; align-items: center; padding: 5px 15px; height: 55px; }
-
-        .preview-box { height: 130px; background: #fafafa; display: flex; align-items: center; justify-content: center; cursor: pointer; border-bottom: 1px solid #eee; overflow: hidden; }
-        .mode-detail .preview-box, .mode-list .preview-box { height: 45px; width: 45px; border: none; margin-right: 15px; border-radius: 8px; flex-shrink: 0; }
+        /* Card Styles */
+        .file-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; display: flex; flex-direction: column; transition: 0.2s ease; box-shadow: var(--shadow-sm); }
+        .file-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: #cbd5e1; }
         
-        .preview-box img { width: 100%; height: 100%; object-fit: cover; }
-        .preview-box i { font-size: 3rem; color: #adb5bd; } /* Ukuran ikon rata */
+        .mode-list .file-card { flex-direction: row; align-items: center; padding: 12px 16px; height: auto; }
+
+        .preview-box { height: 140px; background: #f8fafc; display: flex; align-items: center; justify-content: center; cursor: pointer; border-bottom: 1px solid var(--border); overflow: hidden; position: relative; }
+        .mode-list .preview-box { height: 48px; width: 48px; border: none; margin-right: 16px; border-radius: 8px; flex-shrink: 0; background: #f1f5f9; }
+        
+        .preview-box img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+        .file-card:hover .preview-box img { transform: scale(1.05); }
+        .preview-box i { font-size: 3rem; color: #94a3b8; }
         .mode-list .preview-box i { font-size: 1.5rem; }
 
-        .file-info { padding: 10px; flex-grow: 1; min-width: 0; text-align: center; }
-        .mode-detail .file-info, .mode-list .file-info { text-align: left; padding: 0; }
-        .file-name { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
-        .file-meta { font-size: 0.75rem; color: var(--text-sec); display: flex; gap: 10px; margin-top: 4px; justify-content: center; }
-        .mode-detail .file-meta, .mode-list .file-meta { justify-content: flex-start; }
+        .file-info { padding: 12px; flex-grow: 1; min-width: 0; text-align: center; display: flex; flex-direction: column; justify-content: center; }
+        .mode-list .file-info { text-align: left; padding: 0; }
+        .file-name { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; color: var(--text-main); margin-bottom: 4px; }
+        .file-meta { font-size: 0.75rem; color: var(--text-sec); display: flex; flex-direction: column; gap: 2px; }
+        .mode-list .file-meta { flex-direction: row; gap: 12px; }
 
-        .actions { display: flex; border-top: 1px solid #eee; }
-        .mode-detail .actions, .mode-list .actions { border: none; }
-        .btn-action { flex: 1; padding: 10px; border: none; background: white; cursor: pointer; color: var(--text-sec); border-right: 1px solid #eee; transition: 0.2s; }
-        .btn-action:last-child { border-right: none; }
-        .btn-action:hover { color: var(--blue); background: #f8f9fa; }
+        /* Actions */
+        .actions { display: flex; border-top: 1px solid var(--border); background: var(--surface); }
+        .mode-list .actions { border: none; background: transparent; margin-left: auto; }
+        .btn-action { flex: 1; padding: 12px 0; border: none; background: transparent; cursor: pointer; color: var(--text-sec); transition: 0.2s; position: relative; }
+        .mode-list .btn-action { padding: 8px; flex: none; border-radius: 8px; }
+        
+        .mode-grid .btn-action:not(:last-child)::after { content: ''; position: absolute; right: 0; top: 20%; height: 60%; width: 1px; background: var(--border); }
+        
+        .btn-action:hover { color: var(--primary); background: #f0f7ff; }
+        .btn-action.delete:hover { color: var(--danger); background: #fef2f2; }
 
         /* Modal Preview */
-        #previewModal { display: none; position: fixed; z-index: 1000; inset: 0; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; backdrop-filter: blur(4px); }
-        .modal-content { width: 95%; height: 90%; background: white; border-radius: 16px; position: relative; overflow: hidden; display: flex; flex-direction: column; }
-        .close-modal { position: absolute; top: 15px; right: 15px; background: var(--blue); color: white; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid white; z-index: 10; }
+        #previewModal { display: none; position: fixed; z-index: 1000; inset: 0; background: rgba(15, 23, 42, 0.85); align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+        .modal-content { width: 95%; height: 85%; background: var(--surface); border-radius: var(--radius-lg); position: relative; overflow: hidden; display: flex; flex-direction: column; max-width: 900px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        .close-modal { position: absolute; top: 16px; right: 16px; background: var(--surface); color: var(--text-main); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 100; border: none; box-shadow: var(--shadow-md); transition: 0.2s; font-size: 1.2rem; }
+        .close-modal:hover { background: #f1f5f9; color: var(--danger); transform: scale(1.05); }
+
+        /* Badge status */
+        .status-badge { display: inline-flex; align-items: center; padding: 4px 10px; background: #ecfdf5; color: #10b981; border-radius: 20px; font-size: 0.75rem; font-weight: 600; gap: 6px; }
+        .status-badge.error { background: #fef2f2; color: #ef4444; }
     </style>
 </head>
 <body>
 
 <div id="previewModal">
     <div class="modal-content">
-        <span class="close-modal" onclick="closePreview()"><i class="fa-solid fa-xmark"></i></span>
-        <div id="modalBody" style="width:100%; height:100%; background: white;"></div>
+        <button class="close-modal" onclick="closePreview()"><i class="fa-solid fa-xmark"></i></button>
+        <div id="modalBody" style="width:100%; height:100%; display: flex; justify-content: center; align-items: center; background: #f8fafc;"></div>
     </div>
 </div>
 
 <div class="main-container">
     <header class="header">
         <div class="top-bar">
-            <h1><a href="https://muzans.github.io/" style="text-decoration:none"><b style="color:var(--blue)">MUZANS</b></a></h1>
-            
+            <div class="brand-logo" title="Cloud Storage">
+                <i class="fa-solid fa-cloud"></i>
+            </div>
             <label class="btn-upload">
-                <i class="fa-solid fa-cloud-arrow-up"></i> Upload
-                <input type="file" id="fileInput" hidden onchange="uploadToGithub()">
+                <i class="fa-solid fa-cloud-arrow-up"></i> <span style="display:inline-block">Upload File</span>
+                <input type="file" id="fileInput" hidden onchange="uploadToCloudflare()">
             </label>
         </div>
+
         <div class="nav-tools">
-            <div class="view-controls">
-                <button class="view-btn active" onclick="changeView('grid', this)"><i class="fa-solid fa-grip"></i></button>
-                <button class="view-btn" onclick="changeView('detail', this)"><i class="fa-solid fa-circle-info"></i></button>
-                <button class="view-btn" onclick="changeView('list', this)"><i class="fa-solid fa-list"></i></button>
+            <div class="search-box">
+                <div class="search-wrapper">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="searchInput" placeholder="Cari dokumen, foto, atau video..." onkeyup="searchFiles()">
+                </div>
+                <button class="btn-icon" onclick="loadFiles()" title="Refresh Data"><i class="fa-solid fa-arrows-rotate"></i></button>
             </div>
-            <div id="fileCount" style="font-size:0.8rem; font-weight: 600;">Menghubungkan...</div>
+            
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <button class="filter-btn active" onclick="filterByType('all', this)">Semua Data</button>
+                    <button class="filter-btn" onclick="filterByType('img', this)"><i class="fa-regular fa-image" style="margin-right:4px"></i>Foto</button>
+                    <button class="filter-btn" onclick="filterByType('video', this)"><i class="fa-solid fa-video" style="margin-right:4px"></i>Video</button>
+                    <button class="filter-btn" onclick="filterByType('doc', this)"><i class="fa-regular fa-file-lines" style="margin-right:4px"></i>Dokumen</button>
+                </div>
+                <div style="display:flex; align-items:center; gap: 12px;">
+                    <div id="fileCount" class="status-badge"><i class="fa-solid fa-circle-notch fa-spin"></i> Menghubungkan...</div>
+                    <div class="filter-group" style="padding-bottom: 0;">
+                        <button class="btn-icon" onclick="changeView('grid', this)" id="btnGrid" style="width:36px; height:36px;"><i class="fa-solid fa-border-all"></i></button>
+                        <button class="btn-icon" onclick="changeView('list', this)" id="btnList" style="width:36px; height:36px;"><i class="fa-solid fa-list"></i></button>
+                    </div>
+                </div>
+            </div>
         </div>
     </header>
 
     <div id="uploadArea">
-        <div style="display:flex; justify-content:space-between; font-size:0.8rem; font-weight: bold;">
-            <span id="uploadStatus">Mengunggah...</span>
+        <div style="display:flex; justify-content:space-between; font-size:0.85rem; font-weight: 600; margin-bottom: 5px; color: var(--primary);">
+            <span id="uploadStatus"><i class="fa-solid fa-spinner fa-spin" style="margin-right:6px"></i>Mengunggah...</span>
             <span id="uploadPercent">0%</span>
         </div>
         <div class="progress-container"><div id="progressBar"></div></div>
@@ -104,159 +168,240 @@
 </div>
 
 <script>
-    const FIREBASE_URL = "https://cloudmuzans-default-rtdb.asia-southeast1.firebasedatabase.app/github_token.json";
-    const GITHUB = { token: '', owner: 'muzans', repo: 'muzanscloud.github.io', path: 'uploads' };
+    // =========================================================
+    // 1. MASUKKAN URL WORKER CLOUDFLARE KAMU DI SINI
+    // Contoh: "https://r2-api.namakamu.workers.dev"
+    // Pastikan tidak ada tanda slash (/) di akhir link
+    // =========================================================
+    const WORKER_URL = "https://cloud.aam-zip.workers.dev"; 
 
-    async function init() {
-        try {
-            const res = await fetch(FIREBASE_URL);
-            const data = await res.json();
-            if (data) { GITHUB.token = data; loadFiles(); }
-            else { throw new Error(); }
-        } catch (e) { 
-            document.getElementById('fileCount').innerHTML = "<span style='color:red'>Firebase Error: Periksa Rules</span>";
-        }
-    }
+    let allFilesData = []; 
+    let currentFilter = 'all';
 
     function getIcon(name) {
         const ext = name.split('.').pop().toLowerCase();
         if (['jpg','jpeg','png','gif','webp'].includes(ext)) return 'img';
         if (['mp4','webm','mkv','mov'].includes(ext)) return 'fa-solid fa-file-video';
-        if (['zip','rar','7z','tar'].includes(ext)) return 'fa-solid fa-file-zipper'; // Ikon ZIP Sesuai
+        if (['zip','rar','7z'].includes(ext)) return 'fa-solid fa-file-zipper';
         if (ext === 'apk') return 'fa-brands fa-android';
         if (ext === 'pdf') return 'fa-solid fa-file-pdf';
-        if (['doc','docx','xls','xlsx','ppt','pptx'].includes(ext)) return 'fa-solid fa-file-word';
+        if (['doc','docx','xls','xlsx'].includes(ext)) return 'fa-solid fa-file-word';
         if (['html','txt','js','css','json'].includes(ext)) return 'fa-solid fa-file-code';
         return 'fa-solid fa-file';
     }
 
     async function loadFiles() {
-        const grid = document.getElementById('fileGrid');
+        // Cek jika pengguna lupa ganti URL
+        if(!WORKER_URL || WORKER_URL.includes("username.workers.dev")) {
+            document.getElementById('fileCount').className = 'status-badge error';
+            document.getElementById('fileCount').innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Ganti URL Worker dulu di script';
+            return;
+        }
+        
+        document.getElementById('fileCount').className = 'status-badge';
+        document.getElementById('fileCount').innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Memuat...';
+
         try {
-            const res = await fetch(`https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.path}?t=${Date.now()}`, {
-                headers: { 'Authorization': `token ${GITHUB.token}` }
-            });
-            const files = await res.json();
-            grid.innerHTML = '';
-            document.getElementById('fileCount').innerText = `${files.length || 0} File tersimpan`;
+            const res = await fetch(WORKER_URL);
+            let files = await res.json();
             
-            files.forEach(file => {
-                const type = getIcon(file.name);
-                const date = new Date().toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric'});
-                const card = document.createElement('div');
-                card.className = 'file-card';
-                card.innerHTML = `
-                    <div class="preview-box" onclick="handlePreview('${file.download_url}', '${file.name}')">
-                        ${type === 'img' ? `<img src="${file.download_url}" loading="lazy">` : `<i class="${type}"></i>`}
-                    </div>
-                    <div class="file-info">
-                        <span class="file-name">${file.name}</span>
-                        <div class="file-meta">
-                            <span>${(file.size/1024).toFixed(1)} KB</span>
-                            <span>${date}</span>
-                        </div>
-                    </div>
-                    <div class="actions">
-                        <button class="btn-action" onclick="forceDownload('${file.download_url}', '${file.name}')" title="Download"><i class="fa-solid fa-circle-down"></i></button>
-                        <button class="btn-action" onclick="deleteFile('${file.name}', '${file.sha}')" title="Hapus"><i class="fa-solid fa-trash-can"></i></button>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        } catch(e) {}
+            // SORTING: Terbaru di atas
+            files.sort((a, b) => new Date(b.uploaded) - new Date(a.uploaded));
+            
+            allFilesData = files;
+            applyFilters();
+        } catch(e) {
+            console.error(e);
+            document.getElementById('fileCount').className = 'status-badge error';
+            document.getElementById('fileCount').innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Gagal memuat isi cloud';
+        }
     }
 
-    async function forceDownload(url, name) {
-        try {
-            const res = await fetch(url);
-            const blob = await res.blob();
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = name;
-            link.click();
-        } catch(e) { window.open(url, '_blank'); }
+    function renderFiles(filesArray) {
+        const grid = document.getElementById('fileGrid');
+        grid.innerHTML = '';
+        
+        document.getElementById('fileCount').className = 'status-badge';
+        document.getElementById('fileCount').innerHTML = `<i class="fa-solid fa-check-circle"></i> ${filesArray.length} File`;
+        
+        filesArray.forEach(file => {
+            const type = getIcon(file.name);
+            const dateObj = new Date(file.uploaded);
+            const dateStr = dateObj.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+            
+            const card = document.createElement('div');
+            card.className = 'file-card';
+            card.innerHTML = `
+                <div class="preview-box" onclick="handlePreview('${file.download_url}', '${file.name}')">
+                    ${type === 'img' ? `<img src="${file.download_url}" loading="lazy">` : `<i class="${type}"></i>`}
+                </div>
+                <div class="file-info">
+                    <span class="file-name" title="${file.name}">${file.name}</span>
+                    <div class="file-meta">
+                        <span style="color: var(--primary); font-weight: 600;">${(file.size/1024).toFixed(1)} KB</span>
+                        <span>${dateStr}</span>
+                    </div>
+                </div>
+                <div class="actions">
+                    <button class="btn-action" onclick="copyLink('${file.download_url}')" title="Copy Link"><i class="fa-solid fa-link"></i></button>
+                    <button class="btn-action" onclick="renameFile('${file.name}')" title="Rename"><i class="fa-solid fa-pen-to-square"></i></button>
+                    <button class="btn-action" onclick="forceDownload('${file.download_url}', '${file.name}')" title="Download"><i class="fa-solid fa-download"></i></button>
+                    <button class="btn-action delete" onclick="deleteFile('${file.name}')" title="Hapus"><i class="fa-solid fa-trash-can"></i></button>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
     }
 
     function handlePreview(url, name) {
         const ext = name.split('.').pop().toLowerCase();
         const body = document.getElementById('modalBody');
         const modal = document.getElementById('previewModal');
-        body.innerHTML = '<div style="display:flex; justify-content:center; align-items:center; height:100%;">Memuat Preview...</div>';
+        body.innerHTML = '<div style="color:var(--text-sec); font-weight:500;"><i class="fa-solid fa-circle-notch fa-spin" style="margin-right:8px;"></i>Memuat preview...</div>';
         modal.style.display = 'flex';
 
-        // Solusi preview menggunakan Google Docs Viewer untuk menghindari "Refused to Connect"
-        const googleViewer = `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
-
         if (['jpg','jpeg','png','gif','webp'].includes(ext)) {
-            body.innerHTML = `<img src="${url}" style="width:100%; height:100%; object-fit:contain;">`;
-        } else if (['mp4','webm'].includes(ext)) {
-            body.innerHTML = `<video src="${url}" controls autoplay style="width:100%; height:100%;"></video>`;
-        } else if (['html','txt','pdf','doc','docx','xls','xlsx','js','css'].includes(ext)) {
-            // Gunakan iframe dengan Google Viewer untuk dokumen & teks agar pasti terbuka
-            body.innerHTML = `<iframe src="${googleViewer}" style="width:100%; height:100%; border:none;"></iframe>`;
+            body.innerHTML = `<img src="${url}" style="max-width:100%; max-height:100%; object-fit:contain; border-radius: 8px;">`;
+        } else if (['mp4','webm','mov'].includes(ext)) {
+            body.innerHTML = `<video src="${url}" controls autoplay style="width:100%; height:100%; background:#0f172a; border-radius: 8px;"></video>`;
+        } else if (['pdf', 'txt', 'html', 'js', 'css'].includes(ext)) {
+            body.innerHTML = `<iframe src="${url}" style="width:100%; height:100%; border:none; border-radius: 8px; background:white;"></iframe>`;
         } else {
             modal.style.display = 'none';
-            alert("Preview tidak tersedia untuk tipe file ini. Silakan download.");
+            if(confirm("Preview tidak tersedia untuk format ini. Ingin mendownloadnya?")) window.open(url, '_blank');
         }
     }
 
-    function uploadToGithub() {
+    function uploadToCloudflare() {
         const file = document.getElementById('fileInput').files[0];
         if (!file) return;
 
         const area = document.getElementById('uploadArea');
         const bar = document.getElementById('progressBar');
         const pct = document.getElementById('uploadPercent');
+        const statusTxt = document.getElementById('uploadStatus');
+        
         area.style.display = 'block';
+        statusTxt.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="margin-right:6px"></i>Mengunggah ${file.name}...`;
 
-        const reader = new FileReader();
-        reader.readAsArrayBuffer(file);
-        reader.onload = function() {
-            const content = btoa(new Uint8Array(reader.result).reduce((data, byte) => data + String.fromCharCode(byte), ''));
-            const xhr = new XMLHttpRequest();
-            xhr.open("PUT", `https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.path}/${encodeURIComponent(file.name)}`, true);
-            xhr.setRequestHeader("Authorization", `token ${GITHUB.token}`);
+        const xhr = new XMLHttpRequest();
+        xhr.open("PUT", `${WORKER_URL}/${encodeURIComponent(file.name)}`, true);
 
-            xhr.upload.onprogress = (e) => {
-                if (e.lengthComputable) {
-                    const percent = Math.round((e.loaded / e.total) * 100);
-                    bar.style.width = percent + '%';
-                    pct.innerText = percent + '%';
-                }
-            };
-
-            xhr.onload = () => {
-                if (xhr.status === 201 || xhr.status === 200) {
-                    pct.innerText = "Selesai!";
-                    setTimeout(() => { area.style.display = 'none'; loadFiles(); }, 1000);
-                } else {
-                    alert("Gagal mengunggah. Pastikan token benar.");
-                    area.style.display = 'none';
-                }
-            };
-            xhr.send(JSON.stringify({ message: `Upload ${file.name}`, content: content }));
+        xhr.upload.onprogress = (e) => {
+            if (e.lengthComputable) {
+                const percent = Math.round((e.loaded / e.total) * 100);
+                bar.style.width = percent + '%';
+                pct.innerText = percent + '%';
+            }
         };
+
+        xhr.onload = () => {
+            if (xhr.status === 200) {
+                pct.innerText = "100%";
+                statusTxt.innerHTML = `<i class="fa-solid fa-check" style="margin-right:6px"></i>Selesai!`;
+                setTimeout(() => { 
+                    area.style.display = 'none'; 
+                    bar.style.width = '0%';
+                    loadFiles(); 
+                }, 1500);
+            } else {
+                alert("Upload Gagal");
+                area.style.display = 'none';
+            }
+        };
+        xhr.send(file);
+        
+        document.getElementById('fileInput').value = '';
     }
 
-    function changeView(mode, btn) {
-        document.getElementById('fileGrid').className = `file-grid mode-${mode}`;
-        document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+    function searchFiles() { applyFilters(); }
+
+    function filterByType(type, btn) {
+        currentFilter = type;
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
+        applyFilters();
     }
 
-    function closePreview() { document.getElementById('previewModal').style.display = 'none'; document.getElementById('modalBody').innerHTML = ''; }
+    function applyFilters() {
+        let filtered = allFilesData;
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        
+        if (query) filtered = filtered.filter(f => f.name.toLowerCase().includes(query));
+        
+        if (currentFilter !== 'all') {
+            filtered = filtered.filter(f => {
+                const icon = getIcon(f.name);
+                if (currentFilter === 'img') return icon === 'img';
+                if (currentFilter === 'video') return icon.includes('video');
+                if (currentFilter === 'doc') return !icon.includes('video') && icon !== 'img';
+            });
+        }
+        renderFiles(filtered);
+    }
 
-    window.deleteFile = async (name, sha) => {
-        if (!confirm('Hapus file permanen?')) return;
-        await fetch(`https://api.github.com/repos/${GITHUB.owner}/${GITHUB.repo}/contents/${GITHUB.path}/${name}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `token ${GITHUB.token}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: 'Delete', sha: sha })
+    window.renameFile = async (oldName) => {
+        let newName = prompt("Masukkan nama baru:", oldName);
+        if (!newName || newName === oldName) return;
+        
+        const oldExt = oldName.split('.').pop();
+        if (!newName.includes('.')) newName += `.${oldExt}`;
+
+        document.getElementById('fileCount').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
+        
+        await fetch(`${WORKER_URL}/${encodeURIComponent(oldName)}`, {
+            method: 'POST',
+            body: JSON.stringify({ action: "rename", newName: newName })
         });
         loadFiles();
     };
 
-    init();
+    window.copyLink = (url) => {
+        navigator.clipboard.writeText(url).then(() => {
+            alert("Tautan berhasil disalin ke clipboard!");
+        });
+    };
+
+    window.deleteFile = async (name) => {
+        if (!confirm(`Hapus file "${name}" secara permanen?`)) return;
+        
+        document.getElementById('fileCount').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menghapus...';
+        await fetch(`${WORKER_URL}/${encodeURIComponent(name)}`, { method: 'DELETE' });
+        loadFiles();
+    };
+
+    async function forceDownload(url, name) {
+        const res = await fetch(url);
+        const blob = await res.blob();
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = name;
+        a.click();
+    }
+
+    function changeView(mode, btn) {
+        document.getElementById('fileGrid').className = `file-grid mode-${mode}`;
+        
+        const btnGrid = document.getElementById('btnGrid');
+        const btnList = document.getElementById('btnList');
+        btnGrid.style.borderColor = 'var(--border)'; btnGrid.style.color = 'var(--text-sec)';
+        btnList.style.borderColor = 'var(--border)'; btnList.style.color = 'var(--text-sec)';
+        
+        btn.style.borderColor = 'var(--primary)';
+        btn.style.color = 'var(--primary)';
+    }
+
+    function closePreview() { 
+        document.getElementById('previewModal').style.display = 'none'; 
+        document.getElementById('modalBody').innerHTML = ''; 
+    }
+
+    // === INISIALISASI AWAL ===
+    document.getElementById('btnGrid').style.borderColor = 'var(--primary)';
+    document.getElementById('btnGrid').style.color = 'var(--primary)';
+
+    // Panggil file dari Cloudflare saat halaman dibuka
+    loadFiles();
 </script>
 </body>
 </html>
