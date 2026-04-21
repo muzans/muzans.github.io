@@ -83,7 +83,7 @@
         /* Copy Button (Kiri Penuh) */
         .copy-zone {
             width: 60px; display: flex; justify-content: center; align-items: center; cursor: pointer; 
-            font-size: 20px; flex-shrink: 0; align-self: stretch; border: none; outline: none;
+            font-size: 20px; flex-shrink: 0; align-self: stretch; border: none; outline: none; transition: background 0.2s, color 0.2s;
         }
         
         /* Konten Kanan */
@@ -96,7 +96,7 @@
         .badge-price { background: rgba(37, 99, 235, 0.15); color: var(--primary); }
         .badge-status { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
 
-        /* Admin Buttons (Lebih Rapi & Jelas) */
+        /* Admin Buttons */
         .admin-actions { display: none; gap: 8px; margin-left: 10px; align-items: center; }
         .btn-act { 
             width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); 
@@ -107,12 +107,13 @@
         .btn-pin.active { background: rgba(245, 158, 11, 0.15); color: var(--warning); border-color: var(--warning); }
         .btn-del:hover { border-color: var(--danger); color: var(--danger); background: rgba(239, 68, 68, 0.1); }
 
-        /* FLOATING BUTTON */
+        /* FLOATING BUTTON (Warna Primary agar kontras di Dark Mode) */
         .fab {
-            position: fixed; bottom: 30px; right: 30px; width: 56px; height: 56px; background: var(--text-dark); color: white;
-            border-radius: 50%; border: none; font-size: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            cursor: pointer; display: none; justify-content: center; align-items: center; z-index: 99;
+            position: fixed; bottom: 30px; right: 30px; width: 56px; height: 56px; background: var(--primary); color: white;
+            border-radius: 50%; border: none; font-size: 20px; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+            cursor: pointer; display: none; justify-content: center; align-items: center; transition: transform 0.2s; z-index: 99;
         }
+        .fab:hover { transform: scale(1.08); background: var(--primary-hover); }
 
         /* MODALS FORM */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(2px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; opacity: 0; transition: opacity 0.2s; }
@@ -160,7 +161,30 @@
             JSON_URL: "./kota.json", 
             HP_PREFIX: ['0811','0812','0813','0821','0822','0852','0815','0816','0857','0858','0817','0818','0819','0859','0877','0878','0895','0896','0897','0898'],
             BIG_CITIES: ["JAKARTA", "SURABAYA", "BANDUNG", "MEDAN", "SEMARANG", "MAKASSAR", "PALEMBANG", "DENPASAR", "BOGOR", "DEPOK", "TANGERANG", "BEKASI", "SIDOARJO", "MALANG", "SURAKARTA", "YOGYAKARTA"],
-            HEROES: ["Soekarno", "Hatta", "Sudirman", "Diponegoro", "Pattimura", "Imam Bonjol", "Teuku Umar", "Cut Nyak Dien", "Kartini", "Ki Hajar Dewantara", "Ahmad Yani", "Bung Tomo", "Sisingamangaraja", "Hasanuddin", "Antasari", "Agus Salim", "Hayam Wuruk", "Gajah Mada", "Raden Fatah", "Mulawarman", "Purnawarman", "Hasyim Asyari", "Wahid Hasyim", "Ahmad Dahlan", "Samanhudi", "Nuku", "Sultan Ageng Tirtayasa", "Sultan Syahrir", "Tan Malaka", "Mohammad Natsir", "Tjokroaminoto", "Sam Ratulangi", "Soetomo", "Cipto Mangunkusumo", "Dewi Sartika", "Nyi Ageng Serang", "Rasuna Said", "Fatmawati", "Yos Sudarso", "R.E. Martadinata", "Suprapto", "M.T. Haryono", "S. Parman", "D.I. Panjaitan", "Sutoyo Siswomiharjo", "Pierre Tendean", "Katamso", "Halim Perdanakusuma", "Iswahyudi", "Abdul Muis", "Ir. Juanda", "Slamet Riyadi", "Urip Sumohardjo", "Teuku Cik Ditiro", "Mahmud Badaruddin", "Raden Intan", "Sultan Thaha", "Iskandar Muda", "Teuku Nyak Arif", "Frans Kaisiepo", "Silas Papare", "Marthen Indey", "Johannes Dimara", "Opo Daeng Risaju", "Maria Walanda Maramis", "W.R. Supratman", "Ismail Marzuki", "Chairil Anwar", "Raden Saleh", "Affandi", "Zainal Mustofa", "Mas Mansyur", "Tirtayasa", "Nuruddin Ar-Raniry", "Hamzah Fansuri", "Syaikh Abdurrauf", "Syaikh Yusuf", "Syaikh Nawawi", "Ranggawarsita", "Suriyadi", "Dirgantara", "Soepeno", "Sutomo", "Suharto", "Gatot Subroto", "Veteran", "Pemuda", "Perintis Kemerdekaan", "Bahari", "Angkasa", "Bumi", "Nusantara"]
+            HEROES: ["Soekarno", "Hatta", "Sudirman", "Diponegoro", "Pattimura", "Imam Bonjol", "Teuku Umar", "Cut Nyak Dien", "Kartini", "Ki Hajar Dewantara", "Ahmad Yani", "Bung Tomo", "Sisingamangaraja", "Hasanuddin", "Antasari", "Agus Salim", "Hayam Wuruk", "Gajah Mada", "Raden Fatah", "Mulawarman", "Purnawarman", "Hasyim Asyari", "Wahid Hasyim", "Ahmad Dahlan", "Samanhudi", "Nuku", "Sultan Ageng Tirtayasa", "Sultan Syahrir", "Tan Malaka", "Mohammad Natsir", "Tjokroaminoto", "Sam Ratulangi", "Soetomo", "Cipto Mangunkusumo", "Dewi Sartika", "Nyi Ageng Serang", "Rasuna Said", "Fatmawati", "Yos Sudarso", "R.E. Martadinata", "Suprapto", "M.T. Haryono", "S. Parman", "D.I. Panjaitan", "Sutoyo Siswomiharjo", "Pierre Tendean", "Katamso", "Halim Perdanakusuma", "Iswahyudi", "Abdul Muis", "Ir. Juanda", "Slamet Riyadi", "Urip Sumohardjo", "Teuku Cik Ditiro", "Mahmud Badaruddin", "Raden Intan", "Sultan Thaha", "Iskandar Muda", "Teuku Nyak Arif", "Frans Kaisiepo", "Silas Papare", "Marthen Indey", "Johannes Dimara", "Opo Daeng Risaju", "Maria Walanda Maramis", "W.R. Supratman", "Ismail Marzuki", "Chairil Anwar", "Raden Saleh", "Affandi", "Zainal Mustofa", "Mas Mansyur", "Tirtayasa", "Nuruddin Ar-Raniry", "Hamzah Fansuri", "Syaikh Abdurrauf", "Syaikh Yusuf", "Syaikh Nawawi", "Ranggawarsita", "Suriyadi", "Dirgantara", "Soepeno", "Sutomo", "Suharto", "Gatot Subroto", "Veteran", "Pemuda", "Perintis Kemerdekaan", "Bahari", "Angkasa", "Bumi", "Nusantara"],
+            // 100 Daftar Patokan Realistis
+            PATOKAN: [
+                "Dekat Pos Kamling", "Pagar Hitam", "Cat Putih Pagar Hijau", "Depan Masjid", "Samping Indomaret", 
+                "Sebelah Warung Madura", "Depan SD", "Samping Bengkel Motor", "Ada Pohon Mangga di depan", "Pagar Biru", 
+                "Dekat Lapangan Voli", "Samping Bidan Desa", "Pintu Gerbang Coklat", "Dekat Gardu Listrik", "Depan Konter Pulsa", 
+                "Samping Cucian Motor", "Cat Rumah Kuning", "Pagar Kayu", "Sebelah Warung Kopi", "Depan TK", 
+                "Dekat Puskesmas", "Samping Toko Bangunan", "Pagar Stainless", "Depan Warung Makan", "Dekat Pertamini", 
+                "Ada Pohon Rambutan", "Cat Rumah Hijau", "Samping Alfamart", "Depan Apotek", "Dekat Jembatan", 
+                "Pagar Merah", "Samping Warnet", "Depan Fotokopi", "Dekat Kantor Desa", "Samping Kios Sayur", 
+                "Cat Rumah Abu-abu", "Pagar Bata Expose", "Sebelah Rumah Pak RT", "Depan Klinik", "Dekat Perempatan", 
+                "Samping Tukang Jahit", "Ada Warung Sembako", "Cat Rumah Biru", "Pagar Bambu", "Sebelah Kios Buah", 
+                "Depan Posyandu", "Dekat Pertigaan", "Samping Toko Plastik", "Rumah Tingkat Cat Putih", "Pagar Tembok Tinggi", 
+                "Sebelah Tukang Cukur", "Depan Lapangan Futsal", "Dekat Tower Telkomsel", "Samping Toko Elektronik", "Cat Rumah Pink", 
+                "Pagar Besi Bunga", "Sebelah Kios Galon", "Depan Bakso Budi", "Dekat Balai RT", "Samping Toko Roti", 
+                "Ada Kanopi Hitam", "Pagar Hijau Tua", "Sebelah Laundry", "Depan Toko Perabot", "Dekat Pangkalan Ojek", 
+                "Samping Grosir Beras", "Rumah Cat Cream", "Pagar Kuning", "Sebelah Kios Burung", "Depan Tukang Gigi", 
+                "Dekat Gudang", "Samping Toko Besi", "Ada Spanduk Jual Pulsa", "Pagar Coklat Tua", "Sebelah Toko Cat", 
+                "Depan Warung Sate", "Dekat Gapura Masuk", "Samping Toko Obat", "Cat Rumah Orange", "Pagar Kawat Harmonika", 
+                "Sebelah Toko Kosmetik", "Depan Rumah Bidan", "Dekat Lapangan Bola", "Samping Toko Ban", "Ada Jemuran Baju", 
+                "Pagar Besi Minimalis", "Sebelah Kios Ikan", "Depan Toko Sepatu", "Dekat Pos Ronda", "Samping Toko Baju", 
+                "Cat Rumah Ungu", "Pagar Batu Alam", "Sebelah Toko Oleh-oleh", "Depan Warung Pecel", "Dekat Halte", 
+                "Samping Kios Es", "Ada Rak Kayu di Depan", "Pagar Lisplang", "Sebelah Toko Kasur", "Depan Gudang Beras"
+            ]
         };
 
         if (!firebase.apps.length) { firebase.initializeApp(CONFIG.FIREBASE); }
@@ -358,6 +382,36 @@
         }
 
         // ==========================================
+        // SYSTEM COPY UNIVERSAL (Support Android Lama)
+        // ==========================================
+        function fallbackCopyTextToClipboard(text) {
+            var textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try { document.execCommand('copy'); } catch (err) { console.error('Fallback Copy Error', err); }
+            document.body.removeChild(textArea);
+        }
+
+        function executeCopy(text, successCallback) {
+            if (!navigator.clipboard) {
+                fallbackCopyTextToClipboard(text);
+                successCallback();
+                return;
+            }
+            navigator.clipboard.writeText(text).then(function() {
+                successCallback();
+            }).catch(function(err) {
+                fallbackCopyTextToClipboard(text);
+                successCallback();
+            });
+        }
+
+        // ==========================================
         // GENERATOR DATA ACAK
         // ==========================================
         function generateData() {
@@ -396,22 +450,30 @@
                 jalanRaw = dataW.jalan ? dataW.jalan : `Desa ${dataW.desa || dataW.kecamatan}`;
             }
 
+            // Tambahkan Patokan (Probabilitas 40%)
+            let patokan = "";
+            if (Math.random() < 0.4) {
+                patokan = ` (${CONFIG.PATOKAN[Math.floor(Math.random() * CONFIG.PATOKAN.length)]})`;
+            }
+
             const nama = toTitleCase(namaRaw);
             const prov = toTitleCase(dataW.provinsi || "");
             const kota = toTitleCase(dataW.kota || "").replace(/,\s*Kabupaten/gi, "").replace(/Kota Adm\.\s*/gi, "").replace(/Kota\s+/gi, "").replace(/Kabupaten\s+/gi, "Kab. ");
             const kec = toTitleCase(dataW.kecamatan || "");
-            const jalan = toTitleCase(jalanRaw).replace(/Jl\./gi, "Jl.").replace(/No\./gi, "No."); 
+            // Gabungkan patokan ke nama jalan
+            const jalan = toTitleCase(jalanRaw).replace(/Jl\./gi, "Jl.").replace(/No\./gi, "No.") + patokan; 
 
             const hasil = `${nama}, ${hp}, ${prov}, ${kota}, ${dataW.kodepos || "60111"}, ${jalan}, Kec. ${kec}`;
             
             const out = document.getElementById('output-data');
             out.value = hasil;
-            navigator.clipboard.writeText(hasil).catch(() => {});
-            
-            const btn = document.getElementById('btn-generate');
-            const originalHtml = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-check"></i> Acak Data';
-            setTimeout(() => { btn.innerHTML = originalHtml; }, 1000);
+
+            executeCopy(hasil, function() {
+                const btn = document.getElementById('btn-generate');
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+                setTimeout(() => { btn.innerHTML = originalHtml; }, 1000);
+            });
         }
 
         // ==========================================
@@ -427,8 +489,10 @@
             regs.sort((a, b) => {
                 if(a.pinnedAt && !b.pinnedAt) return -1;
                 if(!a.pinnedAt && b.pinnedAt) return 1;
-                if(a.pinnedAt && b.pinnedAt) return b.pinnedAt - a.pinnedAt;
-                return (b.updatedAt || b.createdAt) - (a.updatedAt || a.createdAt);
+                if(a.pinnedAt && b.pinnedAt) return Number(b.pinnedAt) - Number(a.pinnedAt);
+                const timeA = Number(a.updatedAt || a.createdAt || 0);
+                const timeB = Number(b.updatedAt || b.createdAt || 0);
+                return timeB - timeA;
             });
 
             // KARTU ACAK
@@ -473,11 +537,10 @@
                 let badges = '';
                 if(d.status) badges += `<span class="badge badge-status">${d.status.toUpperCase()}</span>`;
                 if(d.price) badges += `<span class="badge badge-price">${d.price}</span>`;
-                // Default subtitle jika tidak ada badge agar ukuran sama dengan kartu acak
                 if(!badges) badges = `<span style="font-size:10px; opacity:0;">.</span>`;
 
                 el.innerHTML = `
-                    <button class="copy-zone" style="background: ${d.pinnedAt ? 'var(--warning)' : accent}; color: white; border-right: 2px solid ${d.pinnedAt ? 'var(--warning)' : accent};" onclick="copyText(event, '${d.url}', this)">
+                    <button class="copy-zone" style="background: ${d.pinnedAt ? 'var(--warning)' : accent}; color: white; border-right: 2px solid ${d.pinnedAt ? 'var(--warning)' : accent};" onclick="copyCardLink(event, '${d.url}', this)">
                         <i class="fa-regular fa-copy"></i>
                     </button>
                     <div class="content-zone" onclick="window.open('${d.url}', '_blank')">
@@ -498,12 +561,13 @@
         // ==========================================
         // FUNGSI KLIK & CRUD ADMIN
         // ==========================================
-        function copyText(e, text, btn) {
+        function copyCardLink(e, text, btn) {
             e.stopPropagation();
-            navigator.clipboard.writeText(text).catch(()=>{});
-            const originalHTML = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-check"></i>';
-            setTimeout(() => { btn.innerHTML = originalHTML; }, 1000);
+            executeCopy(text, function() {
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+                setTimeout(() => { btn.innerHTML = originalHTML; }, 1000);
+            });
         }
 
         function copyRandom(e, btn) {
@@ -511,7 +575,10 @@
             const data = dbShopee['ID_RANDOM_LOCKED'];
             if(!data || !data.url) return;
             const links = data.url.split('\n').map(l=>l.trim()).filter(l=>l.startsWith('http'));
-            if(links.length > 0) copyText(e, links[Math.floor(Math.random() * links.length)], btn);
+            if(links.length > 0) {
+                const acakLink = links[Math.floor(Math.random() * links.length)];
+                copyCardLink(e, acakLink, btn);
+            }
         }
 
         function openRandom() {
@@ -576,7 +643,9 @@
             document.getElementById('modal-form').classList.add('active');
         }
 
-        function togglePin(key, isPinned) { db.ref('linkshopee/'+key).update({ pinnedAt: isPinned ? null : Date.now() }); }
+        function togglePin(key, isPinned) { 
+            db.ref('linkshopee/'+key).update({ pinnedAt: isPinned ? null : Date.now() }); 
+        }
 
         async function deleteCard(key) { 
             const confirm = await customAlert("Hapus Kartu", "Yakin ingin menghapus link ini secara permanen?", "confirm");
