@@ -67,8 +67,9 @@
         .mode-list { grid-template-columns: 1fr; }
 
         /* Card Styles */
-        .file-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; display: flex; flex-direction: column; transition: 0.2s ease; box-shadow: var(--shadow-sm); }
-        .file-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: #cbd5e1; }
+        .file-card { background: var(--surface); border-radius: var(--radius-md); overflow: hidden; display: flex; flex-direction: column; transition: 0.2s ease; box-shadow: var(--shadow-sm); }
+        /* Dihapus: border-color: #cbd5e1 pada hover, agar tidak menimpa warna border JS */
+        .file-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); } 
         
         .mode-list .file-card { flex-direction: row; align-items: center; padding: 12px 16px; height: auto; }
 
@@ -183,15 +184,34 @@
         if (['jpg','jpeg','png','gif','webp'].includes(ext)) return 'img';
         if (['mp4','webm','mkv','mov'].includes(ext)) return 'fa-solid fa-file-video';
         if (['zip','rar','7z'].includes(ext)) return 'fa-solid fa-file-zipper';
-        if (ext === 'apk') return 'fa-brands fa-android';
+        if (['apk','apks','xapk'].includes(ext)) return 'fa-brands fa-android';
         if (ext === 'pdf') return 'fa-solid fa-file-pdf';
         if (['doc','docx','xls','xlsx'].includes(ext)) return 'fa-solid fa-file-word';
         if (['html','txt','js','css','json'].includes(ext)) return 'fa-solid fa-file-code';
+        if (['mp3','wav','ogg'].includes(ext)) return 'fa-solid fa-music';
         return 'fa-solid fa-file';
     }
 
+    // Fungsi warna border berdasarkan jenis/ekstensi
+    function getBorderColor(name) {
+        const ext = name.split('.').pop().toLowerCase();
+        
+        // Biru: Gambar
+        if (['jpg','jpeg','png','gif','webp'].includes(ext)) return '#3b82f6';
+        // Hijau: APK/APKS/XAPK
+        if (['apk','apks','xapk'].includes(ext)) return '#10b981';
+        // Kuning: Archive
+        if (['zip','rar','7z','tar','gz'].includes(ext)) return '#eab308';
+        // Ungu: Video
+        if (['mp4','webm','mkv','mov','avi'].includes(ext)) return '#a855f7';
+        // Kuning: Audio
+        if (['mp3','wav','ogg','m4a'].includes(ext)) return '#eab308';
+        
+        // Merah: Ekstensi lain
+        return '#ef4444';
+    }
+
     async function loadFiles() {
-        // Cek jika pengguna lupa ganti URL
         if(!WORKER_URL || WORKER_URL.includes("username.workers.dev")) {
             document.getElementById('fileCount').className = 'status-badge error';
             document.getElementById('fileCount').innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Ganti URL Worker dulu di script';
@@ -229,8 +249,14 @@
             const dateObj = new Date(file.uploaded);
             const dateStr = dateObj.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
             
+            // Ambil warna border berdasarkan tipe ekstensi file
+            const cardBorderColor = getBorderColor(file.name);
+            
             const card = document.createElement('div');
             card.className = 'file-card';
+            // Terapkan border tebal (3px) dengan warnanya secara inline
+            card.style.border = `3px solid ${cardBorderColor}`;
+            
             card.innerHTML = `
                 <div class="preview-box" onclick="handlePreview('${file.download_url}', '${file.name}')">
                     ${type === 'img' ? `<img src="${file.download_url}" loading="lazy">` : `<i class="${type}"></i>`}
@@ -243,9 +269,9 @@
                     </div>
                 </div>
                 <div class="actions">
-                    <button class="btn-action" onclick="copyLink('${file.download_url}')" title="Copy Link"><i class="fa-solid fa-link"></i></button>
+                    <button class="btn-action" onclick="copyLink('${file.download_url}', this)" title="Copy Link"><i class="fa-solid fa-link"></i></button>
                     <button class="btn-action" onclick="renameFile('${file.name}')" title="Rename"><i class="fa-solid fa-pen-to-square"></i></button>
-                    <button class="btn-action" onclick="forceDownload('${file.download_url}', '${file.name}')" title="Download"><i class="fa-solid fa-download"></i></button>
+                    <button class="btn-action" onclick="forceDownload('${file.download_url}', '${file.name}', this)" title="Download"><i class="fa-solid fa-download"></i></button>
                     <button class="btn-action delete" onclick="deleteFile('${file.name}')" title="Hapus"><i class="fa-solid fa-trash-can"></i></button>
                 </div>
             `;
@@ -268,7 +294,7 @@
             body.innerHTML = `<iframe src="${url}" style="width:100%; height:100%; border:none; border-radius: 8px; background:white;"></iframe>`;
         } else {
             modal.style.display = 'none';
-            if(confirm("Preview tidak tersedia untuk format ini. Ingin mendownloadnya?")) window.open(url, '_blank');
+            if(confirm("Preview tidak tersedia untuk format ini. Ingin mendownloadnya?")) forceDownload(url, name, null);
         }
     }
 
@@ -341,7 +367,7 @@
     }
 
     window.renameFile = async (oldName) => {
-        let newName = prompt("Masukkan nama baru:", oldName);
+        let newName = prompt("Masukkan nama baru di Cloud (Akan mengubah link):", oldName);
         if (!newName || newName === oldName) return;
         
         const oldExt = oldName.split('.').pop();
@@ -356,9 +382,18 @@
         loadFiles();
     };
 
-    window.copyLink = (url) => {
+    window.copyLink = (url, btnElement) => {
         navigator.clipboard.writeText(url).then(() => {
-            alert("Tautan berhasil disalin ke clipboard!");
+            if(btnElement) {
+                const originalHTML = btnElement.innerHTML;
+                btnElement.style.color = '#10b981';
+                btnElement.innerHTML = '<i class="fa-solid fa-check"></i>';
+                
+                setTimeout(() => {
+                    btnElement.style.color = '';
+                    btnElement.innerHTML = originalHTML;
+                }, 2000);
+            }
         });
     };
 
@@ -370,13 +405,53 @@
         loadFiles();
     };
 
-    async function forceDownload(url, name) {
-        const res = await fetch(url);
-        const blob = await res.blob();
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = name;
-        a.click();
+    window.forceDownload = async (url, originalName, btnElement) => {
+        const lastDotIndex = originalName.lastIndexOf('.');
+        const ext = lastDotIndex !== -1 ? originalName.substring(lastDotIndex) : '';
+        const nameWithoutExt = lastDotIndex !== -1 ? originalName.substring(0, lastDotIndex) : originalName;
+
+        let userDefinedName = prompt("Simpan file sebagai (ekstensi akan otomatis menyesuaikan):", nameWithoutExt);
+        if (userDefinedName === null) return; 
+
+        let finalName = userDefinedName;
+        if (!finalName.endsWith(ext)) {
+            if(finalName.includes('.')) {
+                finalName = finalName.substring(0, finalName.lastIndexOf('.'));
+            }
+            finalName += ext;
+        }
+
+        let originalHTML = '';
+        if (btnElement) {
+            originalHTML = btnElement.innerHTML;
+            btnElement.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+            btnElement.disabled = true;
+        }
+
+        try {
+            const res = await fetch(url);
+            const data = await res.blob();
+            
+            const blob = new Blob([data], { type: 'application/octet-stream' });
+            
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = finalName;
+            
+            document.body.appendChild(a);
+            a.click();
+            
+            document.body.removeChild(a);
+            URL.revokeObjectURL(a.href);
+        } catch (error) {
+            console.error("Download failed:", error);
+            alert("Terjadi kesalahan saat mendownload file.");
+        } finally {
+            if (btnElement) {
+                btnElement.innerHTML = originalHTML;
+                btnElement.disabled = false;
+            }
+        }
     }
 
     function changeView(mode, btn) {
@@ -400,7 +475,6 @@
     document.getElementById('btnGrid').style.borderColor = 'var(--primary)';
     document.getElementById('btnGrid').style.color = 'var(--primary)';
 
-    // Panggil file dari Cloudflare saat halaman dibuka
     loadFiles();
 </script>
 </body>
