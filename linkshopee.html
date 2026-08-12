@@ -151,15 +151,20 @@
 
     <script>
         const CONFIG = {
+            // ==============================================================
+            // FILTER WILAYAH
+            // Ubah true menjadi false jika ingin semua wilayah (Global)
+            // ==============================================================
+            FILTER_HANYA_JAWA: true,
+
             FIREBASE: {
-            apiKey: "AIzaSyCZc40pOjfeLypO1WSUv9W07Z4w-_QyuS0",
-            authDomain: "nasik-4c6de.firebaseapp.com",
-            databaseURL: "https://nasik-4c6de-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "nasik-4c6de",
-            storageBucket: "nasik-4c6de.firebasestorage.app",
-            messagingSenderId: "895802509276",
-            appId: "1:895802509276:web:a5979cebfc8793d2913119"
-         };
+                apiKey: "AIzaSyCZc40pOjfeLypO1WSUv9W07Z4w-_QyuS0",
+                authDomain: "nasik-4c6de.firebaseapp.com",
+                databaseURL: "https://nasik-4c6de-default-rtdb.asia-southeast1.firebasedatabase.app",
+                projectId: "nasik-4c6de",
+                storageBucket: "nasik-4c6de.firebasestorage.app",
+                messagingSenderId: "895802509276",
+                appId: "1:895802509276:web:a5979cebfc8793d2913119"
             },
             JSON_URL: "./kota.json", 
             HP_PREFIX: ['0811','0812','0813','0821','0822','0852','0815','0816','0857','0858','0817','0818','0819','0859','0877','0878','0895','0896','0897','0898'],
@@ -435,15 +440,30 @@
             const prx = CONFIG.HP_PREFIX[Math.floor(Math.random() * CONFIG.HP_PREFIX.length)];
             const hp = prx + Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
 
+            // =============================================
+            // LOGIK FILTER BERDASARKAN VARIABEL CONFIG
+            // =============================================
+            let baseWilayah = dbWilayah;
+
+            if (CONFIG.FILTER_HANYA_JAWA === true) {
+                const jawaProvinces = ['JAWA TIMUR', 'JAWA TENGAH', 'JAWA BARAT', 'DKI JAKARTA', 'BANTEN', 'DI YOGYAKARTA', 'YOGYAKARTA'];
+                baseWilayah = dbWilayah.filter(w => jawaProvinces.some(j => (w.provinsi || "").toUpperCase().includes(j)));
+                
+                // Fallback jika tidak ada hasil yang valid
+                if (baseWilayah.length === 0) baseWilayah = dbWilayah;
+            }
+
             let wTarget = [];
             if(Math.random() < 0.30) {
-                wTarget = dbWilayah.filter(w => CONFIG.BIG_CITIES.some(kb => (w.kota||"").toUpperCase().includes(kb)));
-                if(wTarget.length === 0) wTarget = dbWilayah;
+                wTarget = baseWilayah.filter(w => CONFIG.BIG_CITIES.some(kb => (w.kota||"").toUpperCase().includes(kb)));
+                if(wTarget.length === 0) wTarget = baseWilayah;
             } else {
-                wTarget = dbWilayah.filter(w => !CONFIG.BIG_CITIES.some(kb => (w.kota||"").toUpperCase().includes(kb)));
-                if(wTarget.length === 0) wTarget = dbWilayah;
+                wTarget = baseWilayah.filter(w => !CONFIG.BIG_CITIES.some(kb => (w.kota||"").toUpperCase().includes(kb)));
+                if(wTarget.length === 0) wTarget = baseWilayah;
             }
+            
             const dataW = wTarget[Math.floor(Math.random() * wTarget.length)];
+            // =============================================
 
             let jalanRaw = "";
             if(Math.random() < 0.5) {
