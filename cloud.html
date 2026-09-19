@@ -4,35 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Cloud Storage</title>
+    
+    <!-- FIREBASE SDK (V8 Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
     <style>
         :root { 
             --bg-base: #f8fafc;
             --surface: #ffffff;
             --surface-subtle: #f1f5f9;
             --border-light: #e2e8f0;
-            
             --text-primary: #0f172a;
             --text-secondary: #475569;
             --text-muted: #94a3b8;
-            
             --brand: #4f46e5;
             --brand-hover: #4338ca;
             --brand-light: #eef2ff;
             --brand-glow: rgba(79, 70, 229, 0.2);
-            
             --danger: #ef4444;
             --danger-light: #fef2f2;
             --success: #10b981;
             --success-light: #ecfdf5;
-            
+            --warning: #f59e0b; /* Warna kuning bintang */
             --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
             --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07);
             --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.1);
-            
             --radius-sm: 8px;
             --radius-md: 12px;
             --radius-lg: 16px;
@@ -41,164 +43,102 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg-base); color: var(--text-primary); line-height: 1.5; -webkit-font-smoothing: antialiased; }
-        
         .main-container { max-width: 1200px; margin: 0 auto; padding: 24px 20px 100px; }
 
-        /* HEADER APP (MINIMALIST) */
-        .app-header {
-            background: var(--surface);
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius-xl);
-            padding: 16px 20px;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow-sm);
-        }
-
-        /* 1. TOP TOOLBAR (View & Stats) */
-        .top-toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--border-light);
-        }
-
+        /* HEADER APP */
+        .app-header { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 16px 20px; margin-bottom: 20px; box-shadow: var(--shadow-sm); }
+        .top-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border-light); }
         .view-toggle-group { display: flex; background: var(--surface-subtle); padding: 4px; border-radius: var(--radius-md); }
         .btn-view { width: 34px; height: 34px; border-radius: 8px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; transition: 0.2s; }
         .btn-view.active { background: var(--surface); color: var(--brand); box-shadow: var(--shadow-sm); }
-
         .stats-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
-        .stat-pill {
-            padding: 6px 12px; background: var(--surface-subtle); border-radius: var(--radius-xl);
-            font-size: 0.8rem; font-weight: 700; color: var(--text-secondary);
-            display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
-        }
+        .stat-pill { padding: 6px 12px; background: var(--surface-subtle); border-radius: var(--radius-xl); font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
         .stat-pill.info { background: var(--brand-light); color: var(--brand); }
         .stat-pill.success { background: var(--success-light); color: var(--success); }
-
-        .btn-upload-desktop {
-            background: var(--brand); color: #ffffff;
-            padding: 8px 16px; border-radius: var(--radius-md);
-            cursor: pointer; font-weight: 700; font-size: 0.85rem;
-            display: inline-flex; align-items: center; gap: 8px;
-            transition: 0.2s; border: none;
-        }
+        .btn-upload-desktop { background: var(--brand); color: #ffffff; padding: 8px 16px; border-radius: var(--radius-md); cursor: pointer; font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; border: none; }
         .btn-upload-desktop:hover { background: var(--brand-hover); }
 
-        /* FLOATING ACTION BUTTON (MOBILE UPLOAD) */
-        .fab-upload {
-            display: none; position: fixed;
-            bottom: 24px; right: 24px;
-            width: 56px; height: 56px;
-            background: linear-gradient(135deg, var(--brand), #6366f1);
-            color: white; border-radius: 50%;
-            align-items: center; justify-content: center;
-            font-size: 1.5rem; box-shadow: var(--shadow-lg);
-            z-index: 1000; cursor: pointer; transition: 0.2s;
-        }
+        /* FAB */
+        .fab-upload { display: none; position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; background: linear-gradient(135deg, var(--brand), #6366f1); color: white; border-radius: 50%; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: var(--shadow-lg); z-index: 1000; cursor: pointer; transition: 0.2s; }
         .fab-upload:active { transform: scale(0.95); }
 
-        /* 2. SEARCH, SORT, REFRESH (COMPACT GRID) */
-        .toolbar-grid {
-            display: flex; gap: 12px; align-items: center;
-            margin-bottom: 16px;
-        }
+        /* TOOLBAR */
+        .toolbar-grid { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; }
         .search-wrapper { position: relative; flex: 1; }
         .search-wrapper i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
-        .search-wrapper input {
-            width: 100%; padding: 10px 16px 10px 42px;
-            border-radius: var(--radius-md); border: 1px solid var(--border-light);
-            background: var(--surface-subtle); color: var(--text-primary);
-            font-size: 0.88rem; outline: none; transition: 0.2s;
-        }
+        .search-wrapper input { width: 100%; padding: 10px 16px 10px 42px; border-radius: var(--radius-md); border: 1px solid var(--border-light); background: var(--surface-subtle); color: var(--text-primary); font-size: 0.88rem; outline: none; transition: 0.2s; }
         .search-wrapper input:focus { border-color: var(--brand); background: var(--surface); box-shadow: 0 0 0 3px var(--brand-glow); }
-
-        .sort-wrapper {
-            position: relative; display: flex; align-items: center;
-            background: var(--surface-subtle); border: 1px solid var(--border-light);
-            border-radius: var(--radius-md); padding: 0 12px; transition: 0.2s;
-        }
+        .sort-wrapper { position: relative; display: flex; align-items: center; background: var(--surface-subtle); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 0 12px; transition: 0.2s; }
         .sort-wrapper:hover { border-color: var(--brand); background: var(--surface); }
         .sort-wrapper i { color: var(--brand); font-size: 0.85rem; margin-right: 6px; }
-        .sort-select {
-            padding: 10px 16px 10px 0; border: none; background: transparent;
-            color: var(--text-primary); font-size: 0.82rem; font-weight: 600;
-            outline: none; cursor: pointer; appearance: none; width: 100%;
-        }
-
-        .btn-refresh {
-            width: 40px; height: 40px; border-radius: var(--radius-md);
-            background: var(--surface-subtle); border: 1px solid var(--border-light);
-            color: var(--text-secondary); cursor: pointer; display: flex;
-            align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0;
-        }
+        .sort-select { padding: 10px 16px 10px 0; border: none; background: transparent; color: var(--text-primary); font-size: 0.82rem; font-weight: 600; outline: none; cursor: pointer; appearance: none; width: 100%; }
+        .btn-refresh { width: 40px; height: 40px; border-radius: var(--radius-md); background: var(--surface-subtle); border: 1px solid var(--border-light); color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0; }
         .btn-refresh:hover { color: var(--brand); border-color: var(--brand); background: var(--surface); }
 
-        /* 3. FILTERS */
+        /* FILTERS */
         .filter-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
         .filter-tabs::-webkit-scrollbar { display: none; }
-        .filter-pill {
-            padding: 6px 16px; border-radius: var(--radius-xl); border: 1px solid var(--border-light);
-            background: var(--surface); color: var(--text-secondary);
-            font-size: 0.8rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: 0.2s;
-        }
+        .filter-pill { padding: 6px 16px; border-radius: var(--radius-xl); border: 1px solid var(--border-light); background: var(--surface); color: var(--text-secondary); font-size: 0.8rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: 0.2s; }
         .filter-pill:hover { background: var(--surface-subtle); }
         .filter-pill.active { background: var(--brand-light); color: var(--brand); border-color: var(--brand-glow); }
 
         /* UPLOAD PROGRESS */
-        #uploadArea {
-            background: var(--surface); border: 1px solid var(--border-light);
-            border-radius: var(--radius-lg); padding: 14px 18px; margin-bottom: 20px;
-            display: none; box-shadow: var(--shadow-sm); border-left: 4px solid var(--brand);
-        }
+        #uploadArea { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 14px 18px; margin-bottom: 20px; display: none; box-shadow: var(--shadow-sm); border-left: 4px solid var(--brand); }
         .progress-track { background: var(--surface-subtle); height: 6px; border-radius: 4px; margin-top: 8px; overflow: hidden; }
         #progressBar { background: linear-gradient(90deg, var(--brand), #818cf8); height: 100%; width: 0%; transition: width 0.2s ease; }
 
-        /* FILE GRID & CARDS */
+        /* FILE CARDS & GRID */
         .file-grid { display: grid; gap: 14px; }
         .mode-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
         .mode-list { grid-template-columns: 1fr; }
-
         .file-card { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); overflow: hidden; display: flex; flex-direction: column; transition: 0.2s; box-shadow: var(--shadow-sm); position: relative; }
         .file-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: #cbd5e1; }
-
+        
         .preview-box { height: 120px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; cursor: pointer; border-bottom: 1px solid var(--border-light); }
         .preview-box img { width: 100%; height: 100%; object-fit: cover; transition: 0.3s; }
         .file-card:hover .preview-box img { transform: scale(1.05); }
         .file-icon-wrapper { width: 50px; height: 50px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
         
-        .badge-type { position: absolute; top: 8px; right: 8px; padding: 3px 6px; border-radius: 6px; font-size: 0.6rem; font-weight: 800; background: rgba(255,255,255,0.9); box-shadow: 0 2px 4px rgba(0,0,0,0.05); backdrop-filter: blur(4px); }
+        /* MODIFIKASI: Kontainer Bintang + Badge Tipe File (Kanan Atas) */
+        .top-right-badges { position: absolute; top: 8px; right: 8px; display: flex; gap: 6px; align-items: center; z-index: 10; }
+        .btn-star { background: rgba(255,255,255,0.9); border: none; border-radius: 6px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); backdrop-filter: blur(4px); color: var(--text-muted); transition: 0.2s; }
+        .btn-star:hover { transform: scale(1.15); color: var(--warning); }
+        .btn-star.active { color: var(--warning); }
+        .badge-type { padding: 3px 6px; border-radius: 6px; font-size: 0.6rem; font-weight: 800; background: rgba(255,255,255,0.9); box-shadow: 0 2px 4px rgba(0,0,0,0.05); backdrop-filter: blur(4px); }
 
         .file-info { padding: 12px; flex-grow: 1; min-width: 0; }
         .file-name { font-size: 0.85rem; font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; margin-bottom: 4px; }
         .file-meta { font-size: 0.72rem; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; }
         .file-size-tag { color: var(--brand); font-weight: 700; background: var(--brand-light); padding: 2px 6px; border-radius: 4px; }
-
-        /* Tombol Aksi */
+        
+        /* ACTIONS */
         .actions { display: flex; background: var(--surface); border-top: 1px solid var(--border-light); }
         .btn-action { flex: 1; padding: 10px 0; border: none; background: transparent; color: var(--text-secondary); cursor: pointer; transition: 0.2s; font-size: 0.95rem; position: relative; }
         .mode-grid .btn-action:not(:last-child)::after { content: ''; position: absolute; right: 0; top: 25%; height: 50%; width: 1px; background: var(--border-light); }
         .btn-action:hover { color: var(--brand); background: var(--surface-subtle); }
         .btn-action.delete:hover { color: var(--danger); background: var(--danger-light); }
+        
+        /* Mode Grid: Sembunyikan tombol bintang di area bawah (karena sudah ada di atas) */
+        .mode-grid .actions .btn-action.star-action { display: none; }
 
         /* Mode List */
         .mode-list .file-card { flex-direction: row; align-items: center; padding: 10px; }
         .mode-list .preview-box { height: 44px; width: 44px; border-radius: 8px; border: none; margin-right: 14px; flex-shrink: 0; }
-        .mode-list .badge-type { display: none; }
+        /* Di mode List, kita sembunyikan top badge agar rapi, dan pakai tombol star di .actions */
+        .mode-list .top-right-badges { display: none; }
         .mode-list .file-icon-wrapper { width: 100%; height: 100%; font-size: 1.1rem; }
         .mode-list .file-info { padding: 0; }
         .mode-list .file-meta { justify-content: flex-start; gap: 12px; }
         .mode-list .actions { border: none; margin-left: auto; gap: 6px; }
         .mode-list .btn-action { width: 34px; height: 34px; padding: 0; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
         .mode-list .btn-action::after { display: none !important; }
+        .mode-list .btn-action.star-action.active { color: var(--warning); }
 
-        /* Empty State */
         .empty-state { text-align: center; padding: 50px 20px; background: var(--surface); border-radius: var(--radius-lg); border: 2px dashed var(--border-light); grid-column: 1 / -1; }
         .empty-state i { font-size: 3rem; color: var(--border-light); margin-bottom: 12px; }
         .empty-state h3 { font-size: 1.1rem; color: var(--text-primary); }
 
-        /* MODALS & TOAST */
+        /* MODALS */
         #customDialog { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(15,23,42,0.6); align-items: center; justify-content: center; backdrop-filter: blur(4px); padding: 20px; }
         .dialog-card { background: var(--surface); padding: 20px; border-radius: var(--radius-lg); width: 100%; max-width: 360px; box-shadow: var(--shadow-lg); animation: pop 0.2s ease-out; }
         .dialog-title { font-size: 1.1rem; font-weight: 800; margin-bottom: 6px; }
@@ -221,47 +161,32 @@
 
         @keyframes pop { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-        /* =========================================
-           RESPONSIVE MOBILE STYLES (MINIMALIST)
-           ========================================= */
         @media (max-width: 768px) {
             .main-container { padding: 12px 12px 90px; }
             .app-header { padding: 14px; border-radius: var(--radius-lg); margin-bottom: 16px; }
-            
-            /* Sembunyikan elemen opsional & tombol desktop */
             .hide-mobile { display: none !important; }
             .btn-upload-desktop { display: none; }
-            .fab-upload { display: flex; } /* Tampilkan FAB */
-
-            /* Bar Atas: Toggles & Stats (Kecil & Rapat) */
+            .fab-upload { display: flex; }
             .top-toolbar { margin-bottom: 12px; padding-bottom: 12px; }
             .stats-group { gap: 6px; }
             .stat-pill { padding: 4px 10px; font-size: 0.75rem; }
-
-            /* Grid Search & Sort (Susun Rapat) */
             .toolbar-grid { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-bottom: 12px; }
-            .search-wrapper { grid-column: 1 / 3; } /* Kolom atas full-width */
-            .sort-wrapper { grid-column: 1 / 2; width: 100%; } /* Kiri bawah */
-            .btn-refresh { grid-column: 2 / 3; } /* Kanan bawah */
-
-            /* Teks diperkecil agar tidak memakan layar */
+            .search-wrapper { grid-column: 1 / 3; }
+            .sort-wrapper { grid-column: 1 / 2; width: 100%; }
+            .btn-refresh { grid-column: 2 / 3; }
             .file-name { font-size: 0.8rem; }
             .mode-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
-            
-            /* Posisi Toast agar tidak menutupi FAB */
             #toastContainer { bottom: 90px; }
         }
     </style>
 </head>
 <body>
 
-<!-- FAB Upload (Khusus HP) -->
 <label class="fab-upload" title="Unggah File">
     <i class="fa-solid fa-plus"></i>
     <input type="file" id="fileInputMobile" multiple hidden onchange="handleFileSelection(event)">
 </label>
 
-<!-- Modal Preview & Dialog -->
 <div id="previewModal">
     <div class="modal-content">
         <button class="close-modal" onclick="closePreview()"><i class="fa-solid fa-xmark"></i></button>
@@ -285,18 +210,14 @@
 
 <div class="main-container">
     <header class="app-header">
-        
-        <!-- 1. Toolbar Atas (View & Info Kuota) -->
         <div class="top-toolbar">
             <div class="view-toggle-group">
                 <button class="btn-view active" onclick="changeView('grid', this)" id="btnGrid"><i class="fa-solid fa-grid-2"></i></button>
                 <button class="btn-view" onclick="changeView('list', this)" id="btnList"><i class="fa-solid fa-list-ul"></i></button>
             </div>
-            
             <div class="stats-group">
                 <div id="storageSummary" class="stat-pill info" style="display:none;"></div>
                 <div id="fileCount" class="stat-pill success"><i class="fa-solid fa-circle-notch fa-spin"></i></div>
-                <!-- Tombol Upload (Desktop) -->
                 <label class="btn-upload-desktop">
                     <i class="fa-solid fa-cloud-arrow-up"></i> Upload
                     <input type="file" id="fileInputDesktop" multiple hidden onchange="handleFileSelection(event)">
@@ -304,13 +225,11 @@
             </div>
         </div>
 
-        <!-- 2. Alat Pencarian & Pengurutan -->
         <div class="toolbar-grid">
             <div class="search-wrapper">
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <input type="text" id="searchInput" placeholder="Cari file..." onkeyup="searchFiles()">
             </div>
-            
             <div class="sort-wrapper">
                 <i class="fa-solid fa-arrow-down-short-wide"></i>
                 <select id="sortSelect" class="sort-select" onchange="applyFilters()">
@@ -325,9 +244,10 @@
             <button class="btn-refresh" onclick="loadFiles()" title="Refresh"><i class="fa-solid fa-rotate-right"></i></button>
         </div>
         
-        <!-- 3. Tab Filter File -->
         <div class="filter-tabs">
             <button class="filter-pill active" onclick="filterByType('all', this)">Semua</button>
+            <!-- TAB FAVORIT DITAMBAHKAN DI SINI -->
+            <button class="filter-pill" onclick="filterByType('favorite', this)"><i class="fa-solid fa-star" style="margin-right:4px; color:var(--warning)"></i>Favorit</button>
             <button class="filter-pill" onclick="filterByType('img', this)"><i class="fa-regular fa-image" style="margin-right:4px"></i>Foto</button>
             <button class="filter-pill" onclick="filterByType('video', this)"><i class="fa-solid fa-video" style="margin-right:4px"></i>Video</button>
             <button class="filter-pill" onclick="filterByType('doc', this)"><i class="fa-regular fa-file-lines" style="margin-right:4px"></i>Dokumen</button>
@@ -348,9 +268,64 @@
 </div>
 
 <script>
-    // =========================================
-    // PASTIKAN URL WORKER ANDA BENAR DI SINI
-    // =========================================
+    // ==========================================
+    // 1. KONFIGURASI FIREBASE (GANTI DENGAN MILIK ANDA)
+    // ==========================================
+    const firebaseConfig = {
+                apiKey: "AIzaSyCSjZ7ay8kUYXJ_3Jqnke3uvTRtwpgCws0",
+                authDomain: "sms-xurel.firebaseapp.com",
+                databaseURL: "https://sms-xurel-default-rtdb.asia-southeast1.firebasedatabase.app",
+                projectId: "sms-xurel",
+                storageBucket: "sms-xurel.firebasestorage.app",
+                messagingSenderId: "486134590584",
+                appId: "1:486134590584:web:cac02f4429e0432c05518d",
+                measurementId: "G-RV5ZSH1EG6"
+    };
+
+    // Inisialisasi Firebase
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const database = firebase.database();
+    
+    // Set untuk menyimpan file mana saja yang difavoritkan
+    let favoritedFiles = new Set();
+
+    // Fungsi untuk membuat nama file aman dijadikan key (Firebase melarang karakter '.', '#', '$', dll)
+    function encodeFirebaseKey(name) {
+        return encodeURIComponent(name).replace(/\./g, '%2E').replace(/\#/g, '%23').replace(/\$/g, '%24').replace(/\[/g, '%5B').replace(/\]/g, '%5D');
+    }
+
+    // Listener Realtime: Mengambil daftar favorit saat web dimuat & saat ada perubahan
+    database.ref('favorites').on('value', (snapshot) => {
+        const data = snapshot.val();
+        favoritedFiles.clear();
+        if (data) {
+            Object.keys(data).forEach(key => favoritedFiles.add(decodeURIComponent(key.replace(/%2E/g, '.').replace(/%23/g, '#').replace(/%24/g, '$').replace(/%5B/g, '[').replace(/%5D/g, ']'))));
+        }
+        // Render ulang file jika daftar sudah berhasil di-load dari worker
+        if (allFilesData.length > 0) applyFilters();
+    });
+
+    // Fungsi klik toggle Favorit
+    function toggleFavorite(event, name) {
+        event.stopPropagation(); // Mencegah preview terbuka saat klik bintang
+        const safeKey = encodeFirebaseKey(name);
+        const ref = database.ref('favorites/' + safeKey);
+        
+        if (favoritedFiles.has(name)) {
+            ref.remove();
+            showToast("Dihapus dari favorit", "info");
+        } else {
+            ref.set(true);
+            showToast("Ditambahkan ke favorit", "success");
+        }
+    }
+
+
+    // ==========================================
+    // 2. APLIKASI CLOUD STORAGE UTAMA
+    // ==========================================
     const WORKER_URL = "https://cloud.aam-zip.workers.dev"; 
 
     let allFilesData = []; 
@@ -358,7 +333,6 @@
     let isUploading = false;
     let uploadQueue = [];
 
-    // UI Tools (Toast & Dialog)
     function showToast(message, type = 'info') {
         const container = document.getElementById('toastContainer');
         const toast = document.createElement('div');
@@ -371,16 +345,21 @@
     }
 
     let dialogResolve = null;
-    function showCustomDialog({ title, message, isPrompt = false, defaultValue = '', isDanger = false }) {
+    function showCustomDialog({ title, message, isPrompt = false, defaultValue = '', isDanger = false, confirmText = 'OK' }) {
         return new Promise((resolve) => {
             dialogResolve = resolve;
             document.getElementById('dialogTitle').innerText = title;
             document.getElementById('dialogMsg').innerText = message;
+            
             const input = document.getElementById('dialogInput');
             const confirmBtn = document.getElementById('dialogConfirmBtn');
+            
+            confirmBtn.innerText = confirmText; 
+            confirmBtn.className = `btn-dialog ${isDanger ? 'danger' : 'confirm'}`;
+
             if (isPrompt) { input.style.display = 'block'; input.value = defaultValue; setTimeout(() => input.focus(), 50); } 
             else { input.style.display = 'none'; }
-            confirmBtn.className = `btn-dialog ${isDanger ? 'danger' : 'confirm'}`;
+            
             document.getElementById('customDialog').style.display = 'flex';
         });
     }
@@ -395,7 +374,6 @@
         dialogResolve = null;
     }
 
-    // Format & Metadata
     function formatSize(bytes) {
         if (!bytes || bytes === 0) return '0 B';
         const k = 1024, sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
@@ -408,14 +386,13 @@
         if (['jpg','jpeg','png','gif','webp','svg'].includes(ext)) return { type: 'img', icon: 'fa-regular fa-image', color: '#4f46e5', bg: '#eef2ff' };
         if (['mp4','webm','mkv','mov'].includes(ext)) return { type: 'video', icon: 'fa-solid fa-film', color: '#8b5cf6', bg: '#f5f3ff' };
         if (['zip','rar','7z','tar','gz'].includes(ext)) return { type: 'archive', icon: 'fa-solid fa-file-zipper', color: '#f59e0b', bg: '#fffbeb' };
-        if (['apk','apks','xapk'].includes(ext)) return { type: 'apk', icon: 'fa-brands fa-android', color: '#10b981', bg: '#ecfdf5' };
+        if (['apk','apks','xapk','apkm'].includes(ext)) return { type: 'apk', icon: 'fa-brands fa-android', color: '#10b981', bg: '#ecfdf5' };
         if (ext === 'pdf') return { type: 'doc', icon: 'fa-solid fa-file-pdf', color: '#ef4444', bg: '#fef2f2' };
-        if (['doc','docx','xls','xlsx','ppt','pptx'].includes(ext)) return { type: 'doc', icon: 'fa-solid fa-file-lines', color: '#0ea5e9', bg: '#f0f9ff' };
+        if (['doc','docx','xls','xlsx','ppt','pptx','html','json','txt'].includes(ext)) return { type: 'doc', icon: 'fa-solid fa-file-lines', color: '#0ea5e9', bg: '#f0f9ff' };
         if (['mp3','wav','ogg'].includes(ext)) return { type: 'audio', icon: 'fa-solid fa-music', color: '#ec4899', bg: '#fdf2f8' };
         return { type: 'file', icon: 'fa-solid fa-file', color: '#64748b', bg: '#f1f5f9' };
     }
 
-    // API & Render
     async function loadFiles() {
         document.getElementById('fileCount').innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
         try {
@@ -426,7 +403,6 @@
             const sumBadge = document.getElementById('storageSummary');
             sumBadge.style.display = 'inline-flex';
             
-            // Teks diringkas agar icon + nilai saja yang tampil di HP
             sumBadge.innerHTML = `<i class="fa-solid fa-hard-drive"></i> ${formatSize(totalBytes)}`;
             document.getElementById('fileCount').innerHTML = `<i class="fa-solid fa-file"></i> ${allFilesData.length}`;
             
@@ -445,7 +421,7 @@
             grid.innerHTML = `
                 <div class="empty-state">
                     <i class="fa-regular fa-folder-open"></i>
-                    <h3>Drive Kosong</h3>
+                    <h3>Tidak ada file</h3>
                 </div>
             `; return;
         }
@@ -454,11 +430,24 @@
             const meta = getFileMeta(file.name);
             const dateStr = new Date(file.uploaded).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
             
+            // Cek apakah file difavoritkan
+            const isFav = favoritedFiles.has(file.name);
+            const starIconClass = isFav ? 'fa-solid fa-star' : 'fa-regular fa-star';
+            const starBtnClass = isFav ? 'btn-star active' : 'btn-star';
+            const actionStarClass = isFav ? 'btn-action star-action active' : 'btn-action star-action';
+
             const card = document.createElement('div');
             card.className = 'file-card';
             card.innerHTML = `
                 <div class="preview-box" onclick="handlePreview('${file.download_url}', '${file.name}')">
-                    <span class="badge-type" style="color: ${meta.color};">${file.name.split('.').pop().toUpperCase()}</span>
+                    <!-- Bintang & Tipe File (Kiri ke Kanan) -->
+                    <div class="top-right-badges">
+                        <button class="${starBtnClass}" onclick="toggleFavorite(event, '${file.name}')" title="Favorit">
+                            <i class="${starIconClass}"></i>
+                        </button>
+                        <span class="badge-type" style="color: ${meta.color};">${file.name.split('.').pop().toUpperCase()}</span>
+                    </div>
+
                     ${meta.type === 'img' ? `<img src="${file.download_url}" loading="lazy">` : `<div class="file-icon-wrapper" style="background:${meta.bg}; color:${meta.color};"><i class="${meta.icon}"></i></div>`}
                 </div>
                 <div class="file-info">
@@ -466,6 +455,8 @@
                     <div class="file-meta"><span class="file-size-tag">${formatSize(file.size)}</span><span>${dateStr}</span></div>
                 </div>
                 <div class="actions">
+                    <!-- Tombol Bintang untuk Mode List -->
+                    <button class="${actionStarClass}" onclick="toggleFavorite(event, '${file.name}')" title="Favorit"><i class="${starIconClass}"></i></button>
                     <button class="btn-action" onclick="copyLink('${file.download_url}', this)" title="Salin"><i class="fa-regular fa-copy"></i></button>
                     <button class="btn-action" onclick="renameFile('${file.name}')" title="Ubah Nama"><i class="fa-regular fa-pen-to-square"></i></button>
                     <button class="btn-action" onclick="downloadFile('${file.download_url}', '${file.name}')" title="Download"><i class="fa-solid fa-arrow-down"></i></button>
@@ -476,12 +467,13 @@
         });
     }
 
-    // Filter & Sort Logic
     function searchFiles() { applyFilters(); }
+    
     function filterByType(type, btn) {
         currentFilter = type;
         document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active'); applyFilters();
+        btn.classList.add('active'); 
+        applyFilters();
     }
     
     function applyFilters() {
@@ -489,9 +481,17 @@
         const query = document.getElementById('searchInput').value.toLowerCase();
         const sortVal = document.getElementById('sortSelect').value;
         
+        // Filter Pencarian
         if (query) filtered = filtered.filter(f => f.name.toLowerCase().includes(query));
-        if (currentFilter !== 'all') filtered = filtered.filter(f => getFileMeta(f.name).type === currentFilter);
+        
+        // Filter Tipe / Favorit
+        if (currentFilter === 'favorite') {
+            filtered = filtered.filter(f => favoritedFiles.has(f.name));
+        } else if (currentFilter !== 'all') {
+            filtered = filtered.filter(f => getFileMeta(f.name).type === currentFilter);
+        }
 
+        // Pengurutan
         filtered.sort((a, b) => {
             if (sortVal === 'date-desc') return new Date(b.uploaded) - new Date(a.uploaded);
             if (sortVal === 'date-asc') return new Date(a.uploaded) - new Date(b.uploaded);
@@ -500,12 +500,10 @@
             if (sortVal === 'name-asc') return a.name.localeCompare(b.name);
             if (sortVal === 'name-desc') return b.name.localeCompare(a.name);
         });
+        
         renderFiles(filtered);
     }
 
-    // ==========================================
-    // UPLOAD SYSTEM
-    // ==========================================
     function handleFileSelection(e) {
         if (!e.target.files.length) return;
         uploadQueue.push(...Array.from(e.target.files));
@@ -552,11 +550,26 @@
         xhr.send(file);
     }
 
-    // Actions
-    function downloadFile(url, name) {
-        const a = document.createElement('a'); a.href = url; a.download = name; a.target = '_blank';
-        document.body.appendChild(a); a.click(); document.body.removeChild(a);
-        showToast("Proses download...", "info");
+    async function downloadFile(url, name) {
+        const confirmDownload = await showCustomDialog({ 
+            title: "Unduh File", 
+            message: `Ingin menyimpan "${name}" ke perangkat Anda?`, 
+            isDanger: false, 
+            confirmText: "Download" 
+        });
+        
+        if (!confirmDownload) return;
+
+        const downloadUrl = url + "?download=true";
+        const a = document.createElement('a'); 
+        a.href = downloadUrl; 
+        a.download = name; 
+        a.target = '_blank';
+        document.body.appendChild(a); 
+        a.click(); 
+        document.body.removeChild(a);
+        
+        showToast("Memulai download...", "info");
     }
 
     function handlePreview(url, name) {
@@ -565,20 +578,36 @@
         document.getElementById('previewModal').style.display = 'flex';
         body.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin" style="color:white; font-size:2rem;"></i>';
         
-        if (['jpg','jpeg','png','gif','webp'].includes(ext)) { body.innerHTML = `<img src="${url}" style="max-width:100%; max-height:100%; object-fit:contain;">`; } 
-        else if (['mp4','webm'].includes(ext)) { body.innerHTML = `<video src="${url}" controls autoplay style="width:100%; max-height:100%;"></video>`; } 
-        else if (['pdf','txt'].includes(ext)) { body.innerHTML = `<iframe src="${url}" style="width:100%; height:100%; border:none; background:white;"></iframe>`; } 
-        else { closePreview(); downloadFile(url, name); }
+        if (['jpg','jpeg','png','gif','webp'].includes(ext)) { 
+            body.innerHTML = `<img src="${url}" style="max-width:100%; max-height:100%; object-fit:contain;">`; 
+        } 
+        else if (['mp4','webm'].includes(ext)) { 
+            body.innerHTML = `<video src="${url}" controls autoplay style="width:100%; max-height:100%;"></video>`; 
+        } 
+        else if (['pdf','txt','html','json'].includes(ext)) { 
+            body.innerHTML = `<iframe src="${url}" style="width:100%; height:100%; border:none; background:white;"></iframe>`; 
+        } 
+        else { 
+            closePreview(); 
+            downloadFile(url, name); 
+        }
     }
 
     function closePreview() { document.getElementById('previewModal').style.display = 'none'; document.getElementById('modalBody').innerHTML = ''; }
     
     async function renameFile(old) {
-        const nw = await showCustomDialog({ title: "Ubah Nama", message: "Nama baru:", isPrompt: true, defaultValue: old });
+        const nw = await showCustomDialog({ title: "Ubah Nama", message: "Nama baru:", isPrompt: true, defaultValue: old, confirmText: "Simpan" });
         if (!nw || nw === old) return;
         let final = nw.includes('.') ? nw : nw + '.' + old.split('.').pop();
         try {
             await fetch(`${WORKER_URL}/${encodeURIComponent(old)}`, { method: 'POST', body: JSON.stringify({ action: "rename", newName: final }) });
+            
+            // JIKA FILE DIUBAH NAMANYA, PINDAHKAN FAVORITNYA JUGA
+            if (favoritedFiles.has(old)) {
+                database.ref('favorites/' + encodeFirebaseKey(old)).remove();
+                database.ref('favorites/' + encodeFirebaseKey(final)).set(true);
+            }
+
             showToast("Nama diubah", "success"); loadFiles();
         } catch(e) { showToast("Gagal mengubah", "error"); }
     }
@@ -592,10 +621,16 @@
     }
 
     async function deleteFile(name) {
-        const conf = await showCustomDialog({ title: "Hapus File", message: `Hapus permanen ${name}?`, isDanger: true });
+        const conf = await showCustomDialog({ title: "Hapus File", message: `Hapus permanen ${name}?`, isDanger: true, confirmText: "Hapus" });
         if (!conf) return;
         try {
             await fetch(`${WORKER_URL}/${encodeURIComponent(name)}`, { method: 'DELETE' });
+            
+            // HAPUS DARI DAFTAR FAVORIT (JIKA ADA)
+            if (favoritedFiles.has(name)) {
+                database.ref('favorites/' + encodeFirebaseKey(name)).remove();
+            }
+
             showToast("Dihapus", "success"); loadFiles();
         } catch(e) { showToast("Gagal menghapus", "error"); }
     }
@@ -606,7 +641,6 @@
         btn.classList.add('active');
     }
 
-    // Init
     loadFiles();
 </script>
 </body>
